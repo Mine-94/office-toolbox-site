@@ -1,7 +1,9 @@
+import io
 import os
 import subprocess
 import tempfile
 import uuid
+import zipfile
 from pathlib import Path
 
 from flask import (
@@ -15,6 +17,8 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageOps
+from pypdf import PdfReader, PdfWriter
+from pdf2docx import Converter
 
 app = Flask(__name__)
 
@@ -46,15 +50,15 @@ TOOLS = [
         "slug": "pdf-to-word",
         "icon": "📝",
         "title": "PDF → Word 변환",
-        "desc": "준비 중이에요. 곧 추가될 예정입니다.",
-        "available": False,
+        "desc": "PDF 문서를 편집 가능한 Word(.docx) 파일로 변환해요.",
+        "available": True,
     },
     {
         "slug": "pdf-merge-split",
         "icon": "🗂️",
         "title": "PDF 병합·분할",
-        "desc": "준비 중이에요. 곧 추가될 예정입니다.",
-        "available": False,
+        "desc": "여러 PDF를 하나로 합치거나, 한 PDF를 원하는 대로 나눠요.",
+        "available": True,
     },
 ]
 
@@ -161,6 +165,87 @@ def process_image(input_path: Path, output_path: Path, quality: str, resize: str
 
 
 # ---------------------------------------------------------------------------
+# PDF → Word 변환 (pdf2docx)
+# ---------------------------------------------------------------------------
+def convert_pdf_to_docx(input_path: Path, output_path: Path) -> None:
+    cv = Converter(str(input_path))
+    try:
+        cv.convert(str(output_path))
+    finally:
+        cv.close()
+
+
+# ---------------------------------------------------------------------------
+# PDF 병합 · 분할 (pypdf)
+# ---------------------------------------------------------------------------
+def merge_pdfs(input_paths, output_path: Path) -> None:
+    writer = PdfWriter()
+    for p in input_paths:
+        reader = PdfReader(str(p))
+        if reader.is_encrypted:
+            raise RuntimeError("암호가 걸린 PDF는 지원하지 않습니다.")
+        for page in reader.pages:
+            writer.add_page(page)
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+
+def parse_page_ranges(range_str: str, total_pages: int) -> list:
+    pages = []
+    parts = [p.strip() for p in range_str.split(",") if p.strip()]
+    if not parts:
+        raise ValueError("페이지 범위를 입력해주세요. 예: 1-3, 5, 7-9")
+    for part in parts:
+        if "-" in part:
+            a_str, b_str = part.split("-", 1)
+            try:
+                a, b = int(a_str), int(b_str)
+            except ValueError:
+                raise ValueError(f"잘못된 페이지 범위입니다: {part}")
+            if a < 1 or b > total_pages or a > b:
+                raise ValueError(f"잘못된 페이지 범위입니다: {part} (전체 {total_pages}페이지)")
+            pages.extend(range(a - 1, b))
+        else:
+            try:
+                n = int(part)
+            except ValueError:
+                raise ValueError(f"잘못된 페이지 번호입니다: {part}")
+            if n < 1 or n > total_pages:
+                raise ValueError(f"잘못된 페이지 번호입니다: {part} (전체 {total_pages}페이지)")
+            pages.append(n - 1)
+    return pages
+
+
+def split_pdf_range(input_path: Path, output_path: Path, range_str: str) -> None:
+    reader = PdfReader(str(input_path))
+    if reader.is_encrypted:
+        raise RuntimeError("암호가 걸린 PDF는 지원하지 않습니다.")
+    total = len(reader.pages)
+    pages = parse_page_ranges(range_str, total)
+    writer = PdfWriter()
+    for i in pages:
+        writer.add_page(reader.pages[i])
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+
+def split_pdf_individual(input_path: Path, output_zip_path: Path) -> int:
+    reader = PdfReader(str(input_path))
+    if reader.is_encrypted:
+        raise RuntimeError("암호가 걸린 PDF는 지원하지 않습니다.")
+    total = len(reader.pages)
+    with zipfile.ZipFile(output_zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for i in range(total):
+            writer = PdfWriter()
+            writer.add_page(reader.pages[i])
+            buf = io.BytesIO()
+            writer.write(buf)
+            buf.seek(0)
+            zf.writestr(f"page_{i + 1:03d}.pdf", buf.read())
+    return total
+
+
+# ---------------------------------------------------------------------------
 # 페이지 라우트
 # ---------------------------------------------------------------------------
 @app.route("/")
@@ -176,6 +261,16 @@ def pdf_compress_page():
 @app.route("/image-compress")
 def image_compress_page():
     return render_template("image_compress.html", page="image-compress", site_name=SITE_NAME)
+
+
+@app.route("/pdf-to-word")
+def pdf_to_word_page():
+    return render_template("pdf_to_word.html", page="pdf-to-word", site_name=SITE_NAME)
+
+
+@app.route("/pdf-merge-split")
+def pdf_merge_split_page():
+    return render_template("pdf_merge_split.html", page="pdf-merge-split", site_name=SITE_NAME)
 
 
 @app.route("/about")
@@ -417,6 +512,182 @@ def api_image_download(job_id):
 
     return send_file(
         target,
+        as_attachment=True,
+        download_name=download_name,
+        mimetype=mimetype,
+    )
+
+
+# ---------------------------------------------------------------------------
+# API - PDF → Word 변환
+# ---------------------------------------------------------------------------
+@app.route("/api/pdf-to-word/convert", methods=["POST"])
+def api_pdf_to_word():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    if not file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "document.pdf"
+    input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
+    output_path = UPLOAD_DIR / f"{job_id}_out.docx"
+
+    file.save(input_path)
+
+    try:
+        convert_pdf_to_docx(input_path, output_path)
+    except Exception as exc:  # noqa: BLE001
+        input_path.unlink(missing_ok=True)
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": f"변환에 실패했습니다. 텍스트 기반 PDF만 지원합니다. ({exc})"}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    if not output_path.exists():
+        return jsonify({"error": "변환에 실패했습니다."}), 500
+
+    download_name = safe_name.rsplit(".", 1)[0] + ".docx"
+
+    return jsonify(
+        {
+            "job_id": job_id,
+            "download_url": f"/api/pdf-to-word/download/{job_id}?name={download_name}",
+        }
+    )
+
+
+@app.route("/api/pdf-to-word/download/<job_id>")
+def api_pdf_to_word_download(job_id):
+    safe_job_id = secure_filename(job_id)
+    out_path = UPLOAD_DIR / f"{safe_job_id}_out.docx"
+    if not out_path.exists():
+        return jsonify({"error": "파일을 찾을 수 없습니다. 다시 시도해주세요."}), 404
+
+    download_name = request.args.get("name", "converted.docx")
+
+    @after_this_request
+    def cleanup(response):
+        try:
+            out_path.unlink(missing_ok=True)
+        except Exception:  # noqa: BLE001
+            pass
+        return response
+
+    return send_file(
+        out_path,
+        as_attachment=True,
+        download_name=download_name,
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
+
+
+# ---------------------------------------------------------------------------
+# API - PDF 병합 · 분할
+# ---------------------------------------------------------------------------
+@app.route("/api/pdf-merge-split/merge", methods=["POST"])
+def api_pdf_merge():
+    files = [f for f in request.files.getlist("files") if f and f.filename]
+    if len(files) < 2:
+        return jsonify({"error": "합칠 PDF 파일을 2개 이상 선택해주세요."}), 400
+    for f in files:
+        if not f.filename.lower().endswith(".pdf"):
+            return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+
+    job_id = uuid.uuid4().hex
+    input_paths = []
+    for i, f in enumerate(files):
+        p = UPLOAD_DIR / f"{job_id}_in{i}.pdf"
+        f.save(p)
+        input_paths.append(p)
+    output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
+
+    try:
+        merge_pdfs(input_paths, output_path)
+    except Exception as exc:  # noqa: BLE001
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": str(exc)}), 500
+    finally:
+        for p in input_paths:
+            p.unlink(missing_ok=True)
+
+    return jsonify(
+        {
+            "job_id": job_id,
+            "download_url": f"/api/pdf-merge-split/download/{job_id}?name=merged.pdf&type=pdf",
+        }
+    )
+
+
+@app.route("/api/pdf-merge-split/split", methods=["POST"])
+def api_pdf_split():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+
+    file = request.files["file"]
+    mode = request.form.get("mode", "individual")
+    page_range = request.form.get("range", "")
+
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    if not file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "document.pdf"
+    input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
+    file.save(input_path)
+
+    try:
+        if mode == "range":
+            output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
+            split_pdf_range(input_path, output_path, page_range)
+            download_name = safe_name.rsplit(".", 1)[0] + "_split.pdf"
+            file_type = "pdf"
+        else:
+            output_path = UPLOAD_DIR / f"{job_id}_out.zip"
+            split_pdf_individual(input_path, output_path)
+            download_name = safe_name.rsplit(".", 1)[0] + "_pages.zip"
+            file_type = "zip"
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": str(exc)}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    return jsonify(
+        {
+            "job_id": job_id,
+            "download_url": f"/api/pdf-merge-split/download/{job_id}?name={download_name}&type={file_type}",
+        }
+    )
+
+
+@app.route("/api/pdf-merge-split/download/<job_id>")
+def api_pdf_merge_split_download(job_id):
+    safe_job_id = secure_filename(job_id)
+    file_type = request.args.get("type", "pdf")
+    ext = ".zip" if file_type == "zip" else ".pdf"
+    out_path = UPLOAD_DIR / f"{safe_job_id}_out{ext}"
+    if not out_path.exists():
+        return jsonify({"error": "파일을 찾을 수 없습니다. 다시 시도해주세요."}), 404
+
+    download_name = request.args.get("name", f"result{ext}")
+    mimetype = "application/zip" if file_type == "zip" else "application/pdf"
+
+    @after_this_request
+    def cleanup(response):
+        try:
+            out_path.unlink(missing_ok=True)
+        except Exception:  # noqa: BLE001
+            pass
+        return response
+
+    return send_file(
+        out_path,
         as_attachment=True,
         download_name=download_name,
         mimetype=mimetype,

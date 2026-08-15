@@ -177,6 +177,77 @@ h1, h2, h3 {
   padding: 3px 8px;
 }
 
+/* Tool tabs (merge/split) */
+.tool-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.tool-tab {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+.tool-tab.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--cream);
+}
+
+/* Merge file list */
+.file-list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+.file-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  background: #fffdf9;
+}
+.file-list-remove {
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 6px;
+}
+.file-list-remove:hover { color: #8a3324; }
+
+.range-input {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto 24px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fffdf9;
+  color: var(--ink);
+  text-align: center;
+}
+
 /* Drop zone */
 .drop-zone {
   background: #fffdf9;
