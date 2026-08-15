@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}소개 — 사무실 공구함{% endblock %}
+{% block content %}
+<section class="container page">
+  <span class="eyebrow">ABOUT</span>
+  <h1>사무실 공구함 소개</h1>
+  <p>사무실 공구함(Office Tools)은 사무직에서 자주 사용하는 파일 처리 작업을 무료로 빠르게 해결할 수 있도록 만든 온라인 도구 모음입니다.</p>
+
+  <h2>왜 만들었나요</h2>
+  <p>PDF 압축, 이미지 압축처럼 사소하지만 자주 필요한 작업을 별도 프로그램 설치나 회원가입 없이 브라우저에서 바로 처리할 수 있도록 하기 위해 만들었습니다.</p>
+
+  <h2>제공 중인 도구</h2>
+  <p>현재 PDF 압축, 이미지 압축 기능을 제공하고 있으며, PDF↔Word 변환, PDF 병합·분할 등 사무직에게 유용한 도구를 계속 추가할 예정입니다.</p>
+
+  <h2>파일 처리 방식</h2>
+  <p>업로드된 파일은 처리 완료 즉시 서버에서 자동으로 삭제됩니다. 자세한 내용은 <a href="{{ url_for('privacy') }}">개인정보처리방침</a>을 참고해주세요.</p>
+</section>
+{% endblock %}

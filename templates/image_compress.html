@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}이미지 압축 — 사무실 공구함{% endblock %}
+{% block description %}JPG, PNG, WEBP 이미지를 무료로 압축하고 리사이즈하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">IMAGE COMPRESS</span>
+  <h1>이미지 압축</h1>
+  <p class="subtitle">JPG·PNG·WEBP 이미지를 리사이즈하고 압축해드려요.</p>
+
+  <div id="drop-zone" class="drop-zone">
+    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
+    <div id="drop-zone-empty">
+      <div class="drop-icon">🖼️</div>
+      <p><strong>이미지를 여기로 끌어다 놓으세요</strong></p>
+      <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
+      <p class="hint">최대 30MB · 파일은 서버에 저장되지 않습니다</p>
+    </div>
+
+    <div id="file-selected" class="hidden">
+      <div class="file-info">
+        <img id="preview-thumb" class="preview-thumb" alt="">
+        <div>
+          <p id="file-name" class="file-name"></p>
+          <p id="file-size" class="file-size"></p>
+        </div>
+      </div>
+
+      <div class="quality-options">
+        <p class="option-label">크기</p>
+        <label class="quality-option">
+          <input type="radio" name="resize" value="100" checked>
+          <span>원본 크기 <em>(100%)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="resize" value="75">
+          <span>75% <em>(약간 축소)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="resize" value="50">
+          <span>50% <em>(절반 축소)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="resize" value="25">
+          <span>25% <em>(최대 축소)</em></span>
+        </label>
+      </div>
+
+      <div class="quality-options">
+        <p class="option-label">화질</p>
+        <label class="quality-option">
+          <input type="radio" name="quality" value="high">
+          <span>고화질 <em>(압축률 낮음)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="quality" value="medium" checked>
+          <span>보통 <em>(권장)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="quality" value="low">
+          <span>최대 압축 <em>(화질 저하 있음)</em></span>
+        </label>
+      </div>
+
+      <button type="button" id="compress-btn" class="btn btn-primary btn-large">압축하기</button>
+      <button type="button" id="reset-btn" class="btn btn-text">취소</button>
+    </div>
+
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>처리 중입니다...</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="result-icon">✅</div>
+      <p class="result-title">처리 완료!</p>
+      <div class="result-stats">
+        <div><span id="original-size"></span><small>원본</small></div>
+        <div class="arrow">→</div>
+        <div><span id="compressed-size"></span><small>압축 후</small></div>
+        <div class="ratio-badge" id="ratio-badge"></div>
+      </div>
+      <p class="dimension-note" id="dimension-note"></p>
+      <a id="download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
+      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 압축하기</button>
+    </div>
+
+    <div id="error" class="hidden">
+      <p class="error-text" id="error-text"></p>
+      <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
+    </div>
+  </div>
+
+  <div class="ad-slot" id="ad-slot-below-tool"></div>
+</section>
+
+<section class="features container">
+  <div class="feature">
+    <h3>빠른 처리</h3>
+    <p>업로드 즉시 처리되어 몇 초 안에 결과를 받아요.</p>
+  </div>
+  <div class="feature">
+    <h3>안전한 파일 관리</h3>
+    <p>처리 후 파일은 서버에서 자동 삭제돼요.</p>
+  </div>
+  <div class="feature">
+    <h3>무료 · 무제한</h3>
+    <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>어떤 이미지 형식을 지원하나요?</summary>
+    <p>JPG, PNG, WEBP 형식을 지원합니다.</p>
+  </details>
+  <details>
+    <summary>화질이 많이 떨어지나요?</summary>
+    <p>"보통" 옵션은 육안으로 거의 차이가 없으면서 용량을 크게 줄여줍니다.</p>
+  </details>
+  <details>
+    <summary>파일이 서버에 저장되나요?</summary>
+    <p>아니요. 처리 후 원본과 결과 파일은 즉시 삭제됩니다.</p>
+  </details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('file-input');
+  const preview = document.getElementById('preview-thumb');
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (file) preview.src = URL.createObjectURL(file);
+  });
+  document.getElementById('drop-zone').addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files[0];
+    if (file) preview.src = URL.createObjectURL(file);
+  });
+});
+</script>
+<script src="{{ url_for('static', filename='js/image-compress.js') }}"></script>
+{% endblock %}

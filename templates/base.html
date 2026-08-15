@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}사무실 공구함 — 사무직을 위한 무료 온라인 문서 도구 모음 (Office Tools){% endblock %}</title>
+<meta name="description" content="{% block description %}PDF 압축, 이미지 압축 등 사무직에서 자주 쓰는 문서 도구를 한 곳에서. 설치 없이 무료로 바로 사용하세요. (Office Tools for professionals)">{% endblock %}
+<link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ request.path }}">
+<meta property="og:title" content="{% block og_title %}사무실 공구함 — Office Tools{% endblock %}">
+<meta property="og:description" content="{% block og_description %}사무직 필수 온라인 문서 도구 모음{% endblock %}">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<!-- TODO: 배포 후 실제 애드센스/GA4 값으로 교체 -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script> -->
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" href="{{ url_for('home') }}">사무실<span> 공구함</span></a>
+    <p class="tagline">Office Tools — 사무직을 위한 무료 도구 모음</p>
+    <nav class="nav">
+      <a href="{{ url_for('home') }}">홈</a>
+      <a href="{{ url_for('pdf_compress_page') }}">PDF압축</a>
+      <a href="{{ url_for('image_compress_page') }}">이미지압축</a>
+      <a href="{{ url_for('about') }}">소개</a>
+      <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
+      <a href="{{ url_for('terms') }}">이용약관</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>&copy; 2026 사무실 공구함</p>
+    <div class="footer-links">
+      <a href="{{ url_for('about') }}">소개</a>
+      <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
+      <a href="{{ url_for('terms') }}">이용약관</a>
+    </div>
+  </div>
+  <p class="footer-brand">Crafted by <a href="https://lichtbringer.online/" target="_blank" rel="noopener">Lichtbringer</a></p>
+</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>
