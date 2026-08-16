@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}사무실 공구함 — 사무직을 위한 무료 온라인 문서 도구 모음 (Office Tools){% endblock %}</title>
-<meta name="description" content="{% block description %}PDF 압축, 이미지 압축 등 사무직에서 자주 쓰는 문서 도구를 한 곳에서. 설치 없이 무료로 바로 사용하세요. (Office Tools for professionals)">{% endblock %}
+<title>{% block title %}사무실 공구함 — 사무직을 위한 무료 온라인 문서 도구 모음 (OFFICE TOOLBOX){% endblock %}</title>
+<meta name="description" content="{% block description %}PDF 압축, 이미지 압축 등 사무직에서 자주 쓰는 문서 도구를 한 곳에서. 설치 없이 무료로 바로 사용하세요. (Office Toolbox for professionals)">{% endblock %}
 <link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ request.path }}">
-<meta property="og:title" content="{% block og_title %}사무실 공구함 — Office Tools{% endblock %}">
+<meta property="og:title" content="{% block og_title %}사무실 공구함 — OFFICE TOOLBOX{% endblock %}">
 <meta property="og:description" content="{% block og_description %}사무직 필수 온라인 문서 도구 모음{% endblock %}">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,17 +27,14 @@
 <header class="site-header">
   <div class="header-inner">
     <a class="logo" href="{{ url_for('home') }}">사무실<span> 공구함</span></a>
-    <p class="tagline">Office Tools — 사무직을 위한 무료 도구 모음</p>
+    <p class="tagline">OFFICE TOOLBOX — 업무 중 필요한 작은 도구를 한곳에.</p>
     <nav class="nav">
-      <a href="{{ url_for('home') }}">홈</a>
-      <a href="{{ url_for('pdf_compress_page') }}">PDF압축</a>
-      <a href="{{ url_for('image_compress_page') }}">이미지압축</a>
-      <a href="{{ url_for('pdf_to_word_page') }}">PDF→Word</a>
-      <a href="{{ url_for('pdf_merge_split_page') }}">PDF병합·분할</a>
       <a href="{{ url_for('home') }}#tools">전체 도구</a>
+      <a href="{{ url_for('home') }}#pdf">PDF</a>
+      <a href="{{ url_for('home') }}#image">이미지</a>
+      <a href="{{ url_for('home') }}#text">텍스트·데이터</a>
+      <a href="{{ url_for('home') }}#calculator">계산기</a>
       <a href="{{ url_for('about') }}">소개</a>
-      <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
-      <a href="{{ url_for('terms') }}">이용약관</a>
     </nav>
   </div>
 </header>

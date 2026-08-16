@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}연봉 실수령액 계산기 — 사무실 공구함{% endblock %}
 {% block description %}4대보험료와 세금을 반영한 월 실수령액을 무료로 계산해보세요.{% endblock %}
 {% block content %}
@@ -31,8 +32,26 @@
   <div id="calc-result" class="calc-result hidden"></div>
 
   <p class="hint" style="margin-top: 16px;">⚠️ 이 계산 결과는 참고용 추정치입니다. 실제 원천징수세액은 국세청 간이세액표 기준으로 다를 수 있어요.</p>
+</section>
 
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>이직 연봉 비교</h4>
+      <p>이직 제안받은 연봉의 실수령액을 미리 계산해볼 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>연봉 협상 준비</h4>
+      <p>협상 전에 세전 연봉별 실수령액 차이를 파악할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>가계 계획</h4>
+      <p>매달 들어올 실수령액을 기준으로 예산을 계획할 때.</p>
+    </div>
+  </div>
 </section>
 
 <section class="faq container">
@@ -46,6 +65,17 @@
     <p>국민연금 4.75%, 건강보험 3.595%, 장기요양보험(건강보험료의 13.14%), 고용보험 0.9%를 반영해요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('severance_calculator_page') }}">{{ icon("severance-calculator") }}퇴직금 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('text_diff_page') }}">{{ icon("text-diff") }}텍스트 비교</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF → Excel 변환</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/salary-calculator.js') }}"></script>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}이미지 압축 — 사무실 공구함{% endblock %}
 {% block description %}JPG, PNG, WEBP 이미지를 무료로 압축하고 리사이즈하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
 {% block content %}
@@ -10,7 +11,7 @@
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
     <div id="drop-zone-empty">
-      <div class="drop-icon">🖼️</div>
+      <div class="drop-icon">{{ icon("image-compress") }}</div>
       <p><strong>이미지를 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
       <p class="hint">최대 30MB · 파일은 서버에 저장되지 않습니다</p>
@@ -71,7 +72,7 @@
     </div>
 
     <div id="result" class="hidden">
-      <div class="result-icon">✅</div>
+      <div class="result-icon">{{ icon("check-circle") }}</div>
       <p class="result-title">처리 완료!</p>
       <div class="result-stats">
         <div><span id="original-size"></span><small>원본</small></div>
@@ -89,8 +90,6 @@
       <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -105,6 +104,26 @@
   <div class="feature">
     <h3>무료 · 무제한</h3>
     <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>메일 첨부용 사진 최적화</h4>
+      <p>큰 용량의 사진을 메일 첨부 제한에 맞게 줄일 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>웹·블로그 업로드</h4>
+      <p>웹사이트나 블로그에 올리기 전에 로딩 속도를 위해 용량을 줄일 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>메신저 전송 전 정리</h4>
+      <p>카카오톡·슬랙 등으로 여러 장을 보내기 전에 용량을 줄일 때.</p>
+    </div>
   </div>
 </section>
 
@@ -123,6 +142,17 @@
     <p>아니요. 처리 후 원본과 결과 파일은 즉시 삭제됩니다.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('image_convert_page') }}">{{ icon("image-convert") }}이미지 포맷 변환</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+    <a class="related-tool-link" href="{{ url_for('qr_code_page') }}">{{ icon("qr-code") }}QR코드 생성기</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script>

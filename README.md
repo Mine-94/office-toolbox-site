@@ -1,4 +1,4 @@
-# 사무실 공구함 (Office Tools)
+# 사무실 공구함 (OFFICE TOOLBOX)
 
 사무직에서 자주 쓰는 온라인 문서 도구 모음. 기존 pdf-compress-site, image-compress-site를 하나의 허브로 통합.
 

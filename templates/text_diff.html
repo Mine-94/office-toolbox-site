@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}텍스트 비교 — 사무실 공구함{% endblock %}
 {% block description %}두 텍스트를 비교해서 달라진 부분을 무료로 한눈에 확인하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
 {% block content %}
@@ -21,8 +22,6 @@
   <button type="button" id="compare-btn" class="btn btn-primary btn-large">비교하기</button>
 
   <div id="diff-result" class="diff-result hidden"></div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -40,6 +39,26 @@
   </div>
 </section>
 
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>계약서 수정본 비교</h4>
+      <p>상대방이 수정해서 보낸 계약서와 원본의 차이를 빠르게 확인할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>코드·설정값 비교</h4>
+      <p>두 버전의 텍스트나 설정 파일에서 달라진 부분을 찾을 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>번역·교정 검토</h4>
+      <p>번역본이나 교정된 원고에서 바뀐 문장을 확인할 때.</p>
+    </div>
+  </div>
+</section>
+
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
   <details>
@@ -51,6 +70,17 @@
     <p>현재는 줄 단위 비교만 지원해요. 단어 단위 비교는 추후 추가될 예정입니다.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('ocr_page') }}">{{ icon("ocr") }}OCR 텍스트 추출</a>
+    <a class="related-tool-link" href="{{ url_for('qr_code_page') }}">{{ icon("qr-code") }}QR코드 생성기</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_word_page') }}">{{ icon("pdf-to-word") }}PDF → Word 변환</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/text-diff.js') }}"></script>

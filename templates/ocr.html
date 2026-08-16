@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}이미지·PDF 텍스트 추출 (OCR) — 사무실 공구함{% endblock %}
 {% block description %}이미지나 스캔 PDF 속 텍스트를 무료로 추출하세요. 한국어·영어 인식을 지원합니다.{% endblock %}
 {% block content %}
@@ -10,7 +11,7 @@
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png,.bmp,.tiff,.webp" hidden>
     <div id="drop-zone-empty">
-      <div class="drop-icon">🔤</div>
+      <div class="drop-icon">{{ icon("ocr") }}</div>
       <p><strong>이미지 또는 PDF 파일을 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
       <p class="hint">JPG · PNG · BMP · TIFF · WEBP · PDF (최대 20페이지) · 최대 50MB</p>
@@ -18,7 +19,7 @@
 
     <div id="file-selected" class="hidden">
       <div class="file-info">
-        <span class="file-icon">🔤</span>
+        <span class="file-icon">{{ icon("ocr") }}</span>
         <div>
           <p id="file-name" class="file-name"></p>
           <p id="file-size" class="file-size"></p>
@@ -64,8 +65,6 @@
       <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -83,6 +82,26 @@
   </div>
 </section>
 
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>스캔 문서 텍스트화</h4>
+      <p>스캔된 계약서나 영수증에서 텍스트를 뽑아 편집 가능한 형태로 만들 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>사진 속 문구 추출</h4>
+      <p>화이트보드나 명함 사진에서 텍스트만 빠르게 옮겨 적을 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>옛날 문서 디지털화</h4>
+      <p>종이로만 있던 자료를 검색 가능한 텍스트로 바꿀 때.</p>
+    </div>
+  </div>
+</section>
+
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
   <details>
@@ -94,6 +113,17 @@
     <p>최대 20페이지까지 처리돼요. 그보다 긴 문서는 앞 20페이지만 인식돼요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('pdf_to_word_page') }}">{{ icon("pdf-to-word") }}PDF → Word 변환</a>
+    <a class="related-tool-link" href="{{ url_for('text_diff_page') }}">{{ icon("text-diff") }}텍스트 비교</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF → Excel 변환</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/ocr.js') }}"></script>

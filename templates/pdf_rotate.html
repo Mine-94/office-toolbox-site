@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}PDF 페이지 회전 — 사무실 공구함{% endblock %}
 {% block description %}PDF 페이지를 원하는 방향으로 무료로 회전하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
 {% block content %}
@@ -10,7 +11,7 @@
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept="application/pdf" hidden>
     <div id="drop-zone-empty">
-      <div class="drop-icon">🔄</div>
+      <div class="drop-icon">{{ icon("pdf-rotate") }}</div>
       <p><strong>PDF 파일을 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
       <p class="hint">최대 100MB · 파일은 서버에 저장되지 않습니다</p>
@@ -18,7 +19,7 @@
 
     <div id="file-selected" class="hidden">
       <div class="file-info">
-        <span class="file-icon">📄</span>
+        <span class="file-icon">{{ icon("pdf-rotate") }}</span>
         <div>
           <p id="file-name" class="file-name"></p>
           <p id="file-size" class="file-size"></p>
@@ -50,7 +51,7 @@
     </div>
 
     <div id="result" class="hidden">
-      <div class="result-icon">✅</div>
+      <div class="result-icon">{{ icon("check-circle") }}</div>
       <p class="result-title">완료!</p>
       <a id="download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
       <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
@@ -61,8 +62,6 @@
       <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -80,6 +79,26 @@
   </div>
 </section>
 
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>스캔 방향 보정</h4>
+      <p>스캐너에서 옆으로 눕게 스캔된 문서를 바로잡을 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>제출 서류 정리</h4>
+      <p>일부 페이지만 방향이 다른 PDF를 통일할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>인쇄 전 확인</h4>
+      <p>인쇄하기 전에 페이지 방향을 미리 맞춰둘 때.</p>
+    </div>
+  </div>
+</section>
+
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
   <details>
@@ -91,6 +110,17 @@
     <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('pdf_merge_split_page') }}">{{ icon("pdf-merge-split") }}PDF 병합·분할</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+    <a class="related-tool-link" href="{{ url_for('watermark_page') }}">{{ icon("watermark") }}워터마크 추가</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/pdf-rotate.js') }}"></script>

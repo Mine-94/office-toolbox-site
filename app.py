@@ -36,7 +36,7 @@ pillow_heif.register_heif_opener()
 app = Flask(__name__)
 
 SITE_NAME = "사무실 공구함"
-SITE_TAGLINE = "Office Tools"
+SITE_TAGLINE = "OFFICE TOOLBOX"
 
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB (PDF 쪽이 더 큼)
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
@@ -47,116 +47,155 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 TOOLS = [
     {
         "slug": "pdf-compress",
-        "icon": "📄",
+        "icon": "pdf-compress",
         "title": "PDF 압축",
         "desc": "용량 큰 PDF를 화질 손상 최소화하며 빠르게 줄여요.",
         "available": True,
+        "category": "pdf",
+        "popular": True,
     },
     {
         "slug": "image-compress",
-        "icon": "🖼️",
+        "icon": "image-compress",
         "title": "이미지 압축",
         "desc": "JPG·PNG·WEBP 이미지를 리사이즈하고 압축해요.",
         "available": True,
+        "category": "image",
+        "popular": True,
     },
     {
         "slug": "pdf-to-word",
-        "icon": "📝",
+        "icon": "pdf-to-word",
         "title": "PDF → Word 변환",
         "desc": "PDF 문서를 편집 가능한 Word(.docx) 파일로 변환해요.",
         "available": True,
+        "category": "pdf",
+        "popular": True,
     },
     {
         "slug": "pdf-merge-split",
-        "icon": "🗂️",
+        "icon": "pdf-merge-split",
         "title": "PDF 병합·분할",
         "desc": "여러 PDF를 하나로 합치거나, 한 PDF를 원하는 대로 나눠요.",
         "available": True,
+        "category": "pdf",
+        "popular": True,
     },
     {
         "slug": "watermark",
-        "icon": "💧",
+        "icon": "watermark",
         "title": "워터마크 추가",
         "desc": "PDF에 원하는 텍스트 워터마크를 삽입해요.",
         "available": True,
+        "category": "pdf",
+        "popular": False,
     },
     {
         "slug": "pdf-rotate",
-        "icon": "🔄",
+        "icon": "pdf-rotate",
         "title": "PDF 페이지 회전",
         "desc": "PDF 페이지를 원하는 방향으로 회전해요.",
         "available": True,
+        "category": "pdf",
+        "popular": False,
     },
     {
         "slug": "pdf-password",
-        "icon": "🔒",
+        "icon": "pdf-password",
         "title": "PDF 비밀번호 설정·해제",
         "desc": "PDF에 암호를 걸거나, 알고 있는 암호를 풀어드려요.",
         "available": True,
+        "category": "pdf",
+        "popular": False,
     },
     {
         "slug": "qr-code",
-        "icon": "🔳",
+        "icon": "qr-code",
         "title": "QR코드 생성기",
         "desc": "텍스트나 URL을 입력하면 QR코드 이미지를 만들어드려요.",
         "available": True,
+        "category": "text",
+        "popular": False,
     },
     {
         "slug": "text-diff",
-        "icon": "📑",
+        "icon": "text-diff",
         "title": "텍스트 비교",
         "desc": "두 텍스트를 비교해서 달라진 부분을 한눈에 보여줘요.",
         "available": True,
+        "category": "text",
+        "popular": False,
     },
     {
         "slug": "salary-calculator",
-        "icon": "💰",
+        "icon": "salary-calculator",
         "title": "연봉 실수령액 계산기",
         "desc": "4대보험료와 세금을 반영한 월 실수령액을 계산해요.",
         "available": True,
+        "category": "calculator",
+        "popular": False,
     },
     {
         "slug": "severance-calculator",
-        "icon": "🧮",
+        "icon": "severance-calculator",
         "title": "퇴직금 계산기",
         "desc": "입사일·퇴사일과 급여로 예상 퇴직금을 계산해요.",
         "available": True,
+        "category": "calculator",
+        "popular": False,
     },
     {
         "slug": "image-convert",
-        "icon": "🔁",
+        "icon": "image-convert",
         "title": "이미지 포맷 변환",
         "desc": "HEIC·JPG·PNG·WEBP 등 이미지 포맷을 서로 변환해요.",
         "available": True,
+        "category": "image",
+        "popular": False,
     },
     {
         "slug": "pdf-sign",
-        "icon": "✍️",
+        "icon": "pdf-sign",
         "title": "전자서명 삽입",
         "desc": "직접 그린 서명을 PDF 원하는 위치에 넣어드려요.",
         "available": True,
+        "category": "pdf",
+        "popular": False,
     },
     {
         "slug": "ocr",
-        "icon": "🔍",
+        "icon": "ocr",
         "title": "OCR 텍스트 추출",
         "desc": "스캔한 PDF·이미지에서 텍스트를 인식해 추출해요.",
         "available": True,
+        "category": "text",
+        "popular": False,
     },
     {
         "slug": "pdf-to-ppt",
-        "icon": "📊",
+        "icon": "pdf-to-ppt",
         "title": "PDF → PPT 변환",
         "desc": "PDF 페이지를 슬라이드 이미지로 담은 PPT로 만들어요.",
         "available": True,
+        "category": "pdf",
+        "popular": False,
     },
     {
         "slug": "pdf-to-excel",
-        "icon": "📈",
+        "icon": "pdf-to-excel",
         "title": "PDF → Excel 변환",
         "desc": "PDF 안의 표를 추출해 엑셀 파일로 만들어요.",
         "available": True,
+        "category": "pdf",
+        "popular": False,
     },
+]
+
+TOOL_CATEGORIES = [
+    {"key": "pdf", "label": "PDF", "eyebrow": "DOCUMENT"},
+    {"key": "image", "label": "이미지", "eyebrow": "IMAGE"},
+    {"key": "text", "label": "텍스트·데이터", "eyebrow": "TEXT & DATA"},
+    {"key": "calculator", "label": "업무 계산기", "eyebrow": "CALCULATOR"},
 ]
 
 # ---------------------------------------------------------------------------
@@ -642,7 +681,13 @@ def convert_pdf_to_xlsx(input_path: Path, output_path: Path, max_pages: int = 30
 # ---------------------------------------------------------------------------
 @app.route("/")
 def home():
-    return render_template("home.html", page="home", tools=TOOLS, site_name=SITE_NAME)
+    return render_template(
+        "home.html",
+        page="home",
+        tools=TOOLS,
+        categories=TOOL_CATEGORIES,
+        site_name=SITE_NAME,
+    )
 
 
 @app.route("/pdf-compress")

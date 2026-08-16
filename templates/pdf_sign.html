@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}전자서명 삽입 — 사무실 공구함{% endblock %}
 {% block description %}마우스나 터치로 직접 서명을 그려서 PDF에 무료로 삽입하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
 {% block content %}
@@ -10,7 +11,7 @@
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept="application/pdf" hidden>
     <div id="drop-zone-empty">
-      <div class="drop-icon">✍️</div>
+      <div class="drop-icon">{{ icon("pdf-sign") }}</div>
       <p><strong>PDF 파일을 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
       <p class="hint">최대 100MB · 파일은 서버에 저장되지 않습니다</p>
@@ -18,7 +19,7 @@
 
     <div id="file-selected" class="hidden">
       <div class="file-info">
-        <span class="file-icon">✍️</span>
+        <span class="file-icon">{{ icon("pdf-sign") }}</span>
         <div>
           <p id="file-name" class="file-name"></p>
           <p id="file-size" class="file-size"></p>
@@ -63,7 +64,7 @@
     </div>
 
     <div id="result" class="hidden">
-      <div class="result-icon">✅</div>
+      <div class="result-icon">{{ icon("check-circle") }}</div>
       <p class="result-title">완료!</p>
       <a id="download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
       <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
@@ -74,8 +75,6 @@
       <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -93,6 +92,26 @@
   </div>
 </section>
 
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>계약서 서명</h4>
+      <p>출력·스캔 없이 PDF 계약서에 바로 서명해서 회신할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>확인서 제출</h4>
+      <p>재직증명서, 동의서 등 서명이 필요한 서류를 처리할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>원격 승인</h4>
+      <p>출장·재택 중에도 서류에 서명해서 빠르게 승인 처리할 때.</p>
+    </div>
+  </div>
+</section>
+
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
   <details>
@@ -104,6 +123,17 @@
     <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('pdf_password_page') }}">{{ icon("pdf-password") }}PDF 비밀번호 설정·해제</a>
+    <a class="related-tool-link" href="{{ url_for('watermark_page') }}">{{ icon("watermark") }}워터마크 추가</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/pdf-sign.js') }}"></script>

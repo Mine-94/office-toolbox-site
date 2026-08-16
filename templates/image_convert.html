@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}이미지 포맷 변환 — 사무실 공구함{% endblock %}
 {% block description %}JPG, PNG, WEBP, HEIC, BMP, TIFF 등 이미지 포맷을 무료로 서로 변환하세요. 아이폰 HEIC 사진도 지원합니다.{% endblock %}
 {% block content %}
@@ -10,7 +11,7 @@
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.bmp,.tiff,.gif" hidden>
     <div id="drop-zone-empty">
-      <div class="drop-icon">🖼️</div>
+      <div class="drop-icon">{{ icon("image-convert") }}</div>
       <p><strong>이미지 파일을 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
       <p class="hint">JPG · PNG · WEBP · HEIC · BMP · TIFF · GIF · 최대 50MB</p>
@@ -18,7 +19,7 @@
 
     <div id="file-selected" class="hidden">
       <div class="file-info">
-        <span class="file-icon">🖼️</span>
+        <span class="file-icon">{{ icon("image-convert") }}</span>
         <div>
           <p id="file-name" class="file-name"></p>
           <p id="file-size" class="file-size"></p>
@@ -59,7 +60,7 @@
     </div>
 
     <div id="result" class="hidden">
-      <div class="result-icon">✅</div>
+      <div class="result-icon">{{ icon("check-circle") }}</div>
       <p class="result-title">완료!</p>
       <a id="download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
       <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
@@ -70,8 +71,6 @@
       <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -89,6 +88,26 @@
   </div>
 </section>
 
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>아이폰 사진 호환</h4>
+      <p>아이폰에서 찍은 HEIC 사진을 윈도우·문서에 쓸 수 있는 JPG로 바꿀 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>투명 배경 필요</h4>
+      <p>로고나 이미지를 투명 배경(PNG)으로 바꿔 문서에 삽입할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>웹용 최적화</h4>
+      <p>웹사이트에 쓰기 좋은 WEBP 형식으로 변환할 때.</p>
+    </div>
+  </div>
+</section>
+
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
   <details>
@@ -100,6 +119,17 @@
     <p>현재는 한 번에 한 장씩 변환할 수 있어요. 여러 장 동시 변환은 추후 추가될 예정입니다.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('image_compress_page') }}">{{ icon("image-compress") }}이미지 압축</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+    <a class="related-tool-link" href="{{ url_for('qr_code_page') }}">{{ icon("qr-code") }}QR코드 생성기</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/image-convert.js') }}"></script>

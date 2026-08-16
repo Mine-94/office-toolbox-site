@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}퇴직금 계산기 — 사무실 공구함{% endblock %}
 {% block description %}입사일과 퇴사일, 최근 3개월 급여만 입력하면 근로기준법 기준 예상 퇴직금을 무료로 계산해드려요.{% endblock %}
 {% block content %}
@@ -35,8 +36,26 @@
   <div id="calc-result" class="calc-result hidden"></div>
 
   <p class="hint" style="margin-top: 16px;">⚠️ 이 계산 결과는 참고용 추정치입니다. 실제 퇴직금은 회사의 평균임금 산정 방식에 따라 다를 수 있어요.</p>
+</section>
 
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>퇴사 전 예상 정산액 확인</h4>
+      <p>퇴사를 앞두고 대략적인 퇴직금을 미리 파악할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>이직 시점 결정</h4>
+      <p>근속연수에 따른 퇴직금 차이를 비교해 이직 시점을 정할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>회사 정산 내역 검증</h4>
+      <p>회사에서 안내받은 퇴직금이 대략 맞는지 확인할 때.</p>
+    </div>
+  </div>
 </section>
 
 <section class="faq container">
@@ -54,6 +73,17 @@
     <p>네. 평균임금 산정 시 최근 1년간 지급된 상여금과 미사용 연차수당을 3/12로 비례 배분해서 반영해요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('salary_calculator_page') }}">{{ icon("salary-calculator") }}연봉 실수령액 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF → Excel 변환</a>
+    <a class="related-tool-link" href="{{ url_for('text_diff_page') }}">{{ icon("text-diff") }}텍스트 비교</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/severance-calculator.js') }}"></script>

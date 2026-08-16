@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}PDF 병합·분할 — 사무실 공구함{% endblock %}
 {% block description %}여러 PDF 파일을 하나로 합치거나, PDF를 페이지별로 나눠보세요. 무료로 바로 사용 가능합니다.{% endblock %}
 {% block content %}
@@ -16,7 +17,7 @@
     <div id="merge-drop-zone" class="drop-zone">
       <input type="file" id="merge-file-input" accept="application/pdf" multiple hidden>
       <div id="merge-empty">
-        <div class="drop-icon">🗂️</div>
+        <div class="drop-icon">{{ icon("pdf-merge-split") }}</div>
         <p><strong>합칠 PDF 파일 여러 개를 끌어다 놓으세요</strong></p>
         <button type="button" id="merge-browse-btn" class="btn btn-primary">파일 선택 (2개 이상)</button>
         <p class="hint">최대 100MB · 선택한 순서대로 합쳐져요</p>
@@ -36,7 +37,7 @@
       </div>
 
       <div id="merge-result" class="hidden">
-        <div class="result-icon">✅</div>
+        <div class="result-icon">{{ icon("check-circle") }}</div>
         <p class="result-title">병합 완료!</p>
         <a id="merge-download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
         <button type="button" id="merge-reset-btn-2" class="btn btn-text">다시 합치기</button>
@@ -53,7 +54,7 @@
     <div id="split-drop-zone" class="drop-zone">
       <input type="file" id="split-file-input" accept="application/pdf" hidden>
       <div id="split-empty">
-        <div class="drop-icon">✂️</div>
+        <div class="drop-icon">{{ icon("pdf-split") }}</div>
         <p><strong>나눌 PDF 파일을 여기로 끌어다 놓으세요</strong></p>
         <button type="button" id="split-browse-btn" class="btn btn-primary">파일 선택</button>
         <p class="hint">최대 100MB</p>
@@ -61,7 +62,7 @@
 
       <div id="split-selected" class="hidden">
         <div class="file-info">
-          <span class="file-icon">📄</span>
+          <span class="file-icon">{{ icon("pdf-split") }}</span>
           <div>
             <p id="split-file-name" class="file-name"></p>
             <p id="split-file-size" class="file-size"></p>
@@ -90,7 +91,7 @@
       </div>
 
       <div id="split-result" class="hidden">
-        <div class="result-icon">✅</div>
+        <div class="result-icon">{{ icon("check-circle") }}</div>
         <p class="result-title">분할 완료!</p>
         <a id="split-download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
         <button type="button" id="split-reset-btn-2" class="btn btn-text">다른 파일 분할하기</button>
@@ -102,8 +103,6 @@
       </div>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -118,6 +117,26 @@
   <div class="feature">
     <h3>안전한 파일 관리</h3>
     <p>처리 후 파일은 서버에서 자동 삭제돼요.</p>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>여러 스캔본 합치기</h4>
+      <p>각각 스캔된 페이지를 하나의 제출용 PDF로 합칠 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>계약서 일부만 공유</h4>
+      <p>긴 계약서에서 필요한 페이지만 잘라내 상대방에게 보낼 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>첨부 파일 정리</h4>
+      <p>여러 첨부 PDF를 하나로 묶어 이메일로 보낼 때.</p>
+    </div>
   </div>
 </section>
 
@@ -136,6 +155,17 @@
     <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_rotate_page') }}">{{ icon("pdf-rotate") }}PDF 페이지 회전</a>
+    <a class="related-tool-link" href="{{ url_for('watermark_page') }}">{{ icon("watermark") }}워터마크 추가</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/pdf-merge-split.js') }}"></script>

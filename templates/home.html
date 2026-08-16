@@ -1,27 +1,58 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block content %}
 <section class="hero container">
-  <span class="eyebrow">OFFICE TOOLS</span>
+  <span class="eyebrow">OFFICE TOOLBOX</span>
   <h1>사무실 공구함</h1>
   <p class="subtitle">사무직에서 자주 쓰는 온라인 문서 도구를 한 곳에 모았어요. 설치·회원가입 없이 무료로 바로 사용하세요.</p>
+
+  <div class="tool-search">
+    {{ icon("search") }}
+    <input type="text" id="tool-search-input" placeholder="어떤 작업이 필요한가요? PDF, 이미지, 계산기 검색…">
+  </div>
 </section>
 
-<section id="tools" class="tool-grid container">
-  {% for tool in tools %}
-  {% if tool.available %}
-  <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}">
-    <span class="tool-icon">{{ tool.icon }}</span>
-    <h3>{{ tool.title }}</h3>
-    <p>{{ tool.desc }}</p>
-  </a>
-  {% else %}
-  <div class="tool-card tool-card-disabled">
-    <span class="tool-icon">{{ tool.icon }}</span>
-    <h3>{{ tool.title }}</h3>
-    <p>{{ tool.desc }}</p>
-    <span class="tool-badge">준비 중</span>
+<section id="tools" class="container tool-categories">
+  <div class="tool-category" data-category="popular">
+    <h2 class="category-heading"><span class="eyebrow">MOST USED</span>자주 쓰는 도구</h2>
+    <div class="tool-grid">
+      {% for tool in tools if tool.popular and tool.available %}
+      <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
+        <span class="tool-icon">{{ icon(tool.icon) }}</span>
+        <h3>{{ tool.title }}</h3>
+        <p>{{ tool.desc }}</p>
+      </a>
+      {% endfor %}
+    </div>
   </div>
-  {% endif %}
+
+  {% for cat in categories %}
+  <div class="tool-category" id="{{ cat.key }}" data-category="{{ cat.key }}">
+    <h2 class="category-heading"><span class="eyebrow">{{ cat.eyebrow }}</span>{{ cat.label }}</h2>
+    <div class="tool-grid">
+      {% for tool in tools if tool.category == cat.key %}
+      {% if tool.available %}
+      <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
+        <span class="tool-icon">{{ icon(tool.icon) }}</span>
+        <h3>{{ tool.title }}</h3>
+        <p>{{ tool.desc }}</p>
+      </a>
+      {% else %}
+      <div class="tool-card tool-card-disabled" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
+        <span class="tool-icon">{{ icon(tool.icon) }}</span>
+        <h3>{{ tool.title }}</h3>
+        <p>{{ tool.desc }}</p>
+        <span class="tool-badge">준비 중</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
   {% endfor %}
+
+  <p id="tool-search-empty" class="hint hidden" style="text-align:center; margin-top: 12px;">검색 결과가 없어요. 다른 키워드로 찾아보세요.</p>
 </section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
 {% endblock %}

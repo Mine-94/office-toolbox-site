@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}QR코드 생성기 — 사무실 공구함{% endblock %}
 {% block description %}텍스트나 URL을 입력하면 무료로 QR코드 이미지를 만들어드려요. 설치 없이 바로 사용 가능합니다.{% endblock %}
 {% block content %}
@@ -27,8 +28,6 @@
       <p class="error-text" id="error-text"></p>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -46,6 +45,30 @@
   </div>
 </section>
 
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>명함에 URL 담기</h4>
+      <p>명함이나 브로셔에 회사 홈페이지 링크를 QR로 넣을 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>회의자료 링크 공유</h4>
+      <p>발표 자료에서 설문지나 참고 링크를 QR로 안내할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>와이파이 안내</h4>
+      <p>방문객에게 사무실 와이파이 정보를 QR로 공유할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>행사 신청 페이지</h4>
+      <p>세미나·행사 신청 폼 링크를 포스터에 QR로 넣을 때.</p>
+    </div>
+  </div>
+</section>
+
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
   <details>
@@ -57,6 +80,17 @@
     <p>아니요. 생성 즉시 다운로드할 수 있도록 제공되고, 서버에는 남지 않아요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('text_diff_page') }}">{{ icon("text-diff") }}텍스트 비교</a>
+    <a class="related-tool-link" href="{{ url_for('ocr_page') }}">{{ icon("ocr") }}OCR 텍스트 추출</a>
+    <a class="related-tool-link" href="{{ url_for('image_compress_page') }}">{{ icon("image-compress") }}이미지 압축</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/qr-code.js') }}"></script>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}PDF → Word 변환 — 사무실 공구함{% endblock %}
 {% block description %}PDF 파일을 편집 가능한 Word(.docx) 문서로 무료 변환하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
 {% block content %}
@@ -10,7 +11,7 @@
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept="application/pdf" hidden>
     <div id="drop-zone-empty">
-      <div class="drop-icon">📝</div>
+      <div class="drop-icon">{{ icon("pdf-to-word") }}</div>
       <p><strong>PDF 파일을 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
       <p class="hint">최대 100MB · 텍스트 기반 PDF 권장 · 파일은 서버에 저장되지 않습니다</p>
@@ -18,7 +19,7 @@
 
     <div id="file-selected" class="hidden">
       <div class="file-info">
-        <span class="file-icon">📝</span>
+        <span class="file-icon">{{ icon("pdf-to-word") }}</span>
         <div>
           <p id="file-name" class="file-name"></p>
           <p id="file-size" class="file-size"></p>
@@ -35,7 +36,7 @@
     </div>
 
     <div id="result" class="hidden">
-      <div class="result-icon">✅</div>
+      <div class="result-icon">{{ icon("check-circle") }}</div>
       <p class="result-title">변환 완료!</p>
       <a id="download-link" class="btn btn-primary btn-large" href="#">Word 파일 다운로드</a>
       <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 변환하기</button>
@@ -46,8 +47,6 @@
       <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -62,6 +61,26 @@
   <div class="feature">
     <h3>무료 · 무제한</h3>
     <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>계약서 수정</h4>
+      <p>상대방이 보낸 PDF 계약서 초안을 워드로 열어 문구를 수정할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>보고서 재활용</h4>
+      <p>예전 PDF 보고서 내용을 새 문서에 옮겨 담을 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>양식 채우기</h4>
+      <p>PDF로 받은 신청서를 워드에서 편집 가능한 형태로 바꿀 때.</p>
+    </div>
   </div>
 </section>
 
@@ -80,6 +99,17 @@
     <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_merge_split_page') }}">{{ icon("pdf-merge-split") }}PDF 병합·분할</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_ppt_page') }}">{{ icon("pdf-to-ppt") }}PDF → PPT 변환</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/pdf-to-word.js') }}"></script>

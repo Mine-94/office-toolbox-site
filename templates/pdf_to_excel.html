@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}PDF → Excel 변환 — 사무실 공구함{% endblock %}
 {% block description %}PDF 속 표를 Excel(.xlsx) 파일로 무료 변환하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
 {% block content %}
@@ -10,7 +11,7 @@
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept="application/pdf" hidden>
     <div id="drop-zone-empty">
-      <div class="drop-icon">📈</div>
+      <div class="drop-icon">{{ icon("pdf-to-excel") }}</div>
       <p><strong>PDF 파일을 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
       <p class="hint">최대 30페이지 · 표가 포함된 PDF 권장 · 최대 100MB</p>
@@ -18,7 +19,7 @@
 
     <div id="file-selected" class="hidden">
       <div class="file-info">
-        <span class="file-icon">📈</span>
+        <span class="file-icon">{{ icon("pdf-to-excel") }}</span>
         <div>
           <p id="file-name" class="file-name"></p>
           <p id="file-size" class="file-size"></p>
@@ -35,7 +36,7 @@
     </div>
 
     <div id="result" class="hidden">
-      <div class="result-icon">✅</div>
+      <div class="result-icon">{{ icon("check-circle") }}</div>
       <p class="result-title">변환 완료!</p>
       <p id="no-table-notice" class="hint hidden">⚠️ PDF에서 표 형식을 찾지 못해 텍스트 기반으로 변환됐어요.</p>
       <a id="download-link" class="btn btn-primary btn-large" href="#">Excel 파일 다운로드</a>
@@ -47,8 +48,6 @@
       <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -66,6 +65,26 @@
   </div>
 </section>
 
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>표 데이터 재활용</h4>
+      <p>PDF 안의 표 데이터를 엑셀로 옮겨 계산이나 정리에 활용할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>정산 자료 정리</h4>
+      <p>거래명세서·정산서 PDF의 숫자를 엑셀로 옮겨 검토할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>보고서 데이터 추출</h4>
+      <p>PDF 보고서의 통계표를 엑셀로 옮겨 재가공할 때.</p>
+    </div>
+  </div>
+</section>
+
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
   <details>
@@ -77,6 +96,17 @@
     <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('pdf_to_word_page') }}">{{ icon("pdf-to-word") }}PDF → Word 변환</a>
+    <a class="related-tool-link" href="{{ url_for('ocr_page') }}">{{ icon("ocr") }}OCR 텍스트 추출</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_ppt_page') }}">{{ icon("pdf-to-ppt") }}PDF → PPT 변환</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/pdf-to-excel.js') }}"></script>

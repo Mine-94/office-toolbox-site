@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}워터마크 추가 — 사무실 공구함{% endblock %}
 {% block description %}PDF 파일에 원하는 텍스트 워터마크를 무료로 추가하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
 {% block content %}
@@ -10,7 +11,7 @@
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept="application/pdf" hidden>
     <div id="drop-zone-empty">
-      <div class="drop-icon">💧</div>
+      <div class="drop-icon">{{ icon("watermark") }}</div>
       <p><strong>PDF 파일을 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
       <p class="hint">최대 100MB · 파일은 서버에 저장되지 않습니다</p>
@@ -18,7 +19,7 @@
 
     <div id="file-selected" class="hidden">
       <div class="file-info">
-        <span class="file-icon">💧</span>
+        <span class="file-icon">{{ icon("watermark") }}</span>
         <div>
           <p id="file-name" class="file-name"></p>
           <p id="file-size" class="file-size"></p>
@@ -37,7 +38,7 @@
     </div>
 
     <div id="result" class="hidden">
-      <div class="result-icon">✅</div>
+      <div class="result-icon">{{ icon("check-circle") }}</div>
       <p class="result-title">완료!</p>
       <a id="download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
       <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
@@ -48,8 +49,6 @@
       <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
     </div>
   </div>
-
-  <div class="ad-slot" id="ad-slot-below-tool"></div>
 </section>
 
 <section class="features container">
@@ -67,6 +66,26 @@
   </div>
 </section>
 
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>초안 문서 표시</h4>
+      <p>아직 확정되지 않은 문서에 "초안"이라고 표시해 배포할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>대외비 문서 관리</h4>
+      <p>사내 공유 자료에 "대외비"·"내부용" 문구를 넣어 유출을 방지할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>저작권 표시</h4>
+      <p>배포용 자료에 회사명이나 출처를 남길 때.</p>
+    </div>
+  </div>
+</section>
+
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
   <details>
@@ -78,6 +97,17 @@
     <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
   </details>
 </section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('pdf_password_page') }}">{{ icon("pdf-password") }}PDF 비밀번호 설정·해제</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_sign_page') }}">{{ icon("pdf-sign") }}전자서명 삽입</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/watermark.js') }}"></script>
