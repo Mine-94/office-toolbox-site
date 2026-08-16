@@ -23,7 +23,69 @@
   const downloadLink = document.getElementById("download-link");
 
   let currentFile = null;
+  let currentMode = "quality";
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+  // --- 모드 탭 (화질 기준 / 목표 용량 / 크기 지정) ---
+  const modeTabs = document.querySelectorAll(".tool-tab[data-mode]");
+  const modePanels = {
+    quality: document.getElementById("mode-quality-panel"),
+    target_size: document.getElementById("mode-target_size-panel"),
+    dimensions: document.getElementById("mode-dimensions-panel"),
+  };
+  modeTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      currentMode = tab.dataset.mode;
+      modeTabs.forEach((t) => t.classList.toggle("active", t === tab));
+      Object.entries(modePanels).forEach(([key, panel]) => {
+        if (!panel) return;
+        panel.classList.toggle("hidden", key !== currentMode);
+      });
+    });
+  });
+
+  // --- 목표 용량 탭 ---
+  const targetKbInput = document.getElementById("target-kb-input");
+  document.querySelectorAll('input[name="target-size-preset"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (radio.value === "custom") {
+        targetKbInput.classList.remove("hidden");
+        targetKbInput.focus();
+      } else {
+        targetKbInput.classList.add("hidden");
+      }
+    });
+  });
+
+  function getTargetKb() {
+    const checked = document.querySelector('input[name="target-size-preset"]:checked');
+    if (!checked) return null;
+    if (checked.value === "custom") {
+      const v = parseFloat(targetKbInput.value);
+      return v > 0 ? v : null;
+    }
+    return parseFloat(checked.value);
+  }
+
+  // --- 크기 지정 탭 ---
+  const targetWInput = document.getElementById("target-w-input");
+  const targetHInput = document.getElementById("target-h-input");
+  const fitCoverCheck = document.getElementById("fit-cover-check");
+  const customDimFields = document.getElementById("custom-dim-fields");
+  const presetHint = document.getElementById("preset-hint");
+  document.querySelectorAll('input[name="dim-preset"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (radio.value === "custom") {
+        customDimFields.classList.remove("hidden");
+        presetHint.style.display = "none";
+        targetWInput.value = "";
+        targetHInput.value = "";
+      } else {
+        customDimFields.classList.add("hidden");
+        presetHint.style.display = "block";
+      }
+    });
+  });
 
   function humanSize(bytes) {
     if (bytes < 1024) return bytes + "B";
@@ -89,15 +151,45 @@
 
   compressBtn.addEventListener("click", async () => {
     if (!currentFile) return;
-    const quality = document.querySelector('input[name="quality"]:checked').value;
-    const resize = document.querySelector('input[name="resize"]:checked').value;
-
-    showView(loadingView);
 
     const formData = new FormData();
     formData.append("file", currentFile);
-    formData.append("quality", quality);
-    formData.append("resize", resize);
+    formData.append("mode", currentMode);
+
+    if (currentMode === "target_size") {
+      const targetKb = getTargetKb();
+      if (!targetKb) {
+        errorTextEl.textContent = "목표 용량을 입력해주세요.";
+        showView(errorView);
+        return;
+      }
+      formData.append("target_kb", targetKb);
+    } else if (currentMode === "dimensions") {
+      const presetEl = document.querySelector('input[name="dim-preset"]:checked');
+      if (presetEl && presetEl.value !== "custom") {
+        formData.append("preset", presetEl.value);
+      } else {
+        const w = parseInt(targetWInput.value, 10);
+        const h = parseInt(targetHInput.value, 10);
+        if (!w && !h) {
+          errorTextEl.textContent = "가로 또는 세로 크기를 입력해주세요.";
+          showView(errorView);
+          return;
+        }
+        if (w) formData.append("target_w", w);
+        if (h) formData.append("target_h", h);
+        formData.append("fit", fitCoverCheck.checked ? "cover" : "contain");
+      }
+      const qEl = document.querySelector('input[name="quality"]:checked');
+      formData.append("quality", qEl ? qEl.value : "medium");
+    } else {
+      const quality = document.querySelector('input[name="quality"]:checked').value;
+      const resize = document.querySelector('input[name="resize"]:checked').value;
+      formData.append("quality", quality);
+      formData.append("resize", resize);
+    }
+
+    showView(loadingView);
 
     try {
       const res = await fetch("/api/image-compress/process", {
@@ -114,9 +206,15 @@
 
       originalSizeEl.textContent = data.original_size_human;
       compressedSizeEl.textContent = data.compressed_size_human;
-      ratioBadgeEl.textContent = data.used_original
-        ? "이미 최적화됨"
-        : `${data.ratio}% 감소`;
+      if (data.mode === "target_size") {
+        ratioBadgeEl.textContent = data.target_reached
+          ? "목표 용량 이하로 완성"
+          : "최대한 줄였어요";
+      } else {
+        ratioBadgeEl.textContent = data.used_original
+          ? "이미 최적화됨"
+          : `${data.ratio}% 감소`;
+      }
       dimensionNoteEl.textContent =
         data.original_dimensions === data.new_dimensions
           ? `크기: ${data.original_dimensions} (변경 없음)`

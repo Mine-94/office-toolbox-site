@@ -263,6 +263,15 @@ IMG_RESIZE_PRESETS = {
     "25": 0.25,
 }
 
+# SNS·용도별 규격 프리셋 (가로, 세로) — 프론트엔드 버튼과 1:1로 매칭됨
+IMG_DIMENSION_PRESETS = {
+    "instagram_post": (1080, 1080),
+    "instagram_story": (1080, 1920),
+    "youtube_thumbnail": (1280, 720),
+    "blog_featured": (1200, 630),
+    "id_photo": (413, 531),
+}
+
 
 def allowed_image_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in IMG_ALLOWED_EXT
@@ -298,6 +307,90 @@ def process_image(input_path: Path, output_path: Path, quality: str, resize: str
         img.save(output_path)
 
     return orig_w, orig_h, new_w, new_h
+
+
+def resize_to_dimensions(img, target_w, target_h, fit="contain"):
+    """target_w/target_h 중 하나 또는 둘 다 지정해 이미지 크기를 맞춘다.
+    fit="cover"면 지정한 크기를 정확히 채우도록 가운데를 기준으로 잘라낸다(예: SNS 규격, 증명사진).
+    fit="contain"이면 비율을 유지한 채 지정한 크기 안에 들어가도록 축소만 한다(잘림 없음)."""
+    orig_w, orig_h = img.size
+    target_w = target_w or 0
+    target_h = target_h or 0
+
+    if fit == "cover" and target_w and target_h:
+        scale = max(target_w / orig_w, target_h / orig_h)
+        scaled_w = max(1, round(orig_w * scale))
+        scaled_h = max(1, round(orig_h * scale))
+        img = img.resize((scaled_w, scaled_h), Image.LANCZOS)
+        left = max(0, (scaled_w - target_w) // 2)
+        top = max(0, (scaled_h - target_h) // 2)
+        img = img.crop((left, top, left + target_w, top + target_h))
+        return img, target_w, target_h
+
+    if target_w and target_h:
+        scale = min(target_w / orig_w, target_h / orig_h)
+    elif target_w:
+        scale = target_w / orig_w
+    elif target_h:
+        scale = target_h / orig_h
+    else:
+        scale = 1.0
+
+    new_w = max(1, round(orig_w * scale))
+    new_h = max(1, round(orig_h * scale))
+    img = img.resize((new_w, new_h), Image.LANCZOS)
+    return img, new_w, new_h
+
+
+def _encode_image(img, ext, quality=None):
+    buf = io.BytesIO()
+    if ext in (".jpg", ".jpeg"):
+        save_img = img.convert("RGB") if img.mode in ("RGBA", "P") else img
+        save_img.save(buf, "JPEG", quality=quality or 85, optimize=True, progressive=True)
+    elif ext == ".webp":
+        img.save(buf, "WEBP", quality=quality or 85, method=6)
+    elif ext == ".png":
+        img.save(buf, "PNG", optimize=True, compress_level=9)
+    else:
+        img.save(buf, format=(img.format or "JPEG"))
+    return buf.getvalue()
+
+
+def compress_to_target_bytes(img, ext, target_bytes):
+    """목표 용량(bytes) 이하가 될 때까지 화질을 낮추고, 그래도 부족하면 크기를 단계적으로
+    줄여가며 재인코딩한다. (data, width, height) 를 반환."""
+    current = img
+    if ext == ".png":
+        # PNG은 무손실이라 화질 옵션이 없으므로 크기를 줄여서 용량을 맞춘다.
+        data = _encode_image(current, ext)
+        for _ in range(12):
+            if len(data) <= target_bytes:
+                break
+            w, h = current.size
+            if w <= 80 or h <= 80:
+                break
+            current = current.resize((max(1, round(w * 0.85)), max(1, round(h * 0.85))), Image.LANCZOS)
+            data = _encode_image(current, ext)
+        return data, current.size[0], current.size[1]
+
+    # JPEG / WEBP: 화질을 이진 탐색하고, 최저 화질에서도 넘치면 크기를 줄여 재시도한다.
+    for _ in range(10):
+        lo, hi, best = 10, 95, None
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            data = _encode_image(current, ext, quality=mid)
+            if len(data) <= target_bytes:
+                best = data
+                lo = mid + 1
+            else:
+                hi = mid - 1
+        if best is not None:
+            return best, current.size[0], current.size[1]
+        w, h = current.size
+        if w <= 80 or h <= 80:
+            return _encode_image(current, ext, quality=10), w, h
+        current = current.resize((max(1, round(w * 0.85)), max(1, round(h * 0.85))), Image.LANCZOS)
+    return _encode_image(current, ext, quality=10), current.size[0], current.size[1]
 
 
 # ---------------------------------------------------------------------------
@@ -916,8 +1009,9 @@ def api_image_process():
         return jsonify({"error": "파일을 선택해주세요."}), 400
 
     file = request.files["file"]
-    quality = request.form.get("quality", "medium")
-    resize = request.form.get("resize", "100")
+    mode = request.form.get("mode", "quality")
+    if mode not in ("quality", "target_size", "dimensions"):
+        mode = "quality"
 
     if file.filename == "":
         return jsonify({"error": "파일을 선택해주세요."}), 400
@@ -925,10 +1019,42 @@ def api_image_process():
     if not allowed_image_file(file.filename):
         return jsonify({"error": "JPG, PNG, WEBP 파일만 업로드할 수 있습니다."}), 400
 
+    # 모드별 파라미터를 먼저 검증한다.
+    quality = request.form.get("quality", "medium")
+    resize = request.form.get("resize", "100")
     if quality not in IMG_QUALITY_PRESETS:
         quality = "medium"
     if resize not in IMG_RESIZE_PRESETS:
         resize = "100"
+
+    target_bytes = None
+    if mode == "target_size":
+        target_kb = request.form.get("target_kb", type=float)
+        if not target_kb or target_kb <= 0:
+            return jsonify({"error": "목표 용량을 입력해주세요."}), 400
+        if target_kb > 50 * 1024:
+            return jsonify({"error": "목표 용량은 50MB 이하로 입력해주세요."}), 400
+        target_bytes = int(target_kb * 1024)
+
+    target_w = target_h = None
+    fit = "contain"
+    if mode == "dimensions":
+        preset = request.form.get("preset", "")
+        if preset in IMG_DIMENSION_PRESETS:
+            target_w, target_h = IMG_DIMENSION_PRESETS[preset]
+            fit = "cover"
+        else:
+            target_w = request.form.get("target_w", type=int)
+            target_h = request.form.get("target_h", type=int)
+            fit = "cover" if request.form.get("fit") == "cover" else "contain"
+        if not target_w and not target_h:
+            return jsonify({"error": "가로 또는 세로 크기를 입력해주세요."}), 400
+        if (target_w and (target_w <= 0 or target_w > 8000)) or (
+            target_h and (target_h <= 0 or target_h > 8000)
+        ):
+            return jsonify({"error": "크기는 1~8000px 사이로 입력해주세요."}), 400
+        if fit == "cover" and not (target_w and target_h):
+            return jsonify({"error": "정확한 크기로 맞추려면 가로·세로를 모두 입력해주세요."}), 400
 
     job_id = uuid.uuid4().hex
     safe_name = secure_filename(file.filename) or "image.jpg"
@@ -940,7 +1066,22 @@ def api_image_process():
     original_size = input_path.stat().st_size
 
     try:
-        orig_w, orig_h, new_w, new_h = process_image(input_path, output_path, quality, resize)
+        if mode == "target_size":
+            img = Image.open(input_path)
+            img = ImageOps.exif_transpose(img)
+            orig_w, orig_h = img.size
+            data, new_w, new_h = compress_to_target_bytes(img, ext, target_bytes)
+            output_path.write_bytes(data)
+        elif mode == "dimensions":
+            img = Image.open(input_path)
+            img = ImageOps.exif_transpose(img)
+            orig_w, orig_h = img.size
+            resized, new_w, new_h = resize_to_dimensions(img, target_w, target_h, fit)
+            q = IMG_QUALITY_PRESETS.get(quality, 85)
+            data = _encode_image(resized, ext, quality=q)
+            output_path.write_bytes(data)
+        else:
+            orig_w, orig_h, new_w, new_h = process_image(input_path, output_path, quality, resize)
     except Exception as exc:  # noqa: BLE001
         input_path.unlink(missing_ok=True)
         output_path.unlink(missing_ok=True)
@@ -949,7 +1090,7 @@ def api_image_process():
     compressed_size = output_path.stat().st_size
 
     used_original = False
-    if compressed_size >= original_size and resize == "100":
+    if mode == "quality" and compressed_size >= original_size and resize == "100":
         output_path.unlink(missing_ok=True)
         output_path = input_path
         compressed_size = original_size
@@ -958,22 +1099,24 @@ def api_image_process():
     stem = safe_name.rsplit(".", 1)[0]
     download_name = f"{stem}_compressed{ext}"
 
-    return jsonify(
-        {
-            "job_id": job_id,
-            "download_url": f"/api/image-compress/download/{job_id}?name={download_name}&ext={ext}",
-            "original_size": original_size,
-            "compressed_size": compressed_size,
-            "original_size_human": human_size(original_size),
-            "compressed_size_human": human_size(compressed_size),
-            "ratio": round((1 - compressed_size / original_size) * 100, 1)
-            if original_size and not used_original
-            else 0,
-            "original_dimensions": f"{orig_w}×{orig_h}",
-            "new_dimensions": f"{new_w}×{new_h}",
-            "used_original": used_original,
-        }
-    )
+    response = {
+        "job_id": job_id,
+        "download_url": f"/api/image-compress/download/{job_id}?name={download_name}&ext={ext}",
+        "original_size": original_size,
+        "compressed_size": compressed_size,
+        "original_size_human": human_size(original_size),
+        "compressed_size_human": human_size(compressed_size),
+        "ratio": round((1 - compressed_size / original_size) * 100, 1)
+        if original_size and not used_original
+        else 0,
+        "original_dimensions": f"{orig_w}×{orig_h}",
+        "new_dimensions": f"{new_w}×{new_h}",
+        "used_original": used_original,
+        "mode": mode,
+    }
+    if mode == "target_size":
+        response["target_reached"] = compressed_size <= target_bytes
+    return jsonify(response)
 
 
 @app.route("/api/image-compress/download/<job_id>")

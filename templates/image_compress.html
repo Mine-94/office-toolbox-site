@@ -26,40 +26,111 @@
         </div>
       </div>
 
-      <div class="quality-options">
-        <p class="option-label">크기</p>
-        <label class="quality-option">
-          <input type="radio" name="resize" value="100" checked>
-          <span>원본 크기 <em>(100%)</em></span>
-        </label>
-        <label class="quality-option">
-          <input type="radio" name="resize" value="75">
-          <span>75% <em>(약간 축소)</em></span>
-        </label>
-        <label class="quality-option">
-          <input type="radio" name="resize" value="50">
-          <span>50% <em>(절반 축소)</em></span>
-        </label>
-        <label class="quality-option">
-          <input type="radio" name="resize" value="25">
-          <span>25% <em>(최대 축소)</em></span>
-        </label>
+      <div class="tool-tabs">
+        <button type="button" class="tool-tab active" data-mode="quality">화질 기준</button>
+        <button type="button" class="tool-tab" data-mode="target_size">목표 용량</button>
+        <button type="button" class="tool-tab" data-mode="dimensions">크기 지정</button>
       </div>
 
-      <div class="quality-options">
-        <p class="option-label">화질</p>
-        <label class="quality-option">
-          <input type="radio" name="quality" value="high">
-          <span>고화질 <em>(압축률 낮음)</em></span>
-        </label>
-        <label class="quality-option">
-          <input type="radio" name="quality" value="medium" checked>
-          <span>보통 <em>(권장)</em></span>
-        </label>
-        <label class="quality-option">
-          <input type="radio" name="quality" value="low">
-          <span>최대 압축 <em>(화질 저하 있음)</em></span>
-        </label>
+      <div id="mode-quality-panel" class="tab-panel">
+        <div class="quality-options">
+          <p class="option-label">크기</p>
+          <label class="quality-option">
+            <input type="radio" name="resize" value="100" checked>
+            <span>원본 크기 <em>(100%)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="resize" value="75">
+            <span>75% <em>(약간 축소)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="resize" value="50">
+            <span>50% <em>(절반 축소)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="resize" value="25">
+            <span>25% <em>(최대 축소)</em></span>
+          </label>
+        </div>
+
+        <div class="quality-options">
+          <p class="option-label">화질</p>
+          <label class="quality-option">
+            <input type="radio" name="quality" value="high">
+            <span>고화질 <em>(압축률 낮음)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="quality" value="medium" checked>
+            <span>보통 <em>(권장)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="quality" value="low">
+            <span>최대 압축 <em>(화질 저하 있음)</em></span>
+          </label>
+        </div>
+      </div>
+
+      <div id="mode-target_size-panel" class="tab-panel hidden">
+        <div class="quality-options">
+          <p class="option-label">목표 용량</p>
+          <label class="quality-option">
+            <input type="radio" name="target-size-preset" value="100" checked>
+            <span>100KB 이하 <em>(증명사진·간단 첨부용)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="target-size-preset" value="500">
+            <span>500KB 이하 <em>(이메일 첨부 권장)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="target-size-preset" value="1024">
+            <span>1MB 이하 <em>(대부분의 업로드 제한)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="target-size-preset" value="custom">
+            <span>직접 입력 <em>(KB 단위)</em></span>
+          </label>
+        </div>
+        <input type="number" id="target-kb-input" class="range-input hidden" placeholder="예: 300 (KB 단위)" min="10" max="51200">
+        <p class="hint" style="margin-bottom:20px;">설정한 용량 이하가 될 때까지 화질과 크기를 자동으로 조절해요.</p>
+      </div>
+
+      <div id="mode-dimensions-panel" class="tab-panel hidden">
+        <div class="quality-options">
+          <p class="option-label">SNS·용도별 규격</p>
+          <label class="quality-option">
+            <input type="radio" name="dim-preset" value="custom" checked>
+            <span>직접 입력</span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="dim-preset" value="instagram_post" data-w="1080" data-h="1080">
+            <span>인스타그램 게시물 <em>(1080×1080)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="dim-preset" value="instagram_story" data-w="1080" data-h="1920">
+            <span>인스타그램 스토리 <em>(1080×1920)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="dim-preset" value="youtube_thumbnail" data-w="1280" data-h="720">
+            <span>유튜브 썸네일 <em>(1280×720)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="dim-preset" value="blog_featured" data-w="1200" data-h="630">
+            <span>블로그 대표 이미지 <em>(1200×630)</em></span>
+          </label>
+          <label class="quality-option">
+            <input type="radio" name="dim-preset" value="id_photo" data-w="413" data-h="531">
+            <span>증명사진 <em>(413×531, 3.5×4.5cm)</em></span>
+          </label>
+        </div>
+        <div id="custom-dim-fields">
+          <input type="number" id="target-w-input" class="range-input" placeholder="가로(px)" min="1" max="8000" style="display:inline-block; width:47%; margin-right:6%;">
+          <input type="number" id="target-h-input" class="range-input" placeholder="세로(px)" min="1" max="8000" style="display:inline-block; width:47%;">
+          <label class="quality-option" style="max-width:380px; margin:0 auto 20px;">
+            <input type="checkbox" id="fit-cover-check">
+            <span>정확한 크기로 맞추기 <em>(비율이 다르면 가운데를 기준으로 잘라요)</em></span>
+          </label>
+        </div>
+        <p class="hint" id="preset-hint" style="margin-bottom:20px; display:none;">규격에 맞춰 가운데를 기준으로 자동으로 잘라요.</p>
       </div>
 
       <button type="button" id="compress-btn" class="btn btn-primary btn-large">압축하기</button>
@@ -123,6 +194,14 @@
     <div class="usecase-item">
       <h4>메신저 전송 전 정리</h4>
       <p>카카오톡·슬랙 등으로 여러 장을 보내기 전에 용량을 줄일 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>업로드 용량 제한 맞추기</h4>
+      <p>채용 사이트·공공기관 서류가 "100KB 이하", "1MB 이하"처럼 정확한 용량 제한을 요구할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>SNS·증명사진 규격 맞추기</h4>
+      <p>인스타그램 게시물, 유튜브 썸네일, 증명사진처럼 정해진 크기로 딱 맞춰야 할 때.</p>
     </div>
   </div>
 </section>
