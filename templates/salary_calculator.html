@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}연봉 실수령액 계산기 — 사무실 공구함{% endblock %}
+{% block title %}연봉 실수령액 계산기 – 4대보험·세금 반영 무료 계산 | 사무실 공구함{% endblock %}
 {% block description %}4대보험료와 세금을 반영한 월 실수령액을 무료로 계산해보세요.{% endblock %}
 {% block content %}
 <section class="hero container">
@@ -31,7 +31,16 @@
 
   <div id="calc-result" class="calc-result hidden"></div>
 
-  <p class="hint" style="margin-top: 16px;">⚠️ 이 계산 결과는 참고용 추정치입니다. 실제 원천징수세액은 국세청 간이세액표 기준으로 다를 수 있어요.</p>
+  <div class="calc-basis">
+    <p class="calc-basis-title">계산 기준</p>
+    <ul>
+      <li>기준연도: <strong>2026년</strong> (마지막 업데이트: 2026.08.16)</li>
+      <li>적용 요율(근로자 부담분): 국민연금 4.75%, 건강보험 3.595%, 장기요양보험 13.14%, 고용보험 0.9%</li>
+      <li>계산 방식: 국세청 근로소득 간이세액표 산출 로직을 기반으로 한 근사 계산</li>
+      <li>참고 자료: <a href="https://www.nps.or.kr" target="_blank" rel="noopener">국민연금공단</a>, <a href="https://www.nhis.or.kr" target="_blank" rel="noopener">국민건강보험공단</a>, <a href="https://www.nts.go.kr" target="_blank" rel="noopener">국세청</a></li>
+    </ul>
+    <p class="calc-basis-disclaimer">4대보험 요율과 세법은 매년 바뀔 수 있어요. 실제 원천징수액은 개인의 소득공제 조건과 계산 시점의 최신 요율에 따라 달라질 수 있으니 참고용으로만 활용해주세요.</p>
+  </div>
 </section>
 
 <div class="ad-slot container" id="ad-slot-mid"></div>

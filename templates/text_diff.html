@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}텍스트 비교 — 사무실 공구함{% endblock %}
+{% block title %}텍스트 비교하기 – 두 문서 차이점 찾기 무료 도구 | 사무실 공구함{% endblock %}
 {% block description %}두 텍스트를 비교해서 달라진 부분을 무료로 한눈에 확인하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
 {% block content %}
 <section class="hero container">
@@ -74,9 +74,9 @@
 <section class="related-tools container">
   <h2>관련 도구</h2>
   <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('char_counter_page') }}">{{ icon("char-counter") }}글자 수·바이트 계산기</a>
     <a class="related-tool-link" href="{{ url_for('ocr_page') }}">{{ icon("ocr") }}OCR 텍스트 추출</a>
     <a class="related-tool-link" href="{{ url_for('qr_code_page') }}">{{ icon("qr-code") }}QR코드 생성기</a>
-    <a class="related-tool-link" href="{{ url_for('pdf_to_word_page') }}">{{ icon("pdf-to-word") }}PDF → Word 변환</a>
   </div>
 </section>
 

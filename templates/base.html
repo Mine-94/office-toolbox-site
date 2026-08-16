@@ -23,7 +23,17 @@
   gtag('config', 'G-XXXXXXXXXX');
 </script> -->
 </head>
-<body>
+<body data-page="{{ page }}">
+<script src="{{ url_for('static', filename='js/otx-storage.js') }}"></script>
+<script>
+  (function () {
+    var NON_TOOL_PAGES = ["home", "about", "privacy", "terms"];
+    var page = document.body.dataset.page;
+    if (page && NON_TOOL_PAGES.indexOf(page) === -1 && window.OTX) {
+      window.OTX.recordRecent(page);
+    }
+  })();
+</script>
 <header class="site-header">
   <div class="header-inner">
     <a class="logo" href="{{ url_for('home') }}">사무실<span> 공구함</span></a>

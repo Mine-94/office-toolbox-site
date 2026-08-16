@@ -109,6 +109,15 @@ TOOLS = [
         "popular": False,
     },
     {
+        "slug": "char-counter",
+        "icon": "char-counter",
+        "title": "글자 수·바이트 계산기",
+        "desc": "공백 포함/제외 글자수, 바이트, 원고지 매수까지 한 번에 세어드려요.",
+        "available": True,
+        "category": "text",
+        "popular": True,
+    },
+    {
         "slug": "qr-code",
         "icon": "qr-code",
         "title": "QR코드 생성기",
@@ -816,6 +825,11 @@ def pdf_rotate_page():
 @app.route("/pdf-password")
 def pdf_password_page():
     return render_template("pdf_password.html", page="pdf-password", site_name=SITE_NAME)
+
+
+@app.route("/char-counter")
+def char_counter_page():
+    return render_template("char_counter.html", page="char-counter", site_name=SITE_NAME)
 
 
 @app.route("/qr-code")

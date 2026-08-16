@@ -814,4 +814,119 @@ h1, h2, h3 {
   .sign-options { grid-template-columns: 1fr; }
   .usecase-list { grid-template-columns: 1fr; }
   .related-tools-grid { grid-template-columns: 1fr; }
+  .char-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .favorite-star { top: 10px; right: 10px; }
+}
+
+/* 글자 수·바이트 계산기 */
+.char-input {
+  min-height: 220px;
+  text-align: left;
+  max-width: 100%;
+}
+.char-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 22px 0;
+}
+.char-stat {
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 14px 8px;
+  text-align: center;
+  background: #fffdf9;
+}
+.char-stat-value {
+  display: block;
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--ink);
+  font-family: "Noto Serif KR", serif;
+}
+.char-stat-label {
+  display: block;
+  font-size: 10.5px;
+  color: var(--ink-muted);
+  margin-top: 4px;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+.char-limit-row {
+  max-width: 420px;
+  margin: 0 auto 20px;
+  text-align: left;
+}
+.char-limit-row input { display: inline-block; max-width: 200px; margin: 0 10px 0 0; }
+.char-limit-row .hint { margin-top: 0; }
+.char-actions { display: flex; justify-content: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.sns-limit-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px auto 8px;
+  max-width: 420px;
+  text-align: left;
+}
+.sns-limit-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 4px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.sns-limit-item:last-child { border-bottom: none; }
+.sns-limit-item em { color: var(--ink-muted); font-style: normal; font-size: 12px; }
+.sns-ok { color: #2f5c2a; font-weight: 700; font-size: 12px; }
+.sns-over { color: #8a3324; font-weight: 700; font-size: 12px; }
+
+/* 즐겨찾기 별 */
+.tool-card { position: relative; }
+.favorite-star {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--ink-muted);
+  line-height: 0;
+}
+.favorite-star .icon { width: 18px; height: 18px; }
+.favorite-star:hover { color: var(--ink); }
+.favorite-star.active { color: var(--gold); }
+.favorite-star.active .icon { fill: var(--gold); }
+
+/* 계산기 신뢰도 표시 (기준연도·출처·업데이트 날짜) */
+.calc-basis {
+  max-width: 520px;
+  margin: 20px auto 0;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 16px 20px;
+  background: var(--beige);
+}
+.calc-basis-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin: 0 0 8px;
+}
+.calc-basis ul {
+  margin: 0 0 10px;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.7;
+}
+.calc-basis a { color: var(--ink); }
+.calc-basis-disclaimer {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin: 0;
+  line-height: 1.6;
 }

@@ -13,11 +13,22 @@
 </section>
 
 <section id="tools" class="container tool-categories">
+  <div class="tool-category hidden" id="favorites-section" data-category="favorites">
+    <h2 class="category-heading"><span class="eyebrow">FAVORITES</span>즐겨찾기</h2>
+    <div class="tool-grid" id="favorites-grid"></div>
+  </div>
+
+  <div class="tool-category hidden" id="recent-section" data-category="recent">
+    <h2 class="category-heading"><span class="eyebrow">RECENT</span>최근 사용한 도구</h2>
+    <div class="tool-grid" id="recent-grid"></div>
+  </div>
+
   <div class="tool-category" data-category="popular">
     <h2 class="category-heading"><span class="eyebrow">MOST USED</span>자주 쓰는 도구</h2>
     <div class="tool-grid">
       {% for tool in tools if tool.popular and tool.available %}
-      <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
+      <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}" data-slug="{{ tool.slug }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
+        <button type="button" class="favorite-star" data-slug="{{ tool.slug }}" aria-label="즐겨찾기 추가">{{ icon("star") }}</button>
         <span class="tool-icon">{{ icon(tool.icon) }}</span>
         <h3>{{ tool.title }}</h3>
         <p>{{ tool.desc }}</p>
@@ -32,7 +43,8 @@
     <div class="tool-grid">
       {% for tool in tools if tool.category == cat.key %}
       {% if tool.available %}
-      <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
+      <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}" data-slug="{{ tool.slug }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
+        <button type="button" class="favorite-star" data-slug="{{ tool.slug }}" aria-label="즐겨찾기 추가">{{ icon("star") }}</button>
         <span class="tool-icon">{{ icon(tool.icon) }}</span>
         <h3>{{ tool.title }}</h3>
         <p>{{ tool.desc }}</p>

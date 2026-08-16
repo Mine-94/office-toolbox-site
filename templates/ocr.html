@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}이미지·PDF 텍스트 추출 (OCR) — 사무실 공구함{% endblock %}
+{% block title %}이미지·PDF 글자 인식 – 무료 OCR 텍스트 추출 | 사무실 공구함{% endblock %}
 {% block description %}이미지나 스캔 PDF 속 텍스트를 무료로 추출하세요. 한국어·영어 인식을 지원합니다.{% endblock %}
 {% block content %}
 <section class="hero container">
@@ -117,9 +117,9 @@
 <section class="related-tools container">
   <h2>관련 도구</h2>
   <div class="related-tools-grid">
-    <a class="related-tool-link" href="{{ url_for('pdf_to_word_page') }}">{{ icon("pdf-to-word") }}PDF → Word 변환</a>
+    <a class="related-tool-link" href="{{ url_for('char_counter_page') }}">{{ icon("char-counter") }}글자 수·바이트 계산기</a>
     <a class="related-tool-link" href="{{ url_for('text_diff_page') }}">{{ icon("text-diff") }}텍스트 비교</a>
-    <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF → Excel 변환</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_word_page') }}">{{ icon("pdf-to-word") }}PDF → Word 변환</a>
   </div>
 </section>
 

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}퇴직금 계산기 — 사무실 공구함{% endblock %}
+{% block title %}퇴직금 계산기 – 근로기준법 기준 무료 계산 | 사무실 공구함{% endblock %}
 {% block description %}입사일과 퇴사일, 최근 3개월 급여만 입력하면 근로기준법 기준 예상 퇴직금을 무료로 계산해드려요.{% endblock %}
 {% block content %}
 <section class="hero container">
@@ -35,7 +35,16 @@
 
   <div id="calc-result" class="calc-result hidden"></div>
 
-  <p class="hint" style="margin-top: 16px;">⚠️ 이 계산 결과는 참고용 추정치입니다. 실제 퇴직금은 회사의 평균임금 산정 방식에 따라 다를 수 있어요.</p>
+  <div class="calc-basis">
+    <p class="calc-basis-title">계산 기준</p>
+    <ul>
+      <li>기준연도: <strong>2026년</strong> (마지막 업데이트: 2026.08.16)</li>
+      <li>근거 법령: 근로기준법 제34조, 근로자퇴직급여 보장법</li>
+      <li>계산 방식: 퇴직금 = 1일 평균임금 × 30일 × (재직일수 ÷ 365)</li>
+      <li>참고 자료: <a href="https://www.moel.go.kr" target="_blank" rel="noopener">고용노동부</a></li>
+    </ul>
+    <p class="calc-basis-disclaimer">실제 퇴직금은 회사의 평균임금 산정 방식(수당·상여금 포함 범위 등)에 따라 달라질 수 있으니 참고용으로만 활용해주세요.</p>
+  </div>
 </section>
 
 <div class="ad-slot container" id="ad-slot-mid"></div>

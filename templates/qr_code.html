@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}QR코드 생성기 — 사무실 공구함{% endblock %}
+{% block title %}QR코드 만들기 – 무료 QR코드 생성기 | 사무실 공구함{% endblock %}
 {% block description %}텍스트나 URL을 입력하면 무료로 QR코드 이미지를 만들어드려요. 설치 없이 바로 사용 가능합니다.{% endblock %}
 {% block content %}
 <section class="hero container">
@@ -84,8 +84,8 @@
 <section class="related-tools container">
   <h2>관련 도구</h2>
   <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('char_counter_page') }}">{{ icon("char-counter") }}글자 수·바이트 계산기</a>
     <a class="related-tool-link" href="{{ url_for('text_diff_page') }}">{{ icon("text-diff") }}텍스트 비교</a>
-    <a class="related-tool-link" href="{{ url_for('ocr_page') }}">{{ icon("ocr") }}OCR 텍스트 추출</a>
     <a class="related-tool-link" href="{{ url_for('image_compress_page') }}">{{ icon("image-compress") }}이미지 압축</a>
   </div>
 </section>
