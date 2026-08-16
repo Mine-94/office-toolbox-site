@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}전자서명 삽입 — 사무실 공구함{% endblock %}
+{% block description %}마우스나 터치로 직접 서명을 그려서 PDF에 무료로 삽입하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">E-SIGNATURE</span>
+  <h1>전자서명 삽입</h1>
+  <p class="subtitle">직접 그린 서명을 PDF 원하는 위치에 넣어드려요.</p>
+
+  <div id="drop-zone" class="drop-zone">
+    <input type="file" id="file-input" accept="application/pdf" hidden>
+    <div id="drop-zone-empty">
+      <div class="drop-icon">✍️</div>
+      <p><strong>PDF 파일을 여기로 끌어다 놓으세요</strong></p>
+      <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
+      <p class="hint">최대 100MB · 파일은 서버에 저장되지 않습니다</p>
+    </div>
+
+    <div id="file-selected" class="hidden">
+      <div class="file-info">
+        <span class="file-icon">✍️</span>
+        <div>
+          <p id="file-name" class="file-name"></p>
+          <p id="file-size" class="file-size"></p>
+        </div>
+      </div>
+
+      <p class="option-label">서명 그리기</p>
+      <div class="sign-canvas-wrap">
+        <canvas id="sign-canvas" width="420" height="180"></canvas>
+      </div>
+      <button type="button" id="clear-sign-btn" class="btn btn-text" style="margin-bottom:20px;">서명 지우기</button>
+
+      <div class="sign-options">
+        <div>
+          <label for="target-page">삽입할 페이지</label>
+          <select id="target-page" class="range-input" style="margin:0;">
+            <option value="last" selected>마지막 페이지</option>
+            <option value="all">모든 페이지</option>
+            <option value="custom">페이지 번호 지정</option>
+          </select>
+          <input type="number" id="custom-page-input" class="range-input hidden" placeholder="예: 3" min="1" style="margin-top:8px;">
+        </div>
+        <div>
+          <label for="position">서명 위치</label>
+          <select id="position" class="range-input" style="margin:0;">
+            <option value="bottom-right" selected>우측 하단</option>
+            <option value="bottom-left">좌측 하단</option>
+            <option value="top-right">우측 상단</option>
+            <option value="top-left">좌측 상단</option>
+            <option value="center">가운데</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="button" id="apply-btn" class="btn btn-primary btn-large">서명 삽입하기</button>
+      <button type="button" id="reset-btn" class="btn btn-text">취소</button>
+    </div>
+
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>서명 삽입 중입니다...</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="result-icon">✅</div>
+      <p class="result-title">완료!</p>
+      <a id="download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
+      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
+    </div>
+
+    <div id="error" class="hidden">
+      <p class="error-text" id="error-text"></p>
+      <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
+    </div>
+  </div>
+
+  <div class="ad-slot" id="ad-slot-below-tool"></div>
+</section>
+
+<section class="features container">
+  <div class="feature">
+    <h3>마우스·터치 서명</h3>
+    <p>PC 마우스나 모바일 터치로 직접 서명을 그릴 수 있어요.</p>
+  </div>
+  <div class="feature">
+    <h3>위치 자유 선택</h3>
+    <p>원하는 페이지와 위치에 서명을 넣을 수 있어요.</p>
+  </div>
+  <div class="feature">
+    <h3>안전한 파일 관리</h3>
+    <p>처리 후 파일은 서버에서 자동 삭제돼요.</p>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>법적 효력이 있는 전자서명인가요?</summary>
+    <p>이 도구는 이미지 형태의 서명을 PDF에 삽입하는 간편 도구예요. 법적 구속력이 필요한 계약이라면 공인 전자서명 서비스를 이용해주세요.</p>
+  </details>
+  <details>
+    <summary>비밀번호가 걸린 PDF도 가능한가요?</summary>
+    <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
+  </details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pdf-sign.js') }}"></script>
+{% endblock %}

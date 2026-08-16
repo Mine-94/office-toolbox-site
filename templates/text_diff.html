@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}텍스트 비교 — 사무실 공구함{% endblock %}
+{% block description %}두 텍스트를 비교해서 달라진 부분을 무료로 한눈에 확인하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">TEXT DIFF</span>
+  <h1>텍스트 비교</h1>
+  <p class="subtitle">두 텍스트를 비교해서 달라진 부분을 한눈에 보여드려요.</p>
+
+  <div class="diff-input-grid">
+    <div>
+      <p class="option-label">원본 텍스트</p>
+      <textarea id="text-a" class="diff-textarea" placeholder="원본 텍스트를 붙여넣으세요"></textarea>
+    </div>
+    <div>
+      <p class="option-label">비교할 텍스트</p>
+      <textarea id="text-b" class="diff-textarea" placeholder="비교할 텍스트를 붙여넣으세요"></textarea>
+    </div>
+  </div>
+
+  <button type="button" id="compare-btn" class="btn btn-primary btn-large">비교하기</button>
+
+  <div id="diff-result" class="diff-result hidden"></div>
+
+  <div class="ad-slot" id="ad-slot-below-tool"></div>
+</section>
+
+<section class="features container">
+  <div class="feature">
+    <h3>줄 단위 비교</h3>
+    <p>추가되거나 삭제된 줄을 색으로 구분해서 보여줘요.</p>
+  </div>
+  <div class="feature">
+    <h3>브라우저에서 즉시 처리</h3>
+    <p>서버로 전송되지 않고 브라우저 안에서만 비교돼요.</p>
+  </div>
+  <div class="feature">
+    <h3>무료 · 무제한</h3>
+    <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>입력한 텍스트가 서버에 저장되나요?</summary>
+    <p>아니요. 비교는 브라우저 안에서만 처리되고 서버로 전송되지 않아요.</p>
+  </details>
+  <details>
+    <summary>단어 단위로도 비교할 수 있나요?</summary>
+    <p>현재는 줄 단위 비교만 지원해요. 단어 단위 비교는 추후 추가될 예정입니다.</p>
+  </details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/text-diff.js') }}"></script>
+{% endblock %}

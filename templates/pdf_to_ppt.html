@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}PDF → PPT 변환 — 사무실 공구함{% endblock %}
+{% block description %}PDF 문서를 PowerPoint(.pptx) 슬라이드로 무료 변환하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">PDF TO PPT</span>
+  <h1>PDF → PPT 변환</h1>
+  <p class="subtitle">PDF 각 페이지를 PowerPoint 슬라이드로 바꿔드려요.</p>
+
+  <div id="drop-zone" class="drop-zone">
+    <input type="file" id="file-input" accept="application/pdf" hidden>
+    <div id="drop-zone-empty">
+      <div class="drop-icon">📊</div>
+      <p><strong>PDF 파일을 여기로 끌어다 놓으세요</strong></p>
+      <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
+      <p class="hint">최대 60페이지 · 최대 100MB · 파일은 서버에 저장되지 않습니다</p>
+    </div>
+
+    <div id="file-selected" class="hidden">
+      <div class="file-info">
+        <span class="file-icon">📊</span>
+        <div>
+          <p id="file-name" class="file-name"></p>
+          <p id="file-size" class="file-size"></p>
+        </div>
+      </div>
+
+      <button type="button" id="convert-btn" class="btn btn-primary btn-large">PPT로 변환하기</button>
+      <button type="button" id="reset-btn" class="btn btn-text">취소</button>
+    </div>
+
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>변환 중입니다... 페이지 수에 따라 시간이 걸릴 수 있어요.</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="result-icon">✅</div>
+      <p class="result-title">변환 완료!</p>
+      <a id="download-link" class="btn btn-primary btn-large" href="#">PPT 파일 다운로드</a>
+      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 변환하기</button>
+    </div>
+
+    <div id="error" class="hidden">
+      <p class="error-text" id="error-text"></p>
+      <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
+    </div>
+  </div>
+
+  <div class="ad-slot" id="ad-slot-below-tool"></div>
+</section>
+
+<section class="features container">
+  <div class="feature">
+    <h3>페이지별 슬라이드</h3>
+    <p>PDF 각 페이지가 이미지 형태로 슬라이드 한 장씩 들어가요.</p>
+  </div>
+  <div class="feature">
+    <h3>안전한 파일 관리</h3>
+    <p>처리 후 파일은 서버에서 자동 삭제돼요.</p>
+  </div>
+  <div class="feature">
+    <h3>무료 · 무제한</h3>
+    <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>변환된 슬라이드의 텍스트를 편집할 수 있나요?</summary>
+    <p>각 페이지가 이미지로 삽입되기 때문에 텍스트 직접 편집은 어려워요. 레이아웃을 그대로 유지하는 데 최적화되어 있어요.</p>
+  </details>
+  <details>
+    <summary>비밀번호가 걸린 PDF도 가능한가요?</summary>
+    <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
+  </details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pdf-to-ppt.js') }}"></script>
+{% endblock %}

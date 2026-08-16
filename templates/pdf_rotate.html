@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}PDF 페이지 회전 — 사무실 공구함{% endblock %}
+{% block description %}PDF 페이지를 원하는 방향으로 무료로 회전하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">PDF ROTATE</span>
+  <h1>PDF 페이지 회전</h1>
+  <p class="subtitle">PDF의 모든 페이지를 원하는 방향으로 회전해드려요.</p>
+
+  <div id="drop-zone" class="drop-zone">
+    <input type="file" id="file-input" accept="application/pdf" hidden>
+    <div id="drop-zone-empty">
+      <div class="drop-icon">🔄</div>
+      <p><strong>PDF 파일을 여기로 끌어다 놓으세요</strong></p>
+      <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
+      <p class="hint">최대 100MB · 파일은 서버에 저장되지 않습니다</p>
+    </div>
+
+    <div id="file-selected" class="hidden">
+      <div class="file-info">
+        <span class="file-icon">📄</span>
+        <div>
+          <p id="file-name" class="file-name"></p>
+          <p id="file-size" class="file-size"></p>
+        </div>
+      </div>
+
+      <div class="quality-options">
+        <label class="quality-option">
+          <input type="radio" name="angle" value="90" checked>
+          <span>시계방향 90도</span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="angle" value="180">
+          <span>180도</span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="angle" value="270">
+          <span>반시계방향 90도</span>
+        </label>
+      </div>
+
+      <button type="button" id="apply-btn" class="btn btn-primary btn-large">회전하기</button>
+      <button type="button" id="reset-btn" class="btn btn-text">취소</button>
+    </div>
+
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>회전 중입니다...</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="result-icon">✅</div>
+      <p class="result-title">완료!</p>
+      <a id="download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
+      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
+    </div>
+
+    <div id="error" class="hidden">
+      <p class="error-text" id="error-text"></p>
+      <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
+    </div>
+  </div>
+
+  <div class="ad-slot" id="ad-slot-below-tool"></div>
+</section>
+
+<section class="features container">
+  <div class="feature">
+    <h3>전 페이지 일괄 회전</h3>
+    <p>모든 페이지에 같은 각도로 한 번에 적용돼요.</p>
+  </div>
+  <div class="feature">
+    <h3>안전한 파일 관리</h3>
+    <p>처리 후 파일은 서버에서 자동 삭제돼요.</p>
+  </div>
+  <div class="feature">
+    <h3>무료 · 무제한</h3>
+    <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>페이지마다 다른 각도로 회전할 수 있나요?</summary>
+    <p>현재는 전체 페이지에 동일한 각도만 적용돼요. 페이지별 개별 회전은 추후 지원 예정입니다.</p>
+  </details>
+  <details>
+    <summary>비밀번호가 걸린 PDF도 가능한가요?</summary>
+    <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
+  </details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pdf-rotate.js') }}"></script>
+{% endblock %}

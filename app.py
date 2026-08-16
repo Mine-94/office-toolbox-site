@@ -19,6 +19,19 @@ from werkzeug.utils import secure_filename
 from PIL import Image, ImageOps
 from pypdf import PdfReader, PdfWriter
 from pdf2docx import Converter
+import fitz  # PyMuPDF
+import qrcode
+import pytesseract
+from PIL import Image as PILImage
+import pillow_heif
+from reportlab.pdfgen import canvas as pdf_canvas
+from reportlab.lib.colors import Color
+from pptx import Presentation
+from pptx.util import Emu
+import pdfplumber
+from openpyxl import Workbook
+
+pillow_heif.register_heif_opener()
 
 app = Flask(__name__)
 
@@ -58,6 +71,90 @@ TOOLS = [
         "icon": "🗂️",
         "title": "PDF 병합·분할",
         "desc": "여러 PDF를 하나로 합치거나, 한 PDF를 원하는 대로 나눠요.",
+        "available": True,
+    },
+    {
+        "slug": "watermark",
+        "icon": "💧",
+        "title": "워터마크 추가",
+        "desc": "PDF에 원하는 텍스트 워터마크를 삽입해요.",
+        "available": True,
+    },
+    {
+        "slug": "pdf-rotate",
+        "icon": "🔄",
+        "title": "PDF 페이지 회전",
+        "desc": "PDF 페이지를 원하는 방향으로 회전해요.",
+        "available": True,
+    },
+    {
+        "slug": "pdf-password",
+        "icon": "🔒",
+        "title": "PDF 비밀번호 설정·해제",
+        "desc": "PDF에 암호를 걸거나, 알고 있는 암호를 풀어드려요.",
+        "available": True,
+    },
+    {
+        "slug": "qr-code",
+        "icon": "🔳",
+        "title": "QR코드 생성기",
+        "desc": "텍스트나 URL을 입력하면 QR코드 이미지를 만들어드려요.",
+        "available": True,
+    },
+    {
+        "slug": "text-diff",
+        "icon": "📑",
+        "title": "텍스트 비교",
+        "desc": "두 텍스트를 비교해서 달라진 부분을 한눈에 보여줘요.",
+        "available": True,
+    },
+    {
+        "slug": "salary-calculator",
+        "icon": "💰",
+        "title": "연봉 실수령액 계산기",
+        "desc": "4대보험료와 세금을 반영한 월 실수령액을 계산해요.",
+        "available": True,
+    },
+    {
+        "slug": "severance-calculator",
+        "icon": "🧮",
+        "title": "퇴직금 계산기",
+        "desc": "입사일·퇴사일과 급여로 예상 퇴직금을 계산해요.",
+        "available": True,
+    },
+    {
+        "slug": "image-convert",
+        "icon": "🔁",
+        "title": "이미지 포맷 변환",
+        "desc": "HEIC·JPG·PNG·WEBP 등 이미지 포맷을 서로 변환해요.",
+        "available": True,
+    },
+    {
+        "slug": "pdf-sign",
+        "icon": "✍️",
+        "title": "전자서명 삽입",
+        "desc": "직접 그린 서명을 PDF 원하는 위치에 넣어드려요.",
+        "available": True,
+    },
+    {
+        "slug": "ocr",
+        "icon": "🔍",
+        "title": "OCR 텍스트 추출",
+        "desc": "스캔한 PDF·이미지에서 텍스트를 인식해 추출해요.",
+        "available": True,
+    },
+    {
+        "slug": "pdf-to-ppt",
+        "icon": "📊",
+        "title": "PDF → PPT 변환",
+        "desc": "PDF 페이지를 슬라이드 이미지로 담은 PPT로 만들어요.",
+        "available": True,
+    },
+    {
+        "slug": "pdf-to-excel",
+        "icon": "📈",
+        "title": "PDF → Excel 변환",
+        "desc": "PDF 안의 표를 추출해 엑셀 파일로 만들어요.",
         "available": True,
     },
 ]
@@ -246,6 +343,301 @@ def split_pdf_individual(input_path: Path, output_zip_path: Path) -> int:
 
 
 # ---------------------------------------------------------------------------
+# 워터마크 추가
+# ---------------------------------------------------------------------------
+def add_watermark(input_path: Path, output_path: Path, text: str) -> None:
+    reader = PdfReader(str(input_path))
+    if reader.is_encrypted:
+        raise RuntimeError("암호가 걸린 PDF는 지원하지 않습니다.")
+    writer = PdfWriter()
+
+    for page in reader.pages:
+        pw = float(page.mediabox.width)
+        ph = float(page.mediabox.height)
+
+        buf = io.BytesIO()
+        c = pdf_canvas.Canvas(buf, pagesize=(pw, ph))
+        c.saveState()
+        c.setFillColor(Color(0.5, 0.5, 0.5, alpha=0.35))
+        c.setFont("Helvetica-Bold", 40)
+        c.translate(pw / 2, ph / 2)
+        c.rotate(45)
+        step_x, step_y = 320, 220
+        for i in range(-3, 4):
+            for j in range(-4, 5):
+                c.drawCentredString(i * step_x, j * step_y, text)
+        c.restoreState()
+        c.save()
+        buf.seek(0)
+
+        overlay_reader = PdfReader(buf)
+        page.merge_page(overlay_reader.pages[0])
+        writer.add_page(page)
+
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+
+# ---------------------------------------------------------------------------
+# PDF 페이지 회전
+# ---------------------------------------------------------------------------
+def rotate_pdf(input_path: Path, output_path: Path, angle: int) -> None:
+    reader = PdfReader(str(input_path))
+    if reader.is_encrypted:
+        raise RuntimeError("암호가 걸린 PDF는 지원하지 않습니다.")
+    writer = PdfWriter()
+    for page in reader.pages:
+        page.rotate(angle)
+        writer.add_page(page)
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+
+# ---------------------------------------------------------------------------
+# PDF 비밀번호 설정 · 해제
+# ---------------------------------------------------------------------------
+def encrypt_pdf(input_path: Path, output_path: Path, password: str) -> None:
+    reader = PdfReader(str(input_path))
+    if reader.is_encrypted:
+        raise RuntimeError("이미 암호가 걸린 PDF입니다.")
+    writer = PdfWriter()
+    for page in reader.pages:
+        writer.add_page(page)
+    writer.encrypt(password)
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+
+def decrypt_pdf(input_path: Path, output_path: Path, password: str) -> None:
+    reader = PdfReader(str(input_path))
+    if not reader.is_encrypted:
+        raise RuntimeError("암호가 걸려있지 않은 PDF입니다.")
+    if reader.decrypt(password) == 0:
+        raise RuntimeError("비밀번호가 올바르지 않습니다.")
+    writer = PdfWriter()
+    for page in reader.pages:
+        writer.add_page(page)
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+
+# ---------------------------------------------------------------------------
+# QR코드 생성
+# ---------------------------------------------------------------------------
+def generate_qr(text: str) -> bytes:
+    qr = qrcode.QRCode(
+        version=None,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(text)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    buf = io.BytesIO()
+    img.save(buf, "PNG")
+    return buf.getvalue()
+
+
+# ---------------------------------------------------------------------------
+# 이미지 포맷 변환
+# ---------------------------------------------------------------------------
+CONVERT_ALLOWED_EXT = {"jpg", "jpeg", "png", "webp", "heic", "heif", "bmp", "tiff", "gif"}
+CONVERT_TARGET_FORMATS = {
+    "jpg": ("JPEG", ".jpg"),
+    "png": ("PNG", ".png"),
+    "webp": ("WEBP", ".webp"),
+    "bmp": ("BMP", ".bmp"),
+    "tiff": ("TIFF", ".tiff"),
+}
+
+
+def allowed_convert_file(filename: str) -> bool:
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in CONVERT_ALLOWED_EXT
+
+
+def convert_image_format(input_path: Path, output_path: Path, target_format: str) -> None:
+    fmt_name, _ = CONVERT_TARGET_FORMATS[target_format]
+    img = PILImage.open(input_path)
+    img = ImageOps.exif_transpose(img)
+    if fmt_name == "JPEG" and img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+    if fmt_name == "BMP" and img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+    img.save(output_path, fmt_name)
+
+
+# ---------------------------------------------------------------------------
+# 전자서명 삽입
+# ---------------------------------------------------------------------------
+SIGN_POSITIONS = {
+    "bottom-right": (0.62, 0.06),
+    "bottom-left": (0.06, 0.06),
+    "top-right": (0.62, 0.82),
+    "top-left": (0.06, 0.82),
+    "center": (0.35, 0.45),
+}
+
+
+def apply_signature(input_path: Path, sig_path: Path, output_path: Path, target_page: str, position: str) -> None:
+    reader = PdfReader(str(input_path))
+    if reader.is_encrypted:
+        raise RuntimeError("암호가 걸린 PDF는 지원하지 않습니다.")
+    total = len(reader.pages)
+
+    if target_page == "last":
+        target_indices = {total - 1}
+    elif target_page == "all":
+        target_indices = set(range(total))
+    else:
+        try:
+            n = int(target_page)
+        except ValueError:
+            raise ValueError("페이지 번호가 올바르지 않습니다.")
+        if n < 1 or n > total:
+            raise ValueError(f"페이지 번호가 올바르지 않습니다. (전체 {total}페이지)")
+        target_indices = {n - 1}
+
+    sig_img = PILImage.open(sig_path)
+    sig_w_px, sig_h_px = sig_img.size
+    aspect = sig_h_px / sig_w_px
+
+    rel_x, rel_y = SIGN_POSITIONS.get(position, SIGN_POSITIONS["bottom-right"])
+
+    writer = PdfWriter()
+    for idx, page in enumerate(reader.pages):
+        if idx in target_indices:
+            pw = float(page.mediabox.width)
+            ph = float(page.mediabox.height)
+            sig_w = pw * 0.28
+            sig_h = sig_w * aspect
+
+            buf = io.BytesIO()
+            c = pdf_canvas.Canvas(buf, pagesize=(pw, ph))
+            c.drawImage(
+                str(sig_path),
+                pw * rel_x,
+                ph * rel_y,
+                width=sig_w,
+                height=sig_h,
+                mask="auto",
+                preserveAspectRatio=True,
+            )
+            c.save()
+            buf.seek(0)
+            overlay_reader = PdfReader(buf)
+            page.merge_page(overlay_reader.pages[0])
+        writer.add_page(page)
+
+    with open(output_path, "wb") as f:
+        writer.write(f)
+
+
+# ---------------------------------------------------------------------------
+# OCR (Tesseract)
+# ---------------------------------------------------------------------------
+OCR_LANG_MAP = {
+    "ko": "kor",
+    "en": "eng",
+    "ko+en": "kor+eng",
+}
+
+
+def ocr_image_file(input_path: Path, lang: str) -> str:
+    img = PILImage.open(input_path)
+    return pytesseract.image_to_string(img, lang=OCR_LANG_MAP.get(lang, "kor+eng"))
+
+
+def ocr_pdf_file(input_path: Path, lang: str, max_pages: int = 20) -> str:
+    doc = fitz.open(str(input_path))
+    if doc.needs_pass:
+        doc.close()
+        raise RuntimeError("암호가 걸린 PDF는 지원하지 않습니다.")
+    texts = []
+    page_count = min(len(doc), max_pages)
+    truncated = len(doc) > max_pages
+    for i in range(page_count):
+        page = doc[i]
+        pix = page.get_pixmap(dpi=200)
+        img = PILImage.frombytes("RGB", (pix.width, pix.height), pix.samples)
+        text = pytesseract.image_to_string(img, lang=OCR_LANG_MAP.get(lang, "kor+eng"))
+        texts.append(f"--- {i + 1}페이지 ---\n{text.strip()}")
+    doc.close()
+    result = "\n\n".join(texts)
+    if truncated:
+        result += f"\n\n(처음 {max_pages}페이지까지만 처리했습니다.)"
+    return result
+
+
+# ---------------------------------------------------------------------------
+# PDF → PPT 변환
+# ---------------------------------------------------------------------------
+def convert_pdf_to_pptx(input_path: Path, output_path: Path, max_pages: int = 60) -> None:
+    doc = fitz.open(str(input_path))
+    if doc.needs_pass:
+        raise RuntimeError("암호가 걸린 PDF는 지원하지 않습니다.")
+    if len(doc) == 0:
+        raise RuntimeError("페이지가 없는 PDF입니다.")
+
+    page0 = doc[0]
+    pw_pt, ph_pt = page0.rect.width, page0.rect.height
+
+    prs = Presentation()
+    prs.slide_width = Emu(int(pw_pt * 12700))
+    prs.slide_height = Emu(int(ph_pt * 12700))
+    blank_layout = prs.slide_layouts[6]
+
+    page_count = min(len(doc), max_pages)
+    for i in range(page_count):
+        page = doc[i]
+        pix = page.get_pixmap(dpi=150)
+        img_bytes = pix.tobytes("png")
+        slide = prs.slides.add_slide(blank_layout)
+        slide.shapes.add_picture(
+            io.BytesIO(img_bytes), 0, 0, width=prs.slide_width, height=prs.slide_height
+        )
+    doc.close()
+    prs.save(str(output_path))
+
+
+# ---------------------------------------------------------------------------
+# PDF → Excel 변환 (표 추출)
+# ---------------------------------------------------------------------------
+def convert_pdf_to_xlsx(input_path: Path, output_path: Path, max_pages: int = 30) -> bool:
+    wb = Workbook()
+    wb.remove(wb.active)
+    found_table = False
+
+    with pdfplumber.open(str(input_path)) as pdf:
+        if len(pdf.pages) == 0:
+            raise RuntimeError("페이지가 없는 PDF입니다.")
+        page_count = min(len(pdf.pages), max_pages)
+        for i in range(page_count):
+            page = pdf.pages[i]
+            tables = page.extract_tables()
+            if tables:
+                for t_idx, table in enumerate(tables):
+                    found_table = True
+                    sheet_name = f"p{i + 1}_t{t_idx + 1}"[:31]
+                    ws = wb.create_sheet(title=sheet_name)
+                    for row in table:
+                        ws.append(["" if c is None else c for c in row])
+            else:
+                text = page.extract_text() or ""
+                if text.strip():
+                    ws = wb.create_sheet(title=f"p{i + 1}_text"[:31])
+                    for line in text.splitlines():
+                        ws.append([line])
+
+    if len(wb.sheetnames) == 0:
+        ws = wb.create_sheet(title="empty")
+        ws.append(["추출된 내용이 없습니다."])
+
+    wb.save(str(output_path))
+    return found_table
+
+
+# ---------------------------------------------------------------------------
 # 페이지 라우트
 # ---------------------------------------------------------------------------
 @app.route("/")
@@ -271,6 +663,66 @@ def pdf_to_word_page():
 @app.route("/pdf-merge-split")
 def pdf_merge_split_page():
     return render_template("pdf_merge_split.html", page="pdf-merge-split", site_name=SITE_NAME)
+
+
+@app.route("/watermark")
+def watermark_page():
+    return render_template("watermark.html", page="watermark", site_name=SITE_NAME)
+
+
+@app.route("/pdf-rotate")
+def pdf_rotate_page():
+    return render_template("pdf_rotate.html", page="pdf-rotate", site_name=SITE_NAME)
+
+
+@app.route("/pdf-password")
+def pdf_password_page():
+    return render_template("pdf_password.html", page="pdf-password", site_name=SITE_NAME)
+
+
+@app.route("/qr-code")
+def qr_code_page():
+    return render_template("qr_code.html", page="qr-code", site_name=SITE_NAME)
+
+
+@app.route("/text-diff")
+def text_diff_page():
+    return render_template("text_diff.html", page="text-diff", site_name=SITE_NAME)
+
+
+@app.route("/salary-calculator")
+def salary_calculator_page():
+    return render_template("salary_calculator.html", page="salary-calculator", site_name=SITE_NAME)
+
+
+@app.route("/severance-calculator")
+def severance_calculator_page():
+    return render_template("severance_calculator.html", page="severance-calculator", site_name=SITE_NAME)
+
+
+@app.route("/image-convert")
+def image_convert_page():
+    return render_template("image_convert.html", page="image-convert", site_name=SITE_NAME)
+
+
+@app.route("/pdf-sign")
+def pdf_sign_page():
+    return render_template("pdf_sign.html", page="pdf-sign", site_name=SITE_NAME)
+
+
+@app.route("/ocr")
+def ocr_page():
+    return render_template("ocr.html", page="ocr", site_name=SITE_NAME)
+
+
+@app.route("/pdf-to-ppt")
+def pdf_to_ppt_page():
+    return render_template("pdf_to_ppt.html", page="pdf-to-ppt", site_name=SITE_NAME)
+
+
+@app.route("/pdf-to-excel")
+def pdf_to_excel_page():
+    return render_template("pdf_to_excel.html", page="pdf-to-excel", site_name=SITE_NAME)
 
 
 @app.route("/about")
@@ -692,6 +1144,488 @@ def api_pdf_merge_split_download(job_id):
         download_name=download_name,
         mimetype=mimetype,
     )
+
+
+# ---------------------------------------------------------------------------
+# API - 워터마크 추가
+# ---------------------------------------------------------------------------
+@app.route("/api/watermark/add", methods=["POST"])
+def api_watermark_add():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    file = request.files["file"]
+    text = (request.form.get("text") or "").strip()
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    if not file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+    if not text:
+        return jsonify({"error": "워터마크 텍스트를 입력해주세요."}), 400
+    if len(text) > 40:
+        text = text[:40]
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "document.pdf"
+    input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
+    output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
+    file.save(input_path)
+
+    try:
+        add_watermark(input_path, output_path, text)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": str(exc)}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    download_name = safe_name.rsplit(".", 1)[0] + "_watermark.pdf"
+    return jsonify(
+        {"job_id": job_id, "download_url": f"/api/watermark/download/{job_id}?name={download_name}"}
+    )
+
+
+@app.route("/api/watermark/download/<job_id>")
+def api_watermark_download(job_id):
+    return _simple_pdf_download(job_id, "watermarked.pdf")
+
+
+# ---------------------------------------------------------------------------
+# API - PDF 페이지 회전
+# ---------------------------------------------------------------------------
+@app.route("/api/pdf-rotate/rotate", methods=["POST"])
+def api_pdf_rotate():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    file = request.files["file"]
+    try:
+        angle = int(request.form.get("angle", "90"))
+    except ValueError:
+        angle = 90
+    if angle not in (90, 180, 270):
+        angle = 90
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    if not file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "document.pdf"
+    input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
+    output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
+    file.save(input_path)
+
+    try:
+        rotate_pdf(input_path, output_path, angle)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": str(exc)}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    download_name = safe_name.rsplit(".", 1)[0] + "_rotated.pdf"
+    return jsonify(
+        {"job_id": job_id, "download_url": f"/api/pdf-rotate/download/{job_id}?name={download_name}"}
+    )
+
+
+@app.route("/api/pdf-rotate/download/<job_id>")
+def api_pdf_rotate_download(job_id):
+    return _simple_pdf_download(job_id, "rotated.pdf")
+
+
+# ---------------------------------------------------------------------------
+# API - PDF 비밀번호 설정 · 해제
+# ---------------------------------------------------------------------------
+@app.route("/api/pdf-password/encrypt", methods=["POST"])
+def api_pdf_encrypt():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    file = request.files["file"]
+    password = request.form.get("password", "")
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    if not file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+    if not password:
+        return jsonify({"error": "비밀번호를 입력해주세요."}), 400
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "document.pdf"
+    input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
+    output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
+    file.save(input_path)
+
+    try:
+        encrypt_pdf(input_path, output_path, password)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": str(exc)}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    download_name = safe_name.rsplit(".", 1)[0] + "_locked.pdf"
+    return jsonify(
+        {"job_id": job_id, "download_url": f"/api/pdf-password/download/{job_id}?name={download_name}"}
+    )
+
+
+@app.route("/api/pdf-password/decrypt", methods=["POST"])
+def api_pdf_decrypt():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    file = request.files["file"]
+    password = request.form.get("password", "")
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    if not file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+    if not password:
+        return jsonify({"error": "비밀번호를 입력해주세요."}), 400
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "document.pdf"
+    input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
+    output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
+    file.save(input_path)
+
+    try:
+        decrypt_pdf(input_path, output_path, password)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": str(exc)}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    download_name = safe_name.rsplit(".", 1)[0] + "_unlocked.pdf"
+    return jsonify(
+        {"job_id": job_id, "download_url": f"/api/pdf-password/download/{job_id}?name={download_name}"}
+    )
+
+
+@app.route("/api/pdf-password/download/<job_id>")
+def api_pdf_password_download(job_id):
+    return _simple_pdf_download(job_id, "result.pdf")
+
+
+# ---------------------------------------------------------------------------
+# API - QR코드 생성
+# ---------------------------------------------------------------------------
+@app.route("/api/qr-code/generate", methods=["POST"])
+def api_qr_generate():
+    data = request.get_json(silent=True) or {}
+    text = (data.get("text") or "").strip()
+    if not text:
+        return jsonify({"error": "텍스트나 URL을 입력해주세요."}), 400
+    if len(text) > 1000:
+        return jsonify({"error": "텍스트가 너무 깁니다. 1000자 이하로 입력해주세요."}), 400
+
+    try:
+        png_bytes = generate_qr(text)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": f"QR코드 생성 실패: {exc}"}), 500
+
+    job_id = uuid.uuid4().hex
+    out_path = UPLOAD_DIR / f"{job_id}_out.png"
+    out_path.write_bytes(png_bytes)
+
+    return jsonify({"job_id": job_id, "download_url": f"/api/qr-code/download/{job_id}"})
+
+
+@app.route("/api/qr-code/download/<job_id>")
+def api_qr_download(job_id):
+    safe_job_id = secure_filename(job_id)
+    out_path = UPLOAD_DIR / f"{safe_job_id}_out.png"
+    if not out_path.exists():
+        return jsonify({"error": "파일을 찾을 수 없습니다. 다시 시도해주세요."}), 404
+
+    @after_this_request
+    def cleanup(response):
+        try:
+            out_path.unlink(missing_ok=True)
+        except Exception:  # noqa: BLE001
+            pass
+        return response
+
+    return send_file(out_path, mimetype="image/png", as_attachment=False, download_name="qrcode.png")
+
+
+# ---------------------------------------------------------------------------
+# API - 이미지 포맷 변환
+# ---------------------------------------------------------------------------
+@app.route("/api/image-convert/convert", methods=["POST"])
+def api_image_convert():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    file = request.files["file"]
+    target = request.form.get("target", "jpg").lower()
+
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    if not allowed_convert_file(file.filename):
+        return jsonify({"error": "지원하지 않는 이미지 형식입니다."}), 400
+    if target not in CONVERT_TARGET_FORMATS:
+        return jsonify({"error": "지원하지 않는 변환 형식입니다."}), 400
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "image"
+    in_ext = Path(safe_name).suffix.lower() or ".jpg"
+    _, out_ext = CONVERT_TARGET_FORMATS[target]
+    input_path = UPLOAD_DIR / f"{job_id}_in{in_ext}"
+    output_path = UPLOAD_DIR / f"{job_id}_out{out_ext}"
+    file.save(input_path)
+
+    try:
+        convert_image_format(input_path, output_path, target)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": f"변환 실패: {exc}"}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    stem = safe_name.rsplit(".", 1)[0]
+    download_name = f"{stem}{out_ext}"
+    return jsonify(
+        {
+            "job_id": job_id,
+            "download_url": f"/api/image-convert/download/{job_id}?name={download_name}&ext={out_ext}",
+        }
+    )
+
+
+@app.route("/api/image-convert/download/<job_id>")
+def api_image_convert_download(job_id):
+    safe_job_id = secure_filename(job_id)
+    ext = request.args.get("ext", ".jpg")
+    if ext not in (".jpg", ".png", ".webp", ".bmp", ".tiff"):
+        ext = ".jpg"
+    out_path = UPLOAD_DIR / f"{safe_job_id}_out{ext}"
+    if not out_path.exists():
+        return jsonify({"error": "파일을 찾을 수 없습니다. 다시 시도해주세요."}), 404
+
+    download_name = request.args.get("name", f"converted{ext}")
+    mimetype = {
+        ".jpg": "image/jpeg", ".png": "image/png", ".webp": "image/webp",
+        ".bmp": "image/bmp", ".tiff": "image/tiff",
+    }.get(ext, "application/octet-stream")
+
+    @after_this_request
+    def cleanup(response):
+        try:
+            out_path.unlink(missing_ok=True)
+        except Exception:  # noqa: BLE001
+            pass
+        return response
+
+    return send_file(out_path, as_attachment=True, download_name=download_name, mimetype=mimetype)
+
+
+# ---------------------------------------------------------------------------
+# API - 전자서명 삽입
+# ---------------------------------------------------------------------------
+@app.route("/api/pdf-sign/apply", methods=["POST"])
+def api_pdf_sign():
+    if "file" not in request.files or "signature" not in request.files:
+        return jsonify({"error": "PDF 파일과 서명 이미지를 모두 첨부해주세요."}), 400
+    file = request.files["file"]
+    sig_file = request.files["signature"]
+    target_page = request.form.get("target_page", "last")
+    position = request.form.get("position", "bottom-right")
+
+    if file.filename == "" or sig_file.filename == "":
+        return jsonify({"error": "PDF 파일과 서명 이미지를 모두 첨부해주세요."}), 400
+    if not file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "document.pdf"
+    input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
+    sig_path = UPLOAD_DIR / f"{job_id}_sig.png"
+    output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
+    file.save(input_path)
+    sig_file.save(sig_path)
+
+    try:
+        apply_signature(input_path, sig_path, output_path, target_page, position)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": str(exc)}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+        sig_path.unlink(missing_ok=True)
+
+    download_name = safe_name.rsplit(".", 1)[0] + "_signed.pdf"
+    return jsonify(
+        {"job_id": job_id, "download_url": f"/api/pdf-sign/download/{job_id}?name={download_name}"}
+    )
+
+
+@app.route("/api/pdf-sign/download/<job_id>")
+def api_pdf_sign_download(job_id):
+    return _simple_pdf_download(job_id, "signed.pdf")
+
+
+# ---------------------------------------------------------------------------
+# API - OCR
+# ---------------------------------------------------------------------------
+@app.route("/api/ocr/extract", methods=["POST"])
+def api_ocr_extract():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    file = request.files["file"]
+    lang = request.form.get("lang", "ko+en")
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+
+    filename_lower = file.filename.lower()
+    is_pdf = filename_lower.endswith(".pdf")
+    is_image = any(filename_lower.endswith(ext) for ext in (".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".webp"))
+    if not (is_pdf or is_image):
+        return jsonify({"error": "PDF 또는 이미지 파일만 업로드할 수 있습니다."}), 400
+
+    job_id = uuid.uuid4().hex
+    ext = ".pdf" if is_pdf else Path(secure_filename(file.filename)).suffix.lower()
+    input_path = UPLOAD_DIR / f"{job_id}_in{ext}"
+    file.save(input_path)
+
+    try:
+        if is_pdf:
+            text = ocr_pdf_file(input_path, lang)
+        else:
+            text = ocr_image_file(input_path, lang)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": f"텍스트 인식 실패: {exc}"}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    return jsonify({"text": text})
+
+
+# ---------------------------------------------------------------------------
+# API - PDF → PPT 변환
+# ---------------------------------------------------------------------------
+@app.route("/api/pdf-to-ppt/convert", methods=["POST"])
+def api_pdf_to_ppt():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    if not file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "document.pdf"
+    input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
+    output_path = UPLOAD_DIR / f"{job_id}_out.pptx"
+    file.save(input_path)
+
+    try:
+        convert_pdf_to_pptx(input_path, output_path)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": str(exc)}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    download_name = safe_name.rsplit(".", 1)[0] + ".pptx"
+    return jsonify(
+        {"job_id": job_id, "download_url": f"/api/pdf-to-ppt/download/{job_id}?name={download_name}"}
+    )
+
+
+@app.route("/api/pdf-to-ppt/download/<job_id>")
+def api_pdf_to_ppt_download(job_id):
+    safe_job_id = secure_filename(job_id)
+    out_path = UPLOAD_DIR / f"{safe_job_id}_out.pptx"
+    if not out_path.exists():
+        return jsonify({"error": "파일을 찾을 수 없습니다. 다시 시도해주세요."}), 404
+    download_name = request.args.get("name", "converted.pptx")
+
+    @after_this_request
+    def cleanup(response):
+        try:
+            out_path.unlink(missing_ok=True)
+        except Exception:  # noqa: BLE001
+            pass
+        return response
+
+    return send_file(
+        out_path,
+        as_attachment=True,
+        download_name=download_name,
+        mimetype="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    )
+
+
+# ---------------------------------------------------------------------------
+# API - PDF → Excel 변환
+# ---------------------------------------------------------------------------
+@app.route("/api/pdf-to-excel/convert", methods=["POST"])
+def api_pdf_to_excel():
+    if "file" not in request.files:
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "파일을 선택해주세요."}), 400
+    if not file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "PDF 파일만 업로드할 수 있습니다."}), 400
+
+    job_id = uuid.uuid4().hex
+    safe_name = secure_filename(file.filename) or "document.pdf"
+    input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
+    output_path = UPLOAD_DIR / f"{job_id}_out.xlsx"
+    file.save(input_path)
+
+    try:
+        found_table = convert_pdf_to_xlsx(input_path, output_path)
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"error": str(exc)}), 500
+    finally:
+        input_path.unlink(missing_ok=True)
+
+    download_name = safe_name.rsplit(".", 1)[0] + ".xlsx"
+    return jsonify(
+        {
+            "job_id": job_id,
+            "download_url": f"/api/pdf-to-excel/download/{job_id}?name={download_name}",
+            "found_table": found_table,
+        }
+    )
+
+
+@app.route("/api/pdf-to-excel/download/<job_id>")
+def api_pdf_to_excel_download(job_id):
+    safe_job_id = secure_filename(job_id)
+    out_path = UPLOAD_DIR / f"{safe_job_id}_out.xlsx"
+    if not out_path.exists():
+        return jsonify({"error": "파일을 찾을 수 없습니다. 다시 시도해주세요."}), 404
+    download_name = request.args.get("name", "converted.xlsx")
+
+    @after_this_request
+    def cleanup(response):
+        try:
+            out_path.unlink(missing_ok=True)
+        except Exception:  # noqa: BLE001
+            pass
+        return response
+
+    return send_file(
+        out_path,
+        as_attachment=True,
+        download_name=download_name,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
+def _simple_pdf_download(job_id, default_name):
+    safe_job_id = secure_filename(job_id)
+    out_path = UPLOAD_DIR / f"{safe_job_id}_out.pdf"
+    if not out_path.exists():
+        return jsonify({"error": "파일을 찾을 수 없습니다. 다시 시도해주세요."}), 404
+    download_name = request.args.get("name", default_name)
+
+    @after_this_request
+    def cleanup(response):
+        try:
+            out_path.unlink(missing_ok=True)
+        except Exception:  # noqa: BLE001
+            pass
+        return response
+
+    return send_file(out_path, as_attachment=True, download_name=download_name, mimetype="application/pdf")
 
 
 @app.errorhandler(413)

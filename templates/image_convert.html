@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}이미지 포맷 변환 — 사무실 공구함{% endblock %}
+{% block description %}JPG, PNG, WEBP, HEIC, BMP, TIFF 등 이미지 포맷을 무료로 서로 변환하세요. 아이폰 HEIC 사진도 지원합니다.{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">IMAGE CONVERT</span>
+  <h1>이미지 포맷 변환</h1>
+  <p class="subtitle">JPG · PNG · WEBP · HEIC · BMP · TIFF를 서로 변환해드려요.</p>
+
+  <div id="drop-zone" class="drop-zone">
+    <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.bmp,.tiff,.gif" hidden>
+    <div id="drop-zone-empty">
+      <div class="drop-icon">🖼️</div>
+      <p><strong>이미지 파일을 여기로 끌어다 놓으세요</strong></p>
+      <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
+      <p class="hint">JPG · PNG · WEBP · HEIC · BMP · TIFF · GIF · 최대 50MB</p>
+    </div>
+
+    <div id="file-selected" class="hidden">
+      <div class="file-info">
+        <span class="file-icon">🖼️</span>
+        <div>
+          <p id="file-name" class="file-name"></p>
+          <p id="file-size" class="file-size"></p>
+        </div>
+      </div>
+
+      <p class="option-label">변환할 형식</p>
+      <div class="quality-options">
+        <label class="quality-option">
+          <input type="radio" name="target-format" value="jpg" checked>
+          JPG <em>가장 널리 호환되는 형식</em>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="target-format" value="png">
+          PNG <em>투명 배경 지원</em>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="target-format" value="webp">
+          WEBP <em>웹 최적화, 작은 용량</em>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="target-format" value="bmp">
+          BMP <em>무압축</em>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="target-format" value="tiff">
+          TIFF <em>고품질 인쇄용</em>
+        </label>
+      </div>
+
+      <button type="button" id="apply-btn" class="btn btn-primary btn-large">변환하기</button>
+      <button type="button" id="reset-btn" class="btn btn-text">취소</button>
+    </div>
+
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>변환 중입니다...</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="result-icon">✅</div>
+      <p class="result-title">완료!</p>
+      <a id="download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
+      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
+    </div>
+
+    <div id="error" class="hidden">
+      <p class="error-text" id="error-text"></p>
+      <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
+    </div>
+  </div>
+
+  <div class="ad-slot" id="ad-slot-below-tool"></div>
+</section>
+
+<section class="features container">
+  <div class="feature">
+    <h3>아이폰 HEIC 지원</h3>
+    <p>아이폰에서 찍은 HEIC 사진도 JPG로 바로 변환돼요.</p>
+  </div>
+  <div class="feature">
+    <h3>안전한 파일 관리</h3>
+    <p>처리 후 파일은 서버에서 자동 삭제돼요.</p>
+  </div>
+  <div class="feature">
+    <h3>무료 · 무제한</h3>
+    <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>HEIC 파일이 안 열려요.</summary>
+    <p>일부 구형 HEIC 파일은 변환이 지원되지 않을 수 있어요. 이 경우 원본 기기에서 JPG로 내보낸 후 다시 시도해주세요.</p>
+  </details>
+  <details>
+    <summary>여러 장을 한 번에 변환할 수 있나요?</summary>
+    <p>현재는 한 번에 한 장씩 변환할 수 있어요. 여러 장 동시 변환은 추후 추가될 예정입니다.</p>
+  </details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/image-convert.js') }}"></script>
+{% endblock %}

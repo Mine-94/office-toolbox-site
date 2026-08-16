@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}연봉 실수령액 계산기 — 사무실 공구함{% endblock %}
+{% block description %}4대보험료와 세금을 반영한 월 실수령액을 무료로 계산해보세요.{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">SALARY CALCULATOR</span>
+  <h1>연봉 실수령액 계산기</h1>
+  <p class="subtitle">4대보험료와 소득세를 반영해 월 실수령액을 계산해드려요.</p>
+
+  <div class="calc-form">
+    <div class="calc-field">
+      <label for="annual-salary">연봉 (세전, 만원)</label>
+      <input type="number" id="annual-salary" class="range-input" placeholder="예: 4000" min="0">
+    </div>
+    <div class="calc-field">
+      <label for="dependents">부양가족 수 (본인 포함)</label>
+      <input type="number" id="dependents" class="range-input" value="1" min="1">
+    </div>
+    <div class="calc-field">
+      <label for="children">8~20세 자녀 수</label>
+      <input type="number" id="children" class="range-input" value="0" min="0">
+    </div>
+    <div class="calc-field">
+      <label for="nontaxable">비과세액 (월, 만원 · 식대 등)</label>
+      <input type="number" id="nontaxable" class="range-input" value="20" min="0">
+    </div>
+  </div>
+
+  <button type="button" id="calc-btn" class="btn btn-primary btn-large">계산하기</button>
+
+  <div id="calc-result" class="calc-result hidden"></div>
+
+  <p class="hint" style="margin-top: 16px;">⚠️ 이 계산 결과는 참고용 추정치입니다. 실제 원천징수세액은 국세청 간이세액표 기준으로 다를 수 있어요.</p>
+
+  <div class="ad-slot" id="ad-slot-below-tool"></div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>정확한 금액과 다를 수 있나요?</summary>
+    <p>네. 이 계산기는 근로소득공제·세액공제 등 법정 공제 구조를 반영한 근사치로, 실제 원천징수세액표와 소폭 차이가 날 수 있어요.</p>
+  </details>
+  <details>
+    <summary>4대보험료는 어떻게 계산되나요?</summary>
+    <p>국민연금 4.75%, 건강보험 3.595%, 장기요양보험(건강보험료의 13.14%), 고용보험 0.9%를 반영해요.</p>
+  </details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/salary-calculator.js') }}"></script>
+{% endblock %}

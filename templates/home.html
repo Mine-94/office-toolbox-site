@@ -6,7 +6,7 @@
   <p class="subtitle">사무직에서 자주 쓰는 온라인 문서 도구를 한 곳에 모았어요. 설치·회원가입 없이 무료로 바로 사용하세요.</p>
 </section>
 
-<section class="tool-grid container">
+<section id="tools" class="tool-grid container">
   {% for tool in tools %}
   {% if tool.available %}
   <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}">

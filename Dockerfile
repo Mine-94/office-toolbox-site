@@ -1,8 +1,8 @@
 FROM python:3.11-slim
 
-# Ghostscript 설치 (PDF 압축 엔진)
+# Ghostscript(PDF 압축) + Tesseract(OCR) 설치
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ghostscript \
+    && apt-get install -y --no-install-recommends ghostscript tesseract-ocr tesseract-ocr-kor \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

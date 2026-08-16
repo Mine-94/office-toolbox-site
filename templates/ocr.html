@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}이미지·PDF 텍스트 추출 (OCR) — 사무실 공구함{% endblock %}
+{% block description %}이미지나 스캔 PDF 속 텍스트를 무료로 추출하세요. 한국어·영어 인식을 지원합니다.{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">OCR</span>
+  <h1>이미지·PDF 텍스트 추출</h1>
+  <p class="subtitle">사진이나 스캔 PDF 속 글자를 텍스트로 뽑아드려요.</p>
+
+  <div id="drop-zone" class="drop-zone">
+    <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png,.bmp,.tiff,.webp" hidden>
+    <div id="drop-zone-empty">
+      <div class="drop-icon">🔤</div>
+      <p><strong>이미지 또는 PDF 파일을 여기로 끌어다 놓으세요</strong></p>
+      <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
+      <p class="hint">JPG · PNG · BMP · TIFF · WEBP · PDF (최대 20페이지) · 최대 50MB</p>
+    </div>
+
+    <div id="file-selected" class="hidden">
+      <div class="file-info">
+        <span class="file-icon">🔤</span>
+        <div>
+          <p id="file-name" class="file-name"></p>
+          <p id="file-size" class="file-size"></p>
+        </div>
+      </div>
+
+      <p class="option-label">인식 언어</p>
+      <div class="lang-options">
+        <label class="quality-option">
+          <input type="radio" name="lang" value="ko+en" checked> 한국어+영어
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="lang" value="ko"> 한국어만
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="lang" value="en"> 영어만
+        </label>
+      </div>
+
+      <button type="button" id="apply-btn" class="btn btn-primary btn-large">텍스트 추출하기</button>
+      <button type="button" id="reset-btn" class="btn btn-text">취소</button>
+    </div>
+
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>텍스트 인식 중입니다... (파일이 클 경우 시간이 걸릴 수 있어요)</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="ocr-result-box">
+        <p class="option-label">추출된 텍스트</p>
+        <textarea id="ocr-text" class="ocr-textarea" readonly></textarea>
+        <div class="ocr-actions">
+          <button type="button" id="copy-btn" class="btn btn-primary">복사하기</button>
+          <button type="button" id="download-txt-btn" class="btn btn-primary">TXT 다운로드</button>
+          <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="error" class="hidden">
+      <p class="error-text" id="error-text"></p>
+      <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
+    </div>
+  </div>
+
+  <div class="ad-slot" id="ad-slot-below-tool"></div>
+</section>
+
+<section class="features container">
+  <div class="feature">
+    <h3>한국어·영어 인식</h3>
+    <p>한글과 영문이 섞인 문서도 정확히 인식해요.</p>
+  </div>
+  <div class="feature">
+    <h3>PDF·이미지 모두 지원</h3>
+    <p>스캔한 PDF나 사진 속 텍스트도 추출할 수 있어요.</p>
+  </div>
+  <div class="feature">
+    <h3>안전한 파일 관리</h3>
+    <p>처리 후 파일은 서버에서 자동 삭제돼요.</p>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>손글씨도 인식되나요?</summary>
+    <p>인쇄된 텍스트 위주로 정확도가 높으며, 손글씨는 인식률이 낮을 수 있어요.</p>
+  </details>
+  <details>
+    <summary>긴 PDF도 가능한가요?</summary>
+    <p>최대 20페이지까지 처리돼요. 그보다 긴 문서는 앞 20페이지만 인식돼요.</p>
+  </details>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ocr.js') }}"></script>
+{% endblock %}
