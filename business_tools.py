@@ -54,7 +54,8 @@ def api_business_status():
     status_name = (item.get("b_stt") or "").strip()
     tax_type = (item.get("tax_type") or "").strip()
 
-    registered = bool(status_code or status_name or tax_type)
+    not_registered = "등록되지 않은" in tax_type or "등록되지않은" in tax_type.replace(" ", "")
+    registered = bool(status_code or status_name or tax_type) and not not_registered
 
     return jsonify(
         {
