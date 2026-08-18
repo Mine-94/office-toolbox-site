@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}사업자등록번호 상태조회 – 휴업·폐업·과세유형 확인 | 사무실 공구함{% endblock %}
+{% block description %}사업자등록번호 10자리로 국세청 공공데이터를 조회해 계속사업자·휴업·폐업 상태와 과세유형을 확인하세요.{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">BUSINESS STATUS CHECK</span>
+  <h1>사업자등록번호 상태조회</h1>
+  <p class="subtitle">거래 전 사업자의 휴업·폐업 여부와 과세유형을 국세청 공공데이터로 확인해보세요.</p>
+
+  <div class="calc-form business-status-form">
+    <div class="calc-field business-status-field">
+      <label for="business-number">사업자등록번호</label>
+      <input type="text" id="business-number" class="range-input" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="예: 123-45-67890" aria-describedby="business-number-hint">
+      <p id="business-number-hint" class="hint">숫자만 입력해도 자동으로 하이픈이 붙습니다.</p>
+    </div>
+  </div>
+
+  <button type="button" id="business-status-btn" class="btn btn-primary btn-large">사업자 상태 확인하기</button>
+
+  <div id="business-status-loading" class="calc-result hidden" aria-live="polite">
+    <div class="spinner"></div>
+    <p class="hint" style="text-align:center;">국세청 정보를 확인하고 있어요.</p>
+  </div>
+
+  <div id="business-status-error" class="calc-result hidden" role="alert"></div>
+  <div id="business-status-result" class="calc-result hidden" aria-live="polite"></div>
+
+  <div class="calc-basis">
+    <p class="calc-basis-title">조회 기준</p>
+    <ul>
+      <li>제공 정보: 사업자 상태, 과세유형, 폐업일자 등 국세청 공개 항목</li>
+      <li>데이터 제공: <a href="https://www.data.go.kr/data/15081808/openapi.do" target="_blank" rel="noopener">공공데이터포털 · 국세청 사업자등록정보 API</a></li>
+      <li>입력한 사업자등록번호는 별도 데이터베이스에 저장하지 않습니다.</li>
+    </ul>
+    <p class="calc-basis-disclaimer">조회 결과는 조회 시점의 국세청 등록정보를 바탕으로 한 참고 정보입니다. 실제 영업 여부, 거래 안전성, 신용 상태 또는 사기 여부를 보증하지 않습니다.</p>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>신규 거래처 확인</h4>
+      <p>처음 거래하는 업체가 현재 계속사업자인지 확인할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>세금계산서 전 확인</h4>
+      <p>휴업·폐업 여부와 과세유형을 빠르게 확인하고 싶을 때.</p>
+    </div>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>사업자 이름이나 대표자명도 확인할 수 있나요?</summary>
+    <p>아니요. 이 페이지는 사업자등록번호를 기준으로 국세청이 공개하는 사업자 상태와 과세유형을 확인하는 기능입니다.</p>
+  </details>
+  <details>
+    <summary>조회 결과가 나오면 안전한 업체라는 뜻인가요?</summary>
+    <p>아닙니다. 사업자등록 상태 확인은 거래 안전성이나 신용도를 보증하지 않습니다. 중요한 거래라면 계약 상대방, 사업자등록증, 입금계좌 명의 등을 함께 확인하세요.</p>
+  </details>
+  <details>
+    <summary>입력한 사업자번호를 저장하나요?</summary>
+    <p>사무실 공구함은 이 기능을 위해 별도의 사업자번호 데이터베이스를 만들거나 저장하지 않습니다. 조회 요청은 국세청 공공데이터 API로 전달됩니다.</p>
+  </details>
+</section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('salary_calculator_page') }}">{{ icon("salary-calculator") }}연봉 실수령액 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('severance_calculator_page') }}">{{ icon("severance-calculator") }}퇴직금 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF → Excel 변환</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/business-status.js') }}"></script>
+{% endblock %}
