@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}사업자등록번호 상태조회 – 휴업·폐업·과세유형 확인 | 사무실 공구함{% endblock %}
+{% block title %}사업자등록번호 상태조회 – 휴업·폐업·과세유형 확인 | 업무 도구함{% endblock %}
 {% block description %}사업자등록번호 10자리로 국세청 공공데이터를 조회해 계속사업자·휴업·폐업 상태와 과세유형을 확인하세요.{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/business-status.css') }}">{% endblock %}
 {% block content %}
@@ -12,7 +12,7 @@
   <div class="calc-form business-status-form">
     <div class="calc-field business-status-field">
       <label for="business-number">사업자등록번호</label>
-      <input type="text" id="business-number" class="range-input" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="예: 123-45-67890" aria-describedby="business-number-hint">
+      <input type="text" id="business-number" class="range-input" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="형식 예: 123-45-67890" aria-describedby="business-number-hint">
       <p id="business-number-hint" class="hint">숫자만 입력해도 자동으로 하이픈이 붙습니다.</p>
     </div>
   </div>
@@ -66,15 +66,15 @@
   </details>
   <details>
     <summary>입력한 사업자번호를 저장하나요?</summary>
-    <p>사무실 공구함은 이 기능을 위해 별도의 사업자번호 데이터베이스를 만들거나 저장하지 않습니다. 조회 요청은 국세청 공공데이터 API로 전달됩니다.</p>
+    <p>업무 도구함은 이 기능을 위해 별도의 사업자번호 데이터베이스를 만들거나 저장하지 않습니다. 조회 요청은 국세청 공공데이터 API로 전달됩니다.</p>
   </details>
 </section>
 
 <section class="related-tools container">
   <h2>관련 도구</h2>
   <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('business_bulk_status_page') }}">{{ icon("document") }}사업자번호 일괄조회</a>
     <a class="related-tool-link" href="{{ url_for('salary_calculator_page') }}">{{ icon("salary-calculator") }}연봉 실수령액 계산기</a>
-    <a class="related-tool-link" href="{{ url_for('severance_calculator_page') }}">{{ icon("severance-calculator") }}퇴직금 계산기</a>
     <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF → Excel 변환</a>
   </div>
 </section>
