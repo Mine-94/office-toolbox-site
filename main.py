@@ -15,6 +15,7 @@ app_module.SITE_NAME = "업무 도구함"
 
 # 전수 점검 후 허브/사이트맵에서 제외하는 도구.
 # - 실제 오류 확인: PDF → Word
+# - 계산 정확성 보완 필요: 퇴직금 계산기(통상임금 비교 미반영)
 # - 업무 도구함 핵심 방향과 검색/재방문 가치가 낮음: QR, 텍스트 비교, 회전, 워터마크, 비밀번호, 서명, PDF → PPT
 # 기존 URL은 즉시 삭제하지 않고 유지하되 검색엔진에는 noindex로 안내한다.
 HIDDEN_TOOL_SLUGS = {
@@ -26,6 +27,7 @@ HIDDEN_TOOL_SLUGS = {
     "pdf-password",
     "pdf-sign",
     "pdf-to-ppt",
+    "severance-calculator",
 }
 TOOLS[:] = [tool for tool in TOOLS if tool.get("slug") not in HIDDEN_TOOL_SLUGS]
 HIDDEN_TOOL_PATHS = {f"/{slug}" for slug in HIDDEN_TOOL_SLUGS}
