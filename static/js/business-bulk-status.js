@@ -1,6 +1,7 @@
 (function () {
   const textarea = document.getElementById("bulk-business-numbers");
   const countEl = document.getElementById("bulk-count");
+  const invalidCountEl = document.getElementById("bulk-invalid-count");
   const clearBtn = document.getElementById("bulk-clear-btn");
   const fileInput = document.getElementById("bulk-file-input");
   const fileMessage = document.getElementById("bulk-file-message");
@@ -9,42 +10,57 @@
   const errorBox = document.getElementById("bulk-error");
   const resultSection = document.getElementById("bulk-result-section");
   const resultBody = document.getElementById("bulk-result-body");
-  const filter = document.getElementById("bulk-filter");
   const csvBtn = document.getElementById("bulk-csv-btn");
   const xlsxBtn = document.getElementById("bulk-xlsx-btn");
+  const attentionBox = document.getElementById("bulk-attention");
+  const attentionOnlyBtn = document.getElementById("attention-only-btn");
+  const resetFilterBtn = document.getElementById("bulk-reset-filter");
+  const visibleCountEl = document.getElementById("bulk-visible-count");
+  const summaryButtons = document.querySelectorAll(".bulk-summary-item[data-filter]");
 
   if (!textarea || !lookupBtn) return;
 
   let resultRows = [];
+  let currentFilter = "all";
 
   function normalize(value) {
     return String(value || "").replace(/\D/g, "");
   }
 
-  function formatNumber(value) {
-    const n = normalize(value);
-    if (n.length !== 10) return n;
-    return `${n.slice(0, 3)}-${n.slice(3, 5)}-${n.slice(5)}`;
-  }
-
-  function parseInput() {
-    const matches = textarea.value.match(/(?<!\d)\d{3}-?\d{2}-?\d{5}(?!\d)/g) || [];
+  function parseInputDetails() {
+    const tokens = textarea.value.split(/[\s,;]+/).map((v) => v.trim()).filter(Boolean);
     const seen = new Set();
     const numbers = [];
-    matches.forEach((value) => {
-      const n = normalize(value);
-      if (n.length === 10 && !seen.has(n)) {
-        seen.add(n);
-        numbers.push(n);
+    let invalid = 0;
+
+    tokens.forEach((token) => {
+      const n = normalize(token);
+      if (n.length === 10) {
+        if (!seen.has(n)) {
+          seen.add(n);
+          numbers.push(n);
+        }
+      } else {
+        invalid += 1;
       }
     });
-    return numbers;
+
+    return { numbers, invalid };
   }
 
   function updateCount() {
-    const count = parseInput().length;
-    countEl.textContent = `${count} / 100개`;
-    countEl.classList.toggle("bulk-count-over", count > 100);
+    const parsed = parseInputDetails();
+    countEl.textContent = `인식된 사업자번호 ${parsed.numbers.length}개`;
+    countEl.classList.toggle("bulk-count-over", parsed.numbers.length > 100);
+
+    if (invalidCountEl) {
+      invalidCountEl.textContent = `· 제외된 항목 ${parsed.invalid}개`;
+      invalidCountEl.classList.toggle("hidden", parsed.invalid === 0);
+    }
+
+    lookupBtn.textContent = parsed.numbers.length
+      ? `${Math.min(parsed.numbers.length, 100)}개 사업자 상태 조회하기`
+      : "사업자 상태 조회하기";
   }
 
   function setError(message) {
@@ -82,6 +98,10 @@
     return "unknown";
   }
 
+  function isAttention(row) {
+    return statusBucket(row) !== "active";
+  }
+
   function renderSummary() {
     const counts = { total: resultRows.length, active: 0, suspended: 0, closed: 0, unknown: 0 };
     resultRows.forEach((row) => { counts[statusBucket(row)] += 1; });
@@ -89,14 +109,29 @@
       const el = document.getElementById(`summary-${key}`);
       if (el) el.textContent = value;
     });
+
+    const attention = counts.suspended + counts.closed + counts.unknown;
+    const attentionEl = document.getElementById("summary-attention");
+    if (attentionEl) attentionEl.textContent = `${attention}개`;
+    if (attentionBox) attentionBox.classList.toggle("hidden", attention === 0);
+  }
+
+  function filteredRows() {
+    if (currentFilter === "attention") return resultRows.filter(isAttention);
+    if (currentFilter === "all") return resultRows;
+    return resultRows.filter((row) => statusBucket(row) === currentFilter);
+  }
+
+  function setFilter(nextFilter) {
+    currentFilter = nextFilter;
+    summaryButtons.forEach((button) => {
+      button.classList.toggle("active", button.dataset.filter === currentFilter);
+    });
+    renderRows();
   }
 
   function renderRows() {
-    const selected = filter.value;
-    const rows = selected === "all"
-      ? resultRows
-      : resultRows.filter((row) => statusBucket(row) === selected);
-
+    const rows = filteredRows();
     resultBody.innerHTML = rows.map((row) => {
       const bucket = statusBucket(row);
       return `
@@ -111,6 +146,17 @@
     if (!rows.length) {
       resultBody.innerHTML = '<tr><td colspan="4" class="bulk-empty-row">해당 상태의 결과가 없습니다.</td></tr>';
     }
+
+    if (visibleCountEl) {
+      visibleCountEl.textContent = currentFilter === "all"
+        ? `전체 ${rows.length}개`
+        : currentFilter === "attention"
+          ? `확인 필요한 거래처 ${rows.length}개`
+          : `필터 결과 ${rows.length}개`;
+    }
+
+    if (csvBtn) csvBtn.textContent = currentFilter === "all" ? "CSV 저장" : `현재 ${rows.length}개 CSV 저장`;
+    if (xlsxBtn) xlsxBtn.textContent = currentFilter === "all" ? "Excel 저장" : `현재 ${rows.length}개 Excel 저장`;
   }
 
   function csvEscape(value) {
@@ -118,10 +164,10 @@
     return `"${text.replace(/"/g, '""')}"`;
   }
 
-  function downloadCsv() {
-    if (!resultRows.length) return;
+  function downloadCsv(rows, suffix) {
+    if (!rows.length) return;
     const headers = ["사업자등록번호", "등록여부", "사업자 상태", "과세유형", "폐업일자", "과세유형 전환일", "세금계산서 적용일", "조회시각"];
-    const rows = resultRows.map((row) => [
+    const dataRows = rows.map((row) => [
       row.businessNumber,
       row.registered ? "등록" : "미등록/확인불가",
       row.statusName,
@@ -131,26 +177,26 @@
       row.invoiceApplyDate || "",
       row.checkedAt || "",
     ]);
-    const csv = "\uFEFF" + [headers, ...rows].map((row) => row.map(csvEscape).join(",")).join("\r\n");
+    const csv = "\uFEFF" + [headers, ...dataRows].map((row) => row.map(csvEscape).join(",")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `business-status-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `business-status-${suffix}-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
   }
 
-  async function downloadXlsx() {
-    if (!resultRows.length) return;
+  async function downloadXlsx(rows) {
+    if (!rows.length) return;
     xlsxBtn.disabled = true;
     try {
       const response = await fetch("/api/business/bulk-export-xlsx", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rows: resultRows }),
+        body: JSON.stringify({ rows }),
       });
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
@@ -172,6 +218,7 @@
       setError(error.message);
     } finally {
       xlsxBtn.disabled = false;
+      renderRows();
     }
   }
 
@@ -208,9 +255,10 @@
 
   lookupBtn.addEventListener("click", async () => {
     clearError();
-    const numbers = parseInput();
+    const parsed = parseInputDetails();
+    const numbers = parsed.numbers;
     if (!numbers.length) {
-      setError("조회할 사업자등록번호를 입력해주세요.");
+      setError("유효한 사업자등록번호를 찾지 못했습니다. 10자리 숫자 또는 000-00-00000 형식으로 입력해주세요.");
       return;
     }
     if (numbers.length > 100) {
@@ -232,7 +280,7 @@
       if (!response.ok) throw new Error(data.error || "조회에 실패했습니다.");
       resultRows = data.data || [];
       renderSummary();
-      renderRows();
+      setFilter("all");
       resultSection.classList.remove("hidden");
       resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
@@ -240,11 +288,17 @@
     } finally {
       loading.classList.add("hidden");
       lookupBtn.disabled = false;
+      updateCount();
     }
   });
 
-  filter.addEventListener("change", renderRows);
-  csvBtn.addEventListener("click", downloadCsv);
-  xlsxBtn.addEventListener("click", downloadXlsx);
+  summaryButtons.forEach((button) => {
+    button.addEventListener("click", () => setFilter(button.dataset.filter || "all"));
+  });
+  if (attentionOnlyBtn) attentionOnlyBtn.addEventListener("click", () => setFilter("attention"));
+  if (resetFilterBtn) resetFilterBtn.addEventListener("click", () => setFilter("all"));
+  csvBtn.addEventListener("click", () => downloadCsv(filteredRows(), currentFilter));
+  xlsxBtn.addEventListener("click", () => downloadXlsx(filteredRows()));
+
   updateCount();
 })();

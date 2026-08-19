@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="naver-site-verification" content="31e2c775dc5074fea5c7f5fdc7aa61a51caadf1c" />
-<title>{% block title %}사무실 공구함 — 사무직을 위한 무료 온라인 문서 도구 모음 (OFFICE TOOLBOX){% endblock %}</title>
-<meta name="description" content="{% block description %}PDF 압축, 이미지 압축 등 사무직에서 자주 쓰는 문서 도구를 한 곳에서. 설치 없이 무료로 바로 사용하세요. (Office Toolbox for professionals)">{% endblock %}
+<title>{% block title %}업무 도구함 — 한국 업무를 위한 무료 온라인 실무 도구 (OFFICE TOOLBOX){% endblock %}</title>
+<meta name="description" content="{% block description %}PDF·이미지·텍스트 작업부터 사업자조회·업무 계산까지. 한국 업무에서 자주 필요한 온라인 도구를 설치와 회원가입 없이 바로 사용하세요.{% endblock %}">
 <link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ request.path }}">
-<meta property="og:title" content="{% block og_title %}사무실 공구함 — OFFICE TOOLBOX{% endblock %}">
-<meta property="og:description" content="{% block og_description %}사무직 필수 온라인 문서 도구 모음{% endblock %}">
+<meta property="og:title" content="{% block og_title %}업무 도구함 — OFFICE TOOLBOX{% endblock %}">
+<meta property="og:description" content="{% block og_description %}업무에 필요한 작은 도구를 한곳에.{% endblock %}">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,8 +31,8 @@
 </script>
 <header class="site-header">
   <div class="header-inner">
-    <a class="logo" href="{{ url_for('home') }}">사무실<span> 공구함</span></a>
-    <p class="tagline">OFFICE TOOLBOX — 업무 중 필요한 작은 도구를 한곳에.</p>
+    <a class="logo" href="{{ url_for('home') }}">업무<span> 도구함</span></a>
+    <p class="tagline">OFFICE TOOLBOX — 업무에 필요한 작은 도구를 한곳에.</p>
     <nav class="nav">
       <a href="{{ url_for('home') }}#tools">전체 도구</a>
       <a href="{{ url_for('home') }}#pdf">PDF</a>
@@ -51,7 +51,7 @@
 
 <footer class="site-footer">
   <div class="footer-inner">
-    <p>&copy; 2026 사무실 공구함</p>
+    <p>&copy; 2026 업무 도구함</p>
     <div class="footer-links">
       <a href="{{ url_for('about') }}">소개</a>
       <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
