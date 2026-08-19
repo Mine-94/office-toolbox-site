@@ -1,16 +1,65 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}사업자등록번호 일괄조회 – 최대 100개 휴업·폐업 확인 | 업무 도구함{% endblock %}
-{% block description %}사업자등록번호를 최대 100개까지 한 번에 조회하고 계속사업자·휴업·폐업 상태와 과세유형을 확인한 뒤 CSV·Excel로 저장하세요.{% endblock %}
-{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/business-bulk-status.css') }}">{% endblock %}
+{% block title %}거래처 사업자 일괄점검 – Excel 원본 유지·휴폐업 확인 | 업무 도구함{% endblock %}
+{% block description %}거래처 Excel을 업로드하면 기존 열과 서식을 유지한 채 사업자 상태·과세유형·폐업일·확인필요·조회일 열을 자동으로 추가합니다. 최대 100개 사업자등록번호를 한 번에 점검하세요.{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/business-bulk-status.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/business-excel-enrich.css') }}">
+{% endblock %}
 {% block content %}
 <section class="hero container bulk-hero">
-  <span class="eyebrow">BUSINESS BULK CHECK</span>
-  <h1>사업자번호 일괄조회</h1>
-  <p class="subtitle">엑셀에서 거래처 번호 열을 그대로 붙여넣고 최대 100개까지 한 번에 확인하세요.</p>
+  <span class="eyebrow">BUSINESS WORKFLOW</span>
+  <h1>거래처 사업자 일괄점검</h1>
+  <p class="subtitle">거래처 Excel을 그대로 올리면 기존 열을 유지한 채 국세청 사업자 상태 결과를 오른쪽에 자동으로 추가해요.</p>
+
+  <div class="excel-enrich-card">
+    <div class="excel-enrich-head">
+      <div>
+        <span class="bulk-recommend">RECOMMENDED</span>
+        <h2>Excel 원본 그대로 점검</h2>
+        <p>거래처명·담당자·금액 등 기존 데이터를 그대로 유지하고 결과 열만 추가합니다.</p>
+      </div>
+      <span class="excel-badge">XLSX · 최대 100개</span>
+    </div>
+
+    <div class="excel-flow">
+      <div><strong>1</strong><span>거래처 Excel 업로드</span></div>
+      <span class="excel-flow-arrow">→</span>
+      <div><strong>2</strong><span>사업자번호 열 자동 인식</span></div>
+      <span class="excel-flow-arrow">→</span>
+      <div><strong>3</strong><span>결과 열 추가 후 다운로드</span></div>
+    </div>
+
+    <div class="excel-added-columns">
+      <span>자동 추가</span>
+      <strong>사업자상태</strong>
+      <strong>과세유형</strong>
+      <strong>폐업일</strong>
+      <strong>확인필요</strong>
+      <strong>조회일</strong>
+    </div>
+
+    <div class="excel-upload-row">
+      <label class="btn" for="excel-enrich-input">Excel 파일 선택</label>
+      <input type="file" id="excel-enrich-input" accept=".xlsx" hidden>
+      <div class="excel-selected-file">
+        <strong id="excel-enrich-filename">선택된 파일 없음</strong>
+        <span>첫 행에 ‘사업자등록번호’ 또는 ‘사업자번호’ 열 제목이 있으면 가장 정확합니다.</span>
+      </div>
+    </div>
+
+    <button type="button" id="excel-enrich-btn" class="btn btn-primary btn-large" disabled>거래처 상태 점검하고 Excel 받기</button>
+    <div id="excel-enrich-loading" class="excel-enrich-status hidden">
+      <div class="spinner"></div>
+      <p>Excel을 읽고 국세청에서 거래처 상태를 확인하고 있어요.</p>
+    </div>
+    <div id="excel-enrich-message" class="excel-enrich-status hidden" role="status"></div>
+  </div>
+
+  <div class="bulk-section-divider"><span>번호만 빠르게 조회</span></div>
 
   <div class="bulk-input-card">
-    <div class="bulk-step-label">01 · 붙여넣기</div>
+    <div class="bulk-step-label">FAST CHECK</div>
     <label for="bulk-business-numbers">사업자등록번호 목록</label>
     <textarea id="bulk-business-numbers" class="bulk-textarea" placeholder="형식 예시&#10;123-45-67890&#10;2345678901&#10;345-67-89012&#10;&#10;한 줄에 하나씩 입력하거나 Excel의 한 열을 그대로 붙여넣으세요."></textarea>
     <div class="bulk-input-meta">
@@ -30,8 +79,8 @@
 
     <div class="bulk-file-row">
       <div>
-        <strong>CSV·Excel 파일에서 불러오기</strong>
-        <p class="hint">파일 안의 사업자등록번호를 자동으로 찾아 입력창에 넣습니다. CSV 또는 XLSX, 최대 5MB.</p>
+        <strong>CSV·Excel 파일에서 번호만 불러오기</strong>
+        <p class="hint">파일 안의 사업자등록번호만 찾아 위 입력창에 넣습니다. CSV 또는 XLSX, 최대 5MB.</p>
       </div>
       <label class="btn bulk-file-btn" for="bulk-file-input">파일 선택</label>
       <input type="file" id="bulk-file-input" accept=".csv,.xlsx" hidden>
@@ -101,14 +150,30 @@
   <h2>이런 때 사용하세요</h2>
   <div class="usecase-list">
     <div class="usecase-item">
-      <h4>거래처 정기 점검</h4>
-      <p>월말·분기말에 거래처 목록의 휴업·폐업 여부를 한 번에 점검할 때.</p>
+      <h4>월말 거래처 점검</h4>
+      <p>기존 거래처 Excel을 다시 만들지 않고 휴업·폐업 상태 열만 추가해 확인할 때.</p>
     </div>
     <div class="usecase-item">
       <h4>신규 공급업체 검토</h4>
-      <p>여러 업체와 동시에 거래를 시작하기 전 사업자 상태를 일괄 확인할 때.</p>
+      <p>구매·경리팀이 여러 신규 업체의 사업자 상태를 한 번에 확인할 때.</p>
     </div>
   </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>기존 Excel의 거래처명이나 금액 열이 사라지나요?</summary>
+    <p>아니요. 원본 워크북의 기존 열과 시트를 유지하고, 사용 중인 시트 오른쪽에 업무 도구함 조회 결과 열을 추가합니다.</p>
+  </details>
+  <details>
+    <summary>어떤 Excel 형식이 가장 잘 인식되나요?</summary>
+    <p>첫 행에 열 제목이 있고 사업자번호 열 제목이 ‘사업자등록번호’ 또는 ‘사업자번호’인 XLSX 파일이 가장 안정적으로 인식됩니다.</p>
+  </details>
+  <details>
+    <summary>몇 개까지 처리할 수 있나요?</summary>
+    <p>현재 버전은 한 파일에서 중복을 제외한 최대 100개 사업자등록번호까지 처리합니다.</p>
+  </details>
 </section>
 
 <section class="related-tools container">
@@ -122,4 +187,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/business-bulk-status.js') }}"></script>
+<script src="{{ url_for('static', filename='js/business-excel-enrich.js') }}"></script>
 {% endblock %}

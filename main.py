@@ -1,5 +1,6 @@
 import app as app_module
 from app import app, TOOLS, TOOL_CATEGORIES
+from business_excel_tools import api_business_excel_enrich
 from business_tools import (
     api_business_bulk_export_xlsx,
     api_business_bulk_parse,
@@ -41,8 +42,8 @@ if not any(tool.get("slug") == "business-bulk-status" for tool in TOOLS):
         {
             "slug": "business-bulk-status",
             "icon": "document",
-            "title": "사업자번호 일괄조회",
-            "desc": "최대 100개 거래처의 휴업·폐업 상태를 한 번에 확인하고 엑셀로 저장해요.",
+            "title": "거래처 사업자 일괄점검",
+            "desc": "Excel 원본을 유지한 채 최대 100개 거래처의 휴업·폐업 상태를 점검하고 결과 열을 추가해요.",
             "available": True,
             "category": "business",
             "popular": True,
@@ -97,6 +98,12 @@ app.add_url_rule(
     "/api/business/bulk-export-xlsx",
     endpoint="api_business_bulk_export_xlsx",
     view_func=api_business_bulk_export_xlsx,
+    methods=["POST"],
+)
+app.add_url_rule(
+    "/api/business/excel-enrich",
+    endpoint="api_business_excel_enrich",
+    view_func=api_business_excel_enrich,
     methods=["POST"],
 )
 
