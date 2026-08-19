@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block styles %}{% endblock %}
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8602848692420724" crossorigin="anonymous"></script>
 <!-- TODO: 배포 후 실제 GA4 값으로 교체 -->
 </head>
@@ -38,6 +39,7 @@
       <a href="{{ url_for('home') }}#image">이미지</a>
       <a href="{{ url_for('home') }}#text">텍스트·데이터</a>
       <a href="{{ url_for('home') }}#calculator">계산기</a>
+      <a href="{{ url_for('home') }}#business">사업자·경리</a>
       <a href="{{ url_for('about') }}">소개</a>
     </nav>
   </div>
