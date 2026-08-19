@@ -73,8 +73,9 @@
     const annualTaxable = Math.max(0, annualGross - annualNontaxable);
     const monthlyTaxable = annualTaxable / 12;
 
-    // 4대보험 (근로자 부담분, 월 기준)
-    const pensionBase = Math.min(Math.max(monthlyTaxable, 400000), 6370000);
+    // 4대보험 (근로자 부담분, 2026년 7월 이후 기준)
+    // 국민연금 기준소득월액: 410,000원 ~ 6,590,000원, 근로자 부담률 4.75%
+    const pensionBase = Math.min(Math.max(monthlyTaxable, 410000), 6590000);
     const pension = pensionBase * 0.0475;
     const health = monthlyTaxable * 0.03595;
     const longTermCare = health * 0.1314;
@@ -82,7 +83,7 @@
     const monthlyInsurance = pension + health + longTermCare + employment;
     const annualInsurance = monthlyInsurance * 12;
 
-    // 소득세
+    // 소득세는 실제 월별 근로소득 간이세액표와 차이가 날 수 있는 근사 계산
     const deduction = incomeDeduction(annualTaxable);
     const earnedIncomeAmount = Math.max(0, annualTaxable - deduction);
     const personalDeduction = dependents * 1500000;
