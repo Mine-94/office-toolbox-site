@@ -1,68 +1,49 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}PDF 표를 엑셀로 변환 – 무료 PDF→Excel 변환 | 사무실 공구함{% endblock %}
-{% block description %}PDF 속 표를 Excel(.xlsx) 파일로 무료 변환하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
+{% block title %}PDF 표를 Excel로 추출 – PDF 표 데이터 변환 | 업무 도구함{% endblock %}
+{% block description %}PDF 안의 표 구조를 찾아 Excel(.xlsx)로 추출하세요. 표가 없으면 페이지별 텍스트를 줄 단위로 정리합니다.{% endblock %}
 {% block content %}
 <section class="hero container">
-  <span class="eyebrow">PDF TO EXCEL</span>
-  <h1>PDF → Excel 변환</h1>
-  <p class="subtitle">PDF 안의 표를 Excel(.xlsx) 파일로 바꿔드려요.</p>
+  <span class="eyebrow">PDF TABLE TO EXCEL</span>
+  <h1>PDF 표 → Excel 추출</h1>
+  <p class="subtitle">PDF 안의 표를 찾아 Excel(.xlsx) 파일로 정리해드려요.</p>
 
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept="application/pdf" hidden>
     <div id="drop-zone-empty">
       <div class="drop-icon">{{ icon("pdf-to-excel") }}</div>
-      <p><strong>PDF 파일을 여기로 끌어다 놓으세요</strong></p>
+      <p><strong>표가 포함된 PDF 파일을 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
-      <p class="hint">최대 30페이지 · 표가 포함된 PDF 권장 · 최대 100MB</p>
+      <p class="hint">최대 30페이지 · 최대 100MB · 디지털 텍스트 PDF 권장</p>
     </div>
 
     <div id="file-selected" class="hidden">
       <div class="file-info">
         <span class="file-icon">{{ icon("pdf-to-excel") }}</span>
-        <div>
-          <p id="file-name" class="file-name"></p>
-          <p id="file-size" class="file-size"></p>
-        </div>
+        <div><p id="file-name" class="file-name"></p><p id="file-size" class="file-size"></p></div>
       </div>
-
-      <button type="button" id="convert-btn" class="btn btn-primary btn-large">Excel로 변환하기</button>
+      <button type="button" id="convert-btn" class="btn btn-primary btn-large">표 추출하기</button>
       <button type="button" id="reset-btn" class="btn btn-text">취소</button>
     </div>
 
-    <div id="loading" class="hidden">
-      <div class="spinner"></div>
-      <p>변환 중입니다... 페이지 수에 따라 시간이 걸릴 수 있어요.</p>
-    </div>
+    <div id="loading" class="hidden"><div class="spinner"></div><p>표와 텍스트를 분석하고 있어요...</p></div>
 
     <div id="result" class="hidden">
       <div class="result-icon">{{ icon("check-circle") }}</div>
-      <p class="result-title">변환 완료!</p>
-      <p id="no-table-notice" class="hint hidden">⚠️ PDF에서 표 형식을 찾지 못해 텍스트 기반으로 변환됐어요.</p>
+      <p class="result-title">추출 완료!</p>
+      <p id="no-table-notice" class="hint hidden">PDF에서 표 구조를 찾지 못해 페이지별 텍스트를 줄 단위로 정리했습니다.</p>
       <a id="download-link" class="btn btn-primary btn-large" href="#">Excel 파일 다운로드</a>
-      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 변환하기</button>
+      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
     </div>
 
-    <div id="error" class="hidden">
-      <p class="error-text" id="error-text"></p>
-      <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
-    </div>
+    <div id="error" class="hidden"><p class="error-text" id="error-text"></p><button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button></div>
   </div>
 </section>
 
 <section class="features container">
-  <div class="feature">
-    <h3>표 자동 인식</h3>
-    <p>PDF 안의 표 구조를 인식해서 셀 단위로 정리해요.</p>
-  </div>
-  <div class="feature">
-    <h3>안전한 파일 관리</h3>
-    <p>처리 후 파일은 서버에서 자동 삭제돼요.</p>
-  </div>
-  <div class="feature">
-    <h3>무료 · 무제한</h3>
-    <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
-  </div>
+  <div class="feature"><h3>표 구조 추출</h3><p>선과 셀 구조가 인식되는 PDF 표는 시트의 셀 형태로 정리합니다.</p></div>
+  <div class="feature"><h3>텍스트 대체 처리</h3><p>표를 찾지 못하면 페이지별 텍스트를 줄 단위로 Excel에 담습니다.</p></div>
+  <div class="feature"><h3>복잡한 표는 확인 필요</h3><p>병합셀·스캔 이미지·복잡한 레이아웃은 원본과 다르게 추출될 수 있어요.</p></div>
 </section>
 
 <div class="ad-slot container" id="ad-slot-mid"></div>
@@ -70,44 +51,28 @@
 <section class="usecases container">
   <h2>이런 때 사용하세요</h2>
   <div class="usecase-list">
-    <div class="usecase-item">
-      <h4>표 데이터 재활용</h4>
-      <p>PDF 안의 표 데이터를 엑셀로 옮겨 계산이나 정리에 활용할 때.</p>
-    </div>
-    <div class="usecase-item">
-      <h4>정산 자료 정리</h4>
-      <p>거래명세서·정산서 PDF의 숫자를 엑셀로 옮겨 검토할 때.</p>
-    </div>
-    <div class="usecase-item">
-      <h4>보고서 데이터 추출</h4>
-      <p>PDF 보고서의 통계표를 엑셀로 옮겨 재가공할 때.</p>
-    </div>
+    <div class="usecase-item"><h4>표 데이터 재활용</h4><p>PDF 보고서의 표를 Excel에서 다시 계산·정리하고 싶을 때.</p></div>
+    <div class="usecase-item"><h4>정산 자료 정리</h4><p>정산서나 명세서 PDF의 표 데이터를 Excel로 옮겨 검토할 때.</p></div>
+    <div class="usecase-item"><h4>보고서 데이터 추출</h4><p>디지털 PDF의 통계표를 시트 형태로 옮길 때.</p></div>
   </div>
 </section>
 
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
-  <details>
-    <summary>표가 없는 PDF도 변환할 수 있나요?</summary>
-    <p>표가 감지되지 않으면 페이지별 텍스트를 줄 단위로 정리해서 제공해요.</p>
-  </details>
-  <details>
-    <summary>비밀번호가 걸린 PDF도 가능한가요?</summary>
-    <p>암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요.</p>
-  </details>
+  <details><summary>스캔 PDF도 표로 추출되나요?</summary><p>이 기능은 텍스트·표 구조가 들어 있는 디지털 PDF에 적합합니다. 스캔 이미지 PDF라면 먼저 OCR 텍스트 추출을 사용하는 편이 낫습니다.</p></details>
+  <details><summary>원본 표 모양이 그대로 유지되나요?</summary><p>아니요. 이 도구의 목적은 표 데이터를 셀 단위로 재사용할 수 있게 추출하는 것입니다. 병합셀·복잡한 레이아웃은 달라질 수 있습니다.</p></details>
+  <details><summary>비밀번호가 걸린 PDF도 가능한가요?</summary><p>암호화된 PDF는 지원하지 않습니다.</p></details>
 </section>
 
 <section class="related-tools container">
   <h2>관련 도구</h2>
   <div class="related-tools-grid">
-    <a class="related-tool-link" href="{{ url_for('pdf_to_word_page') }}">{{ icon("pdf-to-word") }}PDF → Word 변환</a>
     <a class="related-tool-link" href="{{ url_for('ocr_page') }}">{{ icon("ocr") }}OCR 텍스트 추출</a>
-    <a class="related-tool-link" href="{{ url_for('pdf_to_ppt_page') }}">{{ icon("pdf-to-ppt") }}PDF → PPT 변환</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+    <a class="related-tool-link" href="{{ url_for('business_bulk_status_page') }}">{{ icon("document") }}거래처 Excel 일괄점검</a>
   </div>
 </section>
 
 <div class="ad-slot container" id="ad-slot-bottom"></div>
 {% endblock %}
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/pdf-to-excel.js') }}"></script>
-{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pdf-to-excel.js') }}"></script>{% endblock %}
