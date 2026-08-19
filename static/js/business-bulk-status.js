@@ -154,6 +154,9 @@
           ? `확인 필요한 거래처 ${rows.length}개`
           : `필터 결과 ${rows.length}개`;
     }
+
+    if (csvBtn) csvBtn.textContent = currentFilter === "all" ? "CSV 저장" : `현재 ${rows.length}개 CSV 저장`;
+    if (xlsxBtn) xlsxBtn.textContent = currentFilter === "all" ? "Excel 저장" : `현재 ${rows.length}개 Excel 저장`;
   }
 
   function csvEscape(value) {
@@ -161,7 +164,7 @@
     return `"${text.replace(/"/g, '""')}"`;
   }
 
-  function downloadCsv(rows = resultRows, suffix = "all") {
+  function downloadCsv(rows, suffix) {
     if (!rows.length) return;
     const headers = ["사업자등록번호", "등록여부", "사업자 상태", "과세유형", "폐업일자", "과세유형 전환일", "세금계산서 적용일", "조회시각"];
     const dataRows = rows.map((row) => [
@@ -186,7 +189,7 @@
     URL.revokeObjectURL(url);
   }
 
-  async function downloadXlsx(rows = resultRows) {
+  async function downloadXlsx(rows) {
     if (!rows.length) return;
     xlsxBtn.disabled = true;
     try {
@@ -215,6 +218,7 @@
       setError(error.message);
     } finally {
       xlsxBtn.disabled = false;
+      renderRows();
     }
   }
 
@@ -293,8 +297,8 @@
   });
   if (attentionOnlyBtn) attentionOnlyBtn.addEventListener("click", () => setFilter("attention"));
   if (resetFilterBtn) resetFilterBtn.addEventListener("click", () => setFilter("all"));
-  csvBtn.addEventListener("click", () => downloadCsv(resultRows, "all"));
-  xlsxBtn.addEventListener("click", () => downloadXlsx(resultRows));
+  csvBtn.addEventListener("click", () => downloadCsv(filteredRows(), currentFilter));
+  xlsxBtn.addEventListener("click", () => downloadXlsx(filteredRows()));
 
   updateCount();
 })();
