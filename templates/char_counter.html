@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}글자 수 세기 – 공백 포함/제외 글자수·바이트 계산기 | 사무실 공구함{% endblock %}
-{% block description %}공백 포함/제외 글자수, 한글 바이트, 단어·문장·문단 수, 원고지 매수까지 입력과 동시에 바로 세어드려요. 자기소개서 글자 제한, SNS 제목 길이도 확인할 수 있어요.{% endblock %}
+{% block title %}글자 수 세기 – 공백 포함/제외·2바이트 계산 | 업무 도구함{% endblock %}
+{% block description %}공백 포함/제외 글자수, 국내 일부 지원서·게시판의 한글 2바이트 기준, 단어·문장·문단 수와 원고지 매수를 바로 계산하세요.{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">CHAR COUNTER</span>
   <h1>글자 수·바이트 계산기</h1>
-  <p class="subtitle">공백 포함/제외 글자수부터 원고지 매수까지, 입력하는 즉시 세어드려요.</p>
+  <p class="subtitle">공백 포함/제외 글자수부터 2바이트 기준과 원고지 매수까지 입력하는 즉시 계산해요.</p>
 
   <div class="drop-zone" style="padding: 32px 24px;">
     <textarea id="char-input" class="range-input char-input" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요..."></textarea>
@@ -22,7 +22,7 @@
       </div>
       <div class="char-stat">
         <span class="char-stat-value" id="stat-bytes">0</span>
-        <span class="char-stat-label">바이트 (한글 2바이트)</span>
+        <span class="char-stat-label">2바이트 기준</span>
       </div>
       <div class="char-stat">
         <span class="char-stat-value" id="stat-words">0</span>
@@ -52,10 +52,7 @@
       <span id="limit-result" class="hint"></span>
     </div>
 
-    <div class="char-limit-row">
-      <p class="option-label">SNS·플랫폼별 글자 수 제한</p>
-      <ul class="sns-limit-list" id="sns-limit-list"></ul>
-    </div>
+    <p class="hint" style="max-width:520px; margin:0 auto 18px; text-align:left;">2바이트 값은 영문·숫자·공백을 1바이트, 한글 등 비ASCII 문자를 2바이트로 보는 국내 일부 지원서·게시판 기준입니다. UTF-8 실제 저장용량과는 다를 수 있습니다.</p>
 
     <div class="char-actions">
       <button type="button" id="clean-btn" class="btn btn-text">공백·줄바꿈 정리하기</button>
@@ -71,12 +68,12 @@
     <p>입력하거나 붙여넣는 즉시 모든 수치가 바로 업데이트돼요.</p>
   </div>
   <div class="feature">
-    <h3>서버에 저장되지 않음</h3>
-    <p>모든 계산은 브라우저 안에서만 이뤄지고, 입력한 텍스트는 어디에도 전송되지 않아요.</p>
+    <h3>브라우저에서 처리</h3>
+    <p>입력한 텍스트는 서버로 전송하지 않고 브라우저 안에서 계산해요.</p>
   </div>
   <div class="feature">
-    <h3>무료 · 무제한</h3>
-    <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
+    <h3>글자 제한 확인</h3>
+    <p>지원서처럼 최대 글자 수가 정해진 입력란에 맞춰 작성할 때 유용해요.</p>
   </div>
 </section>
 
@@ -90,16 +87,12 @@
       <p>"공백 포함 1000자 이내"처럼 정해진 글자 제한에 맞춰야 할 때.</p>
     </div>
     <div class="usecase-item">
-      <h4>SNS·블로그 제목 확인</h4>
-      <p>네이버 블로그, 인스타그램, 유튜브 등 플랫폼별 제목·설명 글자 제한을 확인할 때.</p>
+      <h4>사내 시스템 입력</h4>
+      <p>사내 게시판이나 신청서처럼 글자 수·바이트 제한이 있는 입력란을 작성할 때.</p>
     </div>
     <div class="usecase-item">
       <h4>원고지 매수 계산</h4>
-      <p>과제, 리포트, 원고 등을 원고지 매수 기준으로 제출해야 할 때.</p>
-    </div>
-    <div class="usecase-item">
-      <h4>게시판·댓글 글자 제한</h4>
-      <p>사내 게시판, 각종 신청서 폼처럼 바이트 단위로 글자 수를 제한하는 곳에 입력할 때.</p>
+      <p>과제, 리포트, 원고 등을 원고지 매수 기준으로 확인할 때.</p>
     </div>
   </div>
 </section>
@@ -107,25 +100,25 @@
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
   <details>
-    <summary>바이트는 어떤 기준으로 계산하나요?</summary>
-    <p>영문·숫자·공백·기호는 1바이트, 한글은 2바이트로 계산해요. 게시판·지원서 시스템에서 흔히 쓰는 방식이에요.</p>
+    <summary>2바이트는 어떤 기준인가요?</summary>
+    <p>영문·숫자·공백·기호는 1바이트, 한글 등 비ASCII 문자는 2바이트로 계산하는 국내 일부 지원서·게시판식 기준입니다. UTF-8 저장용량과는 다른 값입니다.</p>
   </details>
   <details>
     <summary>원고지 매수는 어떻게 계산하나요?</summary>
-    <p>200자(20자×10줄) 원고지 기준으로, 공백을 포함한 전체 글자수를 200으로 나눠 올림한 값이에요.</p>
+    <p>200자 원고지를 기준으로 공백을 포함한 전체 글자수를 200으로 나눠 올림한 값입니다.</p>
   </details>
   <details>
     <summary>입력한 텍스트가 서버에 저장되나요?</summary>
-    <p>아니요. 모든 계산은 브라우저 안에서만 처리되고 서버로 전송되지 않아요.</p>
+    <p>아니요. 계산은 브라우저에서 처리되고 입력 내용은 서버로 전송하지 않습니다.</p>
   </details>
 </section>
 
 <section class="related-tools container">
   <h2>관련 도구</h2>
   <div class="related-tools-grid">
-    <a class="related-tool-link" href="{{ url_for('text_diff_page') }}">{{ icon("text-diff") }}텍스트 비교</a>
     <a class="related-tool-link" href="{{ url_for('ocr_page') }}">{{ icon("ocr") }}OCR 텍스트 추출</a>
-    <a class="related-tool-link" href="{{ url_for('qr_code_page') }}">{{ icon("qr-code") }}QR코드 생성기</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF 표 → Excel 추출</a>
+    <a class="related-tool-link" href="{{ url_for('business_status_page') }}">{{ icon("document") }}사업자 상태조회</a>
   </div>
 </section>
 
