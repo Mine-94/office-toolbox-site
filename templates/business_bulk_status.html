@@ -2,7 +2,10 @@
 {% from "_icons.html" import icon %}
 {% block title %}거래처 사업자 일괄점검 – Excel 원본 유지·휴폐업 확인 | 업무 도구함{% endblock %}
 {% block description %}거래처 Excel을 업로드하면 기존 열과 서식을 유지한 채 사업자 상태·과세유형·폐업일·확인필요·조회일 열을 자동으로 추가합니다. 최대 100개 사업자등록번호를 한 번에 점검하세요.{% endblock %}
-{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/business-bulk-status.css') }}">{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/business-bulk-status.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/business-excel-enrich.css') }}">
+{% endblock %}
 {% block content %}
 <section class="hero container bulk-hero">
   <span class="eyebrow">BUSINESS WORKFLOW</span>
@@ -184,4 +187,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/business-bulk-status.js') }}"></script>
+<script src="{{ url_for('static', filename='js/business-excel-enrich.js') }}"></script>
 {% endblock %}
