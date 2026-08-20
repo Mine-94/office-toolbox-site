@@ -17,7 +17,7 @@
   const errorTextEl = document.getElementById("error-text");
   const downloadLink = document.getElementById("download-link");
 
-  const allowedExt = ["jpg", "jpeg", "png", "webp", "heic", "heif", "bmp", "tiff", "gif"];
+  const allowedExt = ["jpg", "jpeg", "png", "webp", "heic", "heif", "bmp", "tiff"];
 
   let currentFile = null;
 
@@ -50,7 +50,7 @@
     if (!file) return;
     const ext = file.name.toLowerCase().split(".").pop();
     if (!allowedExt.includes(ext)) {
-      errorTextEl.textContent = "지원하지 않는 이미지 형식입니다.";
+      errorTextEl.textContent = "HEIC, JPG, PNG, WEBP, BMP, TIFF 파일만 사용할 수 있습니다.";
       showView(errorView);
       return;
     }
@@ -75,9 +75,7 @@
       dropZone.classList.remove("dragover");
     })
   );
-  dropZone.addEventListener("drop", (e) => {
-    onFileChosen(e.dataTransfer.files[0]);
-  });
+  dropZone.addEventListener("drop", (e) => onFileChosen(e.dataTransfer.files[0]));
 
   document.getElementById("reset-btn").addEventListener("click", reset);
   document.getElementById("reset-btn-2").addEventListener("click", reset);
@@ -86,7 +84,6 @@
   applyBtn.addEventListener("click", async () => {
     if (!currentFile) return;
     const target = document.querySelector('input[name="target-format"]:checked').value;
-
     showView(loadingView);
 
     const formData = new FormData();

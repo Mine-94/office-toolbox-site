@@ -12,42 +12,17 @@
   const statManuscript = document.getElementById("stat-manuscript");
   const limitInput = document.getElementById("limit-input");
   const limitResult = document.getElementById("limit-result");
-  const snsList = document.getElementById("sns-limit-list");
   const cleanBtn = document.getElementById("clean-btn");
   const copyBtn = document.getElementById("copy-btn");
   const clearBtn = document.getElementById("clear-btn");
 
-  const SNS_LIMITS = [
-    { name: "네이버 블로그 제목", limit: 100 },
-    { name: "인스타그램 캡션", limit: 2200 },
-    { name: "유튜브 제목", limit: 100 },
-    { name: "유튜브 설명", limit: 5000 },
-    { name: "카카오톡 상태메시지", limit: 60 },
-  ];
-
+  // 국내 일부 지원서/게시판에서 사용하는 영문 1바이트, 한글·비ASCII 2바이트 기준
   function byteLength(str) {
     let bytes = 0;
     for (const ch of str) {
       bytes += ch.codePointAt(0) > 127 ? 2 : 1;
     }
     return bytes;
-  }
-
-  function renderSnsList(count) {
-    snsList.innerHTML = "";
-    SNS_LIMITS.forEach((item) => {
-      const li = document.createElement("li");
-      li.className = "sns-limit-item";
-      const over = count > item.limit;
-      const nameSpan = document.createElement("span");
-      nameSpan.innerHTML = `${item.name} <em>(${item.limit.toLocaleString()}자)</em>`;
-      const statusSpan = document.createElement("span");
-      statusSpan.className = over ? "sns-over" : "sns-ok";
-      statusSpan.textContent = over ? "초과" : "OK";
-      li.appendChild(nameSpan);
-      li.appendChild(statusSpan);
-      snsList.appendChild(li);
-    });
   }
 
   function updateLimit(count) {
@@ -94,7 +69,6 @@
     statManuscript.textContent = `${manuscriptPages}매`;
 
     updateLimit(withSpace);
-    renderSnsList(withSpace);
   }
 
   input.addEventListener("input", update);

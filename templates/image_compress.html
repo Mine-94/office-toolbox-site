@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}이미지 용량 줄이기 – JPG·PNG 무료 압축 | 사무실 공구함{% endblock %}
-{% block description %}JPG, PNG, WEBP 이미지를 무료로 압축하고 리사이즈하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
+{% block title %}이미지 용량 줄이기 – JPG·PNG·WEBP 압축·크기 변경 | 업무 도구함{% endblock %}
+{% block description %}JPG, PNG, WEBP 이미지를 원하는 용량이나 픽셀 크기에 맞춰 압축하세요. 온라인 서류·메일 첨부용 이미지 용량을 빠르게 줄일 수 있습니다.{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">IMAGE COMPRESS</span>
   <h1>이미지 압축</h1>
-  <p class="subtitle">JPG·PNG·WEBP 이미지를 리사이즈하고 압축해드려요.</p>
+  <p class="subtitle">JPG·PNG·WEBP 이미지를 원하는 용량이나 크기에 맞춰 줄여드려요.</p>
 
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
@@ -14,7 +14,7 @@
       <div class="drop-icon">{{ icon("image-compress") }}</div>
       <p><strong>이미지를 여기로 끌어다 놓으세요</strong></p>
       <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
-      <p class="hint">최대 30MB · 파일은 서버에 저장되지 않습니다</p>
+      <p class="hint">최대 30MB · 처리용으로 일시 저장되며 작업 후 삭제됩니다</p>
     </div>
 
     <div id="file-selected" class="hidden">
@@ -35,92 +35,36 @@
       <div id="mode-quality-panel" class="tab-panel">
         <div class="quality-options">
           <p class="option-label">크기</p>
-          <label class="quality-option">
-            <input type="radio" name="resize" value="100" checked>
-            <span>원본 크기 <em>(100%)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="resize" value="75">
-            <span>75% <em>(약간 축소)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="resize" value="50">
-            <span>50% <em>(절반 축소)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="resize" value="25">
-            <span>25% <em>(최대 축소)</em></span>
-          </label>
+          <label class="quality-option"><input type="radio" name="resize" value="100" checked><span>원본 크기 <em>(100%)</em></span></label>
+          <label class="quality-option"><input type="radio" name="resize" value="75"><span>75% <em>(약간 축소)</em></span></label>
+          <label class="quality-option"><input type="radio" name="resize" value="50"><span>50% <em>(절반 축소)</em></span></label>
+          <label class="quality-option"><input type="radio" name="resize" value="25"><span>25% <em>(최대 축소)</em></span></label>
         </div>
 
         <div class="quality-options">
           <p class="option-label">화질</p>
-          <label class="quality-option">
-            <input type="radio" name="quality" value="high">
-            <span>고화질 <em>(압축률 낮음)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="quality" value="medium" checked>
-            <span>보통 <em>(권장)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="quality" value="low">
-            <span>최대 압축 <em>(화질 저하 있음)</em></span>
-          </label>
+          <label class="quality-option"><input type="radio" name="quality" value="high"><span>고화질 <em>(압축률 낮음)</em></span></label>
+          <label class="quality-option"><input type="radio" name="quality" value="medium" checked><span>보통 <em>(권장)</em></span></label>
+          <label class="quality-option"><input type="radio" name="quality" value="low"><span>최대 압축 <em>(화질 저하 있음)</em></span></label>
         </div>
       </div>
 
       <div id="mode-target_size-panel" class="tab-panel hidden">
         <div class="quality-options">
           <p class="option-label">목표 용량</p>
-          <label class="quality-option">
-            <input type="radio" name="target-size-preset" value="100" checked>
-            <span>100KB 이하 <em>(증명사진·간단 첨부용)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="target-size-preset" value="500">
-            <span>500KB 이하 <em>(이메일 첨부 권장)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="target-size-preset" value="1024">
-            <span>1MB 이하 <em>(대부분의 업로드 제한)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="target-size-preset" value="custom">
-            <span>직접 입력 <em>(KB 단위)</em></span>
-          </label>
+          <label class="quality-option"><input type="radio" name="target-size-preset" value="100" checked><span>100KB 이하 <em>(온라인 제출용)</em></span></label>
+          <label class="quality-option"><input type="radio" name="target-size-preset" value="500"><span>500KB 이하 <em>(메일·업로드용)</em></span></label>
+          <label class="quality-option"><input type="radio" name="target-size-preset" value="1024"><span>1MB 이하</span></label>
+          <label class="quality-option"><input type="radio" name="target-size-preset" value="custom"><span>직접 입력 <em>(KB 단위)</em></span></label>
         </div>
         <input type="number" id="target-kb-input" class="range-input hidden" placeholder="예: 300 (KB 단위)" min="10" max="51200">
-        <p class="hint" style="margin-bottom:20px;">설정한 용량 이하가 될 때까지 화질과 크기를 자동으로 조절해요.</p>
+        <p class="hint" style="margin-bottom:20px;">설정한 용량 이하가 되도록 화질과 크기를 단계적으로 조절합니다.</p>
       </div>
 
       <div id="mode-dimensions-panel" class="tab-panel hidden">
         <div class="quality-options">
-          <p class="option-label">SNS·용도별 규격</p>
-          <label class="quality-option">
-            <input type="radio" name="dim-preset" value="custom" checked>
-            <span>직접 입력</span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="dim-preset" value="instagram_post" data-w="1080" data-h="1080">
-            <span>인스타그램 게시물 <em>(1080×1080)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="dim-preset" value="instagram_story" data-w="1080" data-h="1920">
-            <span>인스타그램 스토리 <em>(1080×1920)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="dim-preset" value="youtube_thumbnail" data-w="1280" data-h="720">
-            <span>유튜브 썸네일 <em>(1280×720)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="dim-preset" value="blog_featured" data-w="1200" data-h="630">
-            <span>블로그 대표 이미지 <em>(1200×630)</em></span>
-          </label>
-          <label class="quality-option">
-            <input type="radio" name="dim-preset" value="id_photo" data-w="413" data-h="531">
-            <span>증명사진 <em>(413×531, 3.5×4.5cm)</em></span>
-          </label>
+          <p class="option-label">픽셀 크기 직접 지정</p>
+          <label class="quality-option"><input type="radio" name="dim-preset" value="custom" checked><span>직접 입력</span></label>
         </div>
         <div id="custom-dim-fields">
           <input type="number" id="target-w-input" class="range-input" placeholder="가로(px)" min="1" max="8000" style="display:inline-block; width:47%; margin-right:6%;">
@@ -130,17 +74,14 @@
             <span>정확한 크기로 맞추기 <em>(비율이 다르면 가운데를 기준으로 잘라요)</em></span>
           </label>
         </div>
-        <p class="hint" id="preset-hint" style="margin-bottom:20px; display:none;">규격에 맞춰 가운데를 기준으로 자동으로 잘라요.</p>
+        <p class="hint" id="preset-hint" style="margin-bottom:20px; display:none;"></p>
       </div>
 
-      <button type="button" id="compress-btn" class="btn btn-primary btn-large">압축하기</button>
+      <button type="button" id="compress-btn" class="btn btn-primary btn-large">처리하기</button>
       <button type="button" id="reset-btn" class="btn btn-text">취소</button>
     </div>
 
-    <div id="loading" class="hidden">
-      <div class="spinner"></div>
-      <p>처리 중입니다...</p>
-    </div>
+    <div id="loading" class="hidden"><div class="spinner"></div><p>처리 중입니다...</p></div>
 
     <div id="result" class="hidden">
       <div class="result-icon">{{ icon("check-circle") }}</div>
@@ -148,12 +89,12 @@
       <div class="result-stats">
         <div><span id="original-size"></span><small>원본</small></div>
         <div class="arrow">→</div>
-        <div><span id="compressed-size"></span><small>압축 후</small></div>
+        <div><span id="compressed-size"></span><small>처리 후</small></div>
         <div class="ratio-badge" id="ratio-badge"></div>
       </div>
       <p class="dimension-note" id="dimension-note"></p>
       <a id="download-link" class="btn btn-primary btn-large" href="#">다운로드</a>
-      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 압축하기</button>
+      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 처리하기</button>
     </div>
 
     <div id="error" class="hidden">
@@ -164,18 +105,9 @@
 </section>
 
 <section class="features container">
-  <div class="feature">
-    <h3>빠른 처리</h3>
-    <p>업로드 즉시 처리되어 몇 초 안에 결과를 받아요.</p>
-  </div>
-  <div class="feature">
-    <h3>안전한 파일 관리</h3>
-    <p>처리 후 파일은 서버에서 자동 삭제돼요.</p>
-  </div>
-  <div class="feature">
-    <h3>무료 · 무제한</h3>
-    <p>회원가입 없이 몇 번이든 무료로 사용하세요.</p>
-  </div>
+  <div class="feature"><h3>목표 용량 지정</h3><p>100KB·500KB·1MB 또는 원하는 KB 값을 기준으로 줄일 수 있어요.</p></div>
+  <div class="feature"><h3>픽셀 크기 변경</h3><p>가로·세로 픽셀 값을 직접 입력해 업무 시스템 요구사항에 맞출 수 있어요.</p></div>
+  <div class="feature"><h3>임시 파일 처리</h3><p>업로드 파일은 처리 목적으로만 사용하고 작업 후 삭제합니다.</p></div>
 </section>
 
 <div class="ad-slot container" id="ad-slot-mid"></div>
@@ -183,43 +115,17 @@
 <section class="usecases container">
   <h2>이런 때 사용하세요</h2>
   <div class="usecase-list">
-    <div class="usecase-item">
-      <h4>메일 첨부용 사진 최적화</h4>
-      <p>큰 용량의 사진을 메일 첨부 제한에 맞게 줄일 때.</p>
-    </div>
-    <div class="usecase-item">
-      <h4>웹·블로그 업로드</h4>
-      <p>웹사이트나 블로그에 올리기 전에 로딩 속도를 위해 용량을 줄일 때.</p>
-    </div>
-    <div class="usecase-item">
-      <h4>메신저 전송 전 정리</h4>
-      <p>카카오톡·슬랙 등으로 여러 장을 보내기 전에 용량을 줄일 때.</p>
-    </div>
-    <div class="usecase-item">
-      <h4>업로드 용량 제한 맞추기</h4>
-      <p>채용 사이트·공공기관 서류가 "100KB 이하", "1MB 이하"처럼 정확한 용량 제한을 요구할 때.</p>
-    </div>
-    <div class="usecase-item">
-      <h4>SNS·증명사진 규격 맞추기</h4>
-      <p>인스타그램 게시물, 유튜브 썸네일, 증명사진처럼 정해진 크기로 딱 맞춰야 할 때.</p>
-    </div>
+    <div class="usecase-item"><h4>온라인 서류 제출</h4><p>채용·공공기관 사이트의 100KB, 500KB, 1MB 같은 업로드 제한을 맞출 때.</p></div>
+    <div class="usecase-item"><h4>메일 첨부</h4><p>고해상도 이미지를 메일로 보내기 전에 용량을 줄일 때.</p></div>
+    <div class="usecase-item"><h4>사내 시스템 이미지 등록</h4><p>가로·세로 픽셀 규격이 정해진 사내 시스템에 이미지를 올릴 때.</p></div>
   </div>
 </section>
 
 <section class="faq container">
   <h2>자주 묻는 질문</h2>
-  <details>
-    <summary>어떤 이미지 형식을 지원하나요?</summary>
-    <p>JPG, PNG, WEBP 형식을 지원합니다.</p>
-  </details>
-  <details>
-    <summary>화질이 많이 떨어지나요?</summary>
-    <p>"보통" 옵션은 육안으로 거의 차이가 없으면서 용량을 크게 줄여줍니다.</p>
-  </details>
-  <details>
-    <summary>파일이 서버에 저장되나요?</summary>
-    <p>아니요. 처리 후 원본과 결과 파일은 즉시 삭제됩니다.</p>
-  </details>
+  <details><summary>어떤 이미지 형식을 지원하나요?</summary><p>JPG, PNG, WEBP 형식을 지원합니다.</p></details>
+  <details><summary>목표 용량을 항상 정확히 맞출 수 있나요?</summary><p>이미지 특성에 따라 정확한 값보다 작게 만들어질 수 있으며, 품질을 과도하게 낮춰도 목표에 도달하기 어려운 경우에는 가능한 범위까지 줄입니다.</p></details>
+  <details><summary>파일은 어떻게 처리되나요?</summary><p>서버에서 일시적으로 처리하며 작업 후 원본과 결과 파일을 삭제합니다.</p></details>
 </section>
 
 <section class="related-tools container">
@@ -227,7 +133,7 @@
   <div class="related-tools-grid">
     <a class="related-tool-link" href="{{ url_for('image_convert_page') }}">{{ icon("image-convert") }}이미지 포맷 변환</a>
     <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
-    <a class="related-tool-link" href="{{ url_for('qr_code_page') }}">{{ icon("qr-code") }}QR코드 생성기</a>
+    <a class="related-tool-link" href="{{ url_for('ocr_page') }}">{{ icon("ocr") }}OCR 텍스트 추출</a>
   </div>
 </section>
 
