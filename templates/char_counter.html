@@ -1,7 +1,41 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}글자 수 세기 – 공백 포함/제외·2바이트 계산 | 업무 도구함{% endblock %}
-{% block description %}공백 포함/제외 글자수, 국내 일부 지원서·게시판의 한글 2바이트 기준, 단어·문장·문단 수와 원고지 매수를 바로 계산하세요.{% endblock %}
+{% block title %}글자 수 계산기 – 공백 포함/제외·2바이트 계산 | 업무 도구함{% endblock %}
+{% block description %}글자 수 계산기로 공백 포함/제외 글자수, 국내 일부 지원서·게시판의 한글 2바이트 기준, 단어·문장·문단 수와 원고지 매수를 바로 계산하세요.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "2바이트는 어떤 기준인가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "영문·숫자·공백·기호는 1바이트, 한글 등 비ASCII 문자는 2바이트로 계산하는 국내 일부 지원서·게시판식 기준입니다. UTF-8 저장용량과는 다른 값입니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "원고지 매수는 어떻게 계산하나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "200자 원고지를 기준으로 공백을 포함한 전체 글자수를 200으로 나눠 올림한 값입니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "입력한 텍스트가 서버에 저장되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "아니요. 계산은 브라우저에서 처리되고 입력 내용은 서버로 전송하지 않습니다."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">CHAR COUNTER</span>

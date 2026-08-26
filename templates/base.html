@@ -16,7 +16,15 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 {% block styles %}{% endblock %}
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8602848692420724" crossorigin="anonymous"></script>
-<!-- TODO: 배포 후 실제 GA4 값으로 교체 -->
+{% if ga_measurement_id %}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{{ ga_measurement_id }}');
+</script>
+{% endif %}
     <script type="application/ld+json">
         {
           "@context": "https://schema.org",
@@ -31,6 +39,7 @@
           }
         }
     </script>
+{% block structured_data %}{% endblock %}
 </head>
 <body data-page="{{ page }}">
 <script src="{{ url_for('static', filename='js/otx-storage.js') }}"></script>
