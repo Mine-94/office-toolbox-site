@@ -41,6 +41,17 @@ SITE_TAGLINE = "OFFICE TOOLBOX"
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB (PDF 쪽이 더 큼)
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 
+# 사이트맵에 반영하는 마지막 콘텐츠 갱신일. 페이지 구성/문구를 의미 있게
+# 바꿀 때마다 이 값을 갱신해 검색엔진에 재수집 신호를 준다.
+SITE_LAST_UPDATED = "2026-08-26"
+
+
+@app.context_processor
+def inject_analytics():
+    # Render 환경변수 GA_MEASUREMENT_ID가 설정된 경우에만 GA4 스크립트를 렌더링한다.
+    return {"ga_measurement_id": os.environ.get("GA_MEASUREMENT_ID", "")}
+
+
 # ---------------------------------------------------------------------------
 # 툴 목록 (홈 화면 카드 + sitemap 생성에 공용으로 사용)
 # ---------------------------------------------------------------------------
@@ -908,7 +919,16 @@ def sitemap():
     entries = []
     for page in pages:
         loc = f"{base}/{page}" if page else f"{base}/"
-        entries.append(f"<url><loc>{loc}</loc></url>")
+        if page == "":
+            priority = "1.0"
+        elif page in ("about", "privacy", "terms"):
+            priority = "0.3"
+        else:
+            priority = "0.8"
+        entries.append(
+            f"<url><loc>{loc}</loc><lastmod>{SITE_LAST_UPDATED}</lastmod>"
+            f"<changefreq>weekly</changefreq><priority>{priority}</priority></url>"
+        )
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
