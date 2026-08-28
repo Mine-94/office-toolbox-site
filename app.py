@@ -943,6 +943,21 @@ def ads():
     return app.send_static_file("ads.txt")
 
 
+@app.route("/manifest.json")
+def manifest():
+    return app.send_static_file("manifest.json")
+
+
+@app.route("/service-worker.js")
+def service_worker():
+    return app.send_static_file("service-worker.js")
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return app.send_static_file("favicon.ico")
+
+
 # ---------------------------------------------------------------------------
 # API - PDF 압축
 # ---------------------------------------------------------------------------
