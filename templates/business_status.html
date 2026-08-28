@@ -3,6 +3,40 @@
 {% block title %}사업자등록번호 상태조회 – 휴업·폐업·과세유형 확인 | 업무 도구함{% endblock %}
 {% block description %}사업자등록번호 10자리로 국세청 공공데이터를 조회해 계속사업자·휴업·폐업 상태와 과세유형을 확인하세요.{% endblock %}
 {% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/business-status.css') }}">{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "사업자 이름이나 대표자명도 확인할 수 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "아니요. 이 페이지는 사업자등록번호를 기준으로 국세청이 공개하는 사업자 상태와 과세유형을 확인하는 기능입니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "조회 결과가 나오면 안전한 업체라는 뜻인가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "아닙니다. 사업자등록 상태 확인은 거래 안전성이나 신용도를 보증하지 않습니다. 중요한 거래라면 계약 상대방, 사업자등록증, 입금계좌 명의 등을 함께 확인하세요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "입력한 사업자번호를 저장하나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "업무 도구함은 이 기능을 위해 별도의 사업자번호 데이터베이스를 만들거나 저장하지 않습니다. 조회 요청은 국세청 공공데이터 API로 전달됩니다."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">BUSINESS STATUS CHECK</span>

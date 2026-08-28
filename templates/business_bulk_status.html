@@ -6,6 +6,40 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/business-bulk-status.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/business-excel-enrich.css') }}">
 {% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "기존 Excel의 거래처명이나 금액 열이 사라지나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "아니요. 원본 워크북의 기존 열과 시트를 유지하고, 사용 중인 시트 오른쪽에 업무 도구함 조회 결과 열을 추가합니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "어떤 Excel 형식이 가장 잘 인식되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "첫 행에 열 제목이 있고 사업자번호 열 제목이 '사업자등록번호' 또는 '사업자번호'인 XLSX 파일이 가장 안정적으로 인식됩니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "몇 개까지 처리할 수 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "현재 버전은 한 파일에서 중복을 제외한 최대 100개 사업자등록번호까지 처리합니다."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero container bulk-hero">
   <span class="eyebrow">BUSINESS WORKFLOW</span>

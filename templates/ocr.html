@@ -2,6 +2,40 @@
 {% from "_icons.html" import icon %}
 {% block title %}이미지·스캔 PDF 글자 인식 – OCR 텍스트 추출 | 업무 도구함{% endblock %}
 {% block description %}이미지나 스캔 PDF 속 인쇄 텍스트를 OCR로 추출하세요. 한국어·영어 인식을 지원하며 PDF는 최대 20페이지까지 처리합니다.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "손글씨도 인식되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "이 도구는 인쇄 텍스트에 더 적합합니다. 손글씨는 인식률이 낮을 수 있어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "긴 PDF도 가능한가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "최대 20페이지까지 처리하며 그보다 긴 문서는 앞 20페이지만 인식합니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "OCR 결과를 그대로 업무 문서에 사용해도 되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "OCR은 글자를 잘못 인식할 수 있으므로 계약서·금액·계좌번호 등 중요한 정보는 원본과 반드시 대조해주세요."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">OCR</span>
