@@ -43,7 +43,7 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 
 # 사이트맵에 반영하는 마지막 콘텐츠 갱신일. 페이지 구성/문구를 의미 있게
 # 바꿀 때마다 이 값을 갱신해 검색엔진에 재수집 신호를 준다.
-SITE_LAST_UPDATED = "2026-08-26"
+SITE_LAST_UPDATED = "2026-08-29"
 
 
 @app.context_processor
