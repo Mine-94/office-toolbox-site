@@ -2,6 +2,40 @@
 {% from "_icons.html" import icon %}
 {% block title %}이미지 용량 줄이기 – JPG·PNG·WEBP 압축·크기 변경 | 업무 도구함{% endblock %}
 {% block description %}JPG, PNG, WEBP 이미지를 원하는 용량이나 픽셀 크기에 맞춰 압축하세요. 온라인 서류·메일 첨부용 이미지 용량을 빠르게 줄일 수 있습니다.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "어떤 이미지 형식을 지원하나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "JPG, PNG, WEBP 형식을 지원합니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "목표 용량을 항상 정확히 맞출 수 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "이미지 특성에 따라 정확한 값보다 작게 만들어질 수 있으며, 품질을 과도하게 낮춰도 목표에 도달하기 어려운 경우에는 가능한 범위까지 줄입니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "파일은 어떻게 처리되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "서버에서 일시적으로 처리하며 작업 후 원본과 결과 파일을 삭제합니다."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">IMAGE COMPRESS</span>

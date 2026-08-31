@@ -1,7 +1,33 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}QR코드 만들기 – 무료 QR코드 생성기 | 사무실 공구함{% endblock %}
+{% block title %}QR코드 만들기 – 무료 QR코드 생성기 | 업무 도구함{% endblock %}
 {% block description %}텍스트나 URL을 입력하면 무료로 QR코드 이미지를 만들어드려요. 설치 없이 바로 사용 가능합니다.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "어떤 내용을 QR코드로 만들 수 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "URL, 텍스트, 전화번호, Wi-Fi 정보 등 어떤 문자열이든 QR코드로 변환할 수 있어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "생성한 QR코드는 서버에 저장되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "아니요. 생성 즉시 다운로드할 수 있도록 제공되고, 서버에는 남지 않아요."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">QR CODE</span>

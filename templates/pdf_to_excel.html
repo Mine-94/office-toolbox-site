@@ -2,6 +2,40 @@
 {% from "_icons.html" import icon %}
 {% block title %}PDF 표를 Excel로 추출 – PDF 표 데이터 변환 | 업무 도구함{% endblock %}
 {% block description %}PDF 안의 표 구조를 찾아 Excel(.xlsx)로 추출하세요. 표가 없으면 페이지별 텍스트를 줄 단위로 정리합니다.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "스캔 PDF도 표로 추출되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "이 기능은 텍스트·표 구조가 들어 있는 디지털 PDF에 적합합니다. 스캔 이미지 PDF라면 먼저 OCR 텍스트 추출을 사용하는 편이 낫습니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "원본 표 모양이 그대로 유지되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "아니요. 이 도구의 목적은 표 데이터를 셀 단위로 재사용할 수 있게 추출하는 것입니다. 병합셀·복잡한 레이아웃은 달라질 수 있습니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "비밀번호가 걸린 PDF도 가능한가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "암호화된 PDF는 지원하지 않습니다."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">PDF TABLE TO EXCEL</span>

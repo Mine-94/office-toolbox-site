@@ -1,7 +1,41 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}퇴직금 계산기 – 근로기준법 기준 무료 계산 | 사무실 공구함{% endblock %}
+{% block title %}퇴직금 계산기 – 근로기준법 기준 무료 계산 | 업무 도구함{% endblock %}
 {% block description %}입사일과 퇴사일, 최근 3개월 급여만 입력하면 근로기준법 기준 예상 퇴직금을 무료로 계산해드려요.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "퇴직금은 어떻게 계산되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "퇴직금 = 1일 평균임금 × 30일 × (재직일수 ÷ 365)로 계산돼요. 평균임금은 퇴직 직전 3개월간 지급된 임금 총액을 그 기간의 총 일수로 나눈 값이에요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "1년 미만 근무해도 퇴직금을 받을 수 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "근로기준법상 퇴직금은 계속 근로기간이 1년 이상인 경우에만 발생해요. 1년 미만이면 법정 퇴직금 지급 의무가 없어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "상여금과 연차수당도 포함되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "네. 평균임금 산정 시 최근 1년간 지급된 상여금과 미사용 연차수당을 3/12로 비례 배분해서 반영해요."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">SEVERANCE PAY CALCULATOR</span>

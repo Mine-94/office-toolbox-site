@@ -1,7 +1,41 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}PDF를 Word로 변환 – 무료 PDF→DOCX 변환 | 사무실 공구함{% endblock %}
+{% block title %}PDF를 Word로 변환 – 무료 PDF→DOCX 변환 | 업무 도구함{% endblock %}
 {% block description %}PDF 파일을 편집 가능한 Word(.docx) 문서로 무료 변환하세요. 설치 없이 브라우저에서 바로 사용 가능합니다.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "스캔한 이미지 PDF도 변환되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "이미지로만 이루어진 PDF는 텍스트 인식이 되지 않아 정확도가 떨어질 수 있어요. 텍스트 기반 PDF에서 가장 잘 동작합니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "표나 이미지도 유지되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "가능한 범위에서 원본 레이아웃(문단, 표, 이미지 위치)을 유지하도록 변환하지만, 복잡한 디자인은 일부 달라질 수 있어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "비밀번호가 걸린 PDF도 가능한가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "암호화된 PDF는 지원하지 않습니다. 잠금을 해제한 후 이용해주세요."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 {% block content %}
 <section class="hero container">
   <span class="eyebrow">PDF TO WORD</span>
