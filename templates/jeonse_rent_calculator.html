@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}전월세 전환 계산기 – 보증금→월세 적정 전환율 확인 | 업무 도구함{% endblock %}
+{% block description %}전세보증금을 월세로 바꿀 때 법정 전환율 상한과 적정 월세를 계산하세요. 2026년 9월 기준 한국은행 기준금리를 반영했어요.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "전월세 전환율 법정 상한은 어떻게 정해지나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "주택임대차보호법 시행령에 따라 한국은행 기준금리에 연 2%포인트를 더한 값이 상한이에요. 2026년 8월 27일 기준금리가 3.00%로 오르면서 현재 법정 상한은 연 5.00%예요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "법정 상한은 신규 계약에도 적용되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "아니요. 법정 상한은 기존 계약을 갱신하면서 보증금 일부를 월세로 바꿀 때만 적용돼요. 신규 계약은 임대인과 임차인이 자유롭게 조건을 정할 수 있어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "계산된 금액이 실제 계약과 다를 수 있나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "네. 지역 시장 전환율은 법정 상한보다 낮게 형성되는 경우가 많고, 관리비 등 다른 조건에 따라 체감 부담이 달라질 수 있어요. 계약 전 실제 시세와 비교해보세요."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">JEONSE-RENT CALCULATOR</span>
+  <h1>전월세 전환 계산기</h1>
+  <p class="subtitle">전세보증금을 월세로 낮출 때 적정 월세와 법정 전환율 상한을 계산해드려요.</p>
+
+  <div class="calc-form">
+    <div class="calc-field">
+      <label for="jeonse-deposit">기존 전세보증금 (만원)</label>
+      <input type="number" id="jeonse-deposit" class="range-input" placeholder="예: 30000" min="0">
+    </div>
+    <div class="calc-field">
+      <label for="new-deposit">변경 후 보증금 (만원)</label>
+      <input type="number" id="new-deposit" class="range-input" placeholder="예: 20000" min="0">
+    </div>
+    <div class="calc-field">
+      <label for="rent-rate">적용 전환율 (%, 기본값 2026년 9월 법정 상한)</label>
+      <input type="number" id="rent-rate" class="range-input" value="5.00" min="0" step="0.01">
+    </div>
+    <div class="calc-field">
+      <label for="proposed-rent">집주인 제안 월세 (만원, 선택 입력)</label>
+      <input type="number" id="proposed-rent" class="range-input" placeholder="예: 45" min="0">
+    </div>
+  </div>
+
+  <button type="button" id="calc-btn" class="btn btn-primary btn-large">계산하기</button>
+
+  <div id="calc-result" class="calc-result hidden"></div>
+
+  <div class="calc-basis">
+    <p class="calc-basis-title">계산 기준</p>
+    <ul>
+      <li>기준 시점: <strong>2026년 9월</strong></li>
+      <li>계산식: 월세 = (보증금 차액 × 전환율) ÷ 12</li>
+      <li>법정 산정률(상한): 한국은행 기준금리 + 대통령령으로 정하는 이율(연 2%포인트). 2026.8.27. 기준금리 인상(3.00%)으로 현재 상한은 연 5.00%</li>
+      <li>법정 상한은 <strong>기존 계약 갱신 시</strong>에만 적용되며, 신규 계약에는 적용되지 않아요</li>
+      <li>참고 자료: <a href="https://www.bok.or.kr" target="_blank" rel="noopener">한국은행</a>, <a href="https://www.law.go.kr" target="_blank" rel="noopener">국가법령정보센터(주택임대차보호법 시행령)</a>, <a href="https://www.renthome.go.kr" target="_blank" rel="noopener">국토교통부 렌트홈</a></li>
+    </ul>
+    <p class="calc-basis-disclaimer">실제 시장 전환율은 지역·물건 조건에 따라 법정 상한보다 낮게 형성되는 경우가 많고, 기준금리 변경 시 상한도 달라질 수 있습니다. 법률 자문이 아닌 참고용 예상 계산으로 활용해주세요.</p>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>재계약 시 월세 전환 협상</h4>
+      <p>집주인이 보증금을 낮추고 월세를 올리자고 제안할 때 적정 수준인지 미리 확인할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>제안받은 월세의 상한 초과 여부 확인</h4>
+      <p>갱신계약에서 제시받은 월세를 환산해 법정 전환율 상한을 넘는지 판단할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>이사 예산 계획</h4>
+      <p>보증금 대신 월세 비중을 늘릴 때 예상되는 월 지출 규모를 파악할 때.</p>
+    </div>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>전월세 전환율 법정 상한은 어떻게 정해지나요?</summary>
+    <p>주택임대차보호법 시행령에 따라 한국은행 기준금리에 연 2%포인트를 더한 값이 상한이에요. 2026년 8월 27일 기준금리가 3.00%로 오르면서 현재 법정 상한은 연 5.00%예요.</p>
+  </details>
+  <details>
+    <summary>법정 상한은 신규 계약에도 적용되나요?</summary>
+    <p>아니요. 법정 상한은 기존 계약을 갱신하면서 보증금 일부를 월세로 바꿀 때만 적용돼요. 신규 계약은 임대인과 임차인이 자유롭게 조건을 정할 수 있어요.</p>
+  </details>
+  <details>
+    <summary>계산된 금액이 실제 계약과 다를 수 있나요?</summary>
+    <p>네. 지역 시장 전환율은 법정 상한보다 낮게 형성되는 경우가 많고, 관리비 등 다른 조건에 따라 체감 부담이 달라질 수 있어요. 계약 전 실제 시세와 비교해보세요.</p>
+  </details>
+</section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('insurance_calculator_page') }}">{{ icon("document") }}4대보험료 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('salary_calculator_page') }}">{{ icon("salary-calculator") }}연봉 실수령액 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('business_status_page') }}">{{ icon("document") }}사업자 상태조회</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/jeonse-rent-calculator.js') }}"></script>
+{% endblock %}
