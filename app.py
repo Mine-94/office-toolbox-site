@@ -174,6 +174,15 @@ TOOLS = [
         "popular": False,
     },
     {
+        "slug": "jeonse-rent-calculator",
+        "icon": "document",
+        "title": "전월세 전환 계산기",
+        "desc": "전세보증금을 월세로 전환할 때 적정 월세와 법정 전환율 상한을 계산해요.",
+        "available": True,
+        "category": "calculator",
+        "popular": False,
+    },
+    {
         "slug": "image-convert",
         "icon": "image-convert",
         "title": "이미지 포맷 변환",
@@ -875,6 +884,11 @@ def insurance_calculator_page():
 @app.route("/severance-calculator")
 def severance_calculator_page():
     return render_template("severance_calculator.html", page="severance-calculator", site_name=SITE_NAME)
+
+
+@app.route("/jeonse-rent-calculator")
+def jeonse_rent_calculator_page():
+    return render_template("jeonse_rent_calculator.html", page="jeonse-rent-calculator", site_name=SITE_NAME)
 
 
 @app.route("/image-convert")
