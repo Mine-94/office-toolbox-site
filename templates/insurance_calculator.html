@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}4대보험료 계산기 – 근로자·사업주 부담분 한눈에 | 업무 도구함{% endblock %}
+{% block description %}국민연금·건강보험·장기요양보험·고용보험·산재보험료를 근로자 부담분과 사업주 부담분으로 나눠 계산하세요. 2026년 요율 기준.{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "산재보험료율은 왜 직접 입력해야 하나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "산재보험은 업종별로 요율 차이가 매우 커서(약 0.6%~34%) 단일 값으로 정확히 계산할 수 없습니다. 기본값은 2026년 평균 요율인 1.47%이며, 정확한 업종별 요율은 근로복지공단 고시를 확인해 직접 입력해주세요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "사업주 부담 고용보험료가 근로자보다 왜 더 높나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "고용보험은 실업급여 요율(0.9%, 근로자·사업주 동일)에 더해 사업주만 고용안정·직업능력개발사업 요율을 추가로 부담합니다. 이 추가 요율은 상시근로자 수 규모에 따라 0.25%~0.85%로 차등 적용됩니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "연봉 실수령액 계산기와는 어떻게 다른가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "연봉 실수령액 계산기는 소득세까지 반영한 근로자의 예상 실수령액을 계산합니다. 이 계산기는 소득세는 제외하고 4대보험료만 근로자·사업주 양쪽 부담분을 함께 보여드려요."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">INSURANCE CALCULATOR</span>
+  <h1>4대보험료 계산기</h1>
+  <p class="subtitle">국민연금·건강보험·장기요양보험·고용보험·산재보험료를 근로자·사업주 부담분으로 나눠 계산해드려요.</p>
+
+  <div class="calc-form">
+    <div class="calc-field">
+      <label for="monthly-salary">월 급여 (과세대상, 만원)</label>
+      <input type="number" id="monthly-salary" class="range-input" placeholder="예: 300" min="0">
+    </div>
+    <div class="calc-field">
+      <label for="company-size">사업장 상시근로자 수 (고용보험 사업주 요율 기준)</label>
+      <select id="company-size" class="range-input" style="margin:0;">
+        <option value="small">150인 미만</option>
+        <option value="priority">150인 이상 · 우선지원대상기업</option>
+        <option value="mid">150인~1,000인 미만</option>
+        <option value="large">1,000인 이상 · 국가·지자체</option>
+      </select>
+    </div>
+    <div class="calc-field">
+      <label for="accident-rate">산재보험료율 (%, 업종별 상이 · 기본값 2026년 평균)</label>
+      <input type="number" id="accident-rate" class="range-input" value="1.47" min="0" step="0.01">
+    </div>
+  </div>
+
+  <button type="button" id="calc-btn" class="btn btn-primary btn-large">계산하기</button>
+
+  <div id="calc-result" class="calc-result hidden"></div>
+
+  <div class="calc-basis">
+    <p class="calc-basis-title">계산 기준</p>
+    <ul>
+      <li>기준연도: <strong>2026년</strong></li>
+      <li>국민연금: 근로자·사업주 각 4.75%, 기준소득월액 41만원~659만원 (2026.7.~2027.6.)</li>
+      <li>건강보험: 근로자·사업주 각 3.595%, 장기요양보험은 건강보험료의 13.14%를 절반씩 부담</li>
+      <li>고용보험(실업급여): 근로자·사업주 각 0.9%. 사업주는 상시근로자 수에 따라 고용안정·직업능력개발사업 요율(0.25%~0.85%)을 추가로 부담</li>
+      <li>산재보험: 100% 사업주 부담, 업종별 요율이 크게 달라 직접 입력(기본값은 2026년 평균 1.47%)</li>
+      <li>참고 자료: <a href="https://www.nps.or.kr" target="_blank" rel="noopener">국민연금공단</a>, <a href="https://www.nhis.or.kr" target="_blank" rel="noopener">국민건강보험공단</a>, <a href="https://www.ei.go.kr" target="_blank" rel="noopener">고용보험</a>, <a href="https://www.kcomwel.or.kr" target="_blank" rel="noopener">근로복지공단</a></li>
+    </ul>
+    <p class="calc-basis-disclaimer">실제 고지되는 보험료는 신고 기준, 업종별 산재보험료율, 사업장 규모 판정 방식 등에 따라 달라질 수 있습니다. 4대보험 신고·정산용이 아닌 참고용 예상 계산으로 활용해주세요.</p>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item">
+      <h4>채용 시 인건비 산정</h4>
+      <p>신규 채용 예정 급여의 사업주 부담 4대보험료까지 포함한 실제 인건비를 미리 확인할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>급여명세서 검산</h4>
+      <p>급여명세서에 찍힌 4대보험 공제액이 맞는지 근로자 부담분을 다시 확인할 때.</p>
+    </div>
+    <div class="usecase-item">
+      <h4>사업 예산 계획</h4>
+      <p>인건비 예산을 짤 때 급여 외 사업주가 추가로 부담하는 보험료 규모를 파악할 때.</p>
+    </div>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>산재보험료율은 왜 직접 입력해야 하나요?</summary>
+    <p>산재보험은 업종별로 요율 차이가 매우 커서(약 0.6%~34%) 단일 값으로 정확히 계산할 수 없습니다. 기본값은 2026년 평균 요율인 1.47%이며, 정확한 업종별 요율은 근로복지공단 고시를 확인해 직접 입력해주세요.</p>
+  </details>
+  <details>
+    <summary>사업주 부담 고용보험료가 근로자보다 왜 더 높나요?</summary>
+    <p>고용보험은 실업급여 요율(0.9%, 근로자·사업주 동일)에 더해 사업주만 고용안정·직업능력개발사업 요율을 추가로 부담합니다. 이 추가 요율은 상시근로자 수 규모에 따라 0.25%~0.85%로 차등 적용됩니다.</p>
+  </details>
+  <details>
+    <summary>연봉 실수령액 계산기와는 어떻게 다른가요?</summary>
+    <p>연봉 실수령액 계산기는 소득세까지 반영한 근로자의 예상 실수령액을 계산합니다. 이 계산기는 소득세는 제외하고 4대보험료만 근로자·사업주 양쪽 부담분을 함께 보여드려요.</p>
+  </details>
+</section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('salary_calculator_page') }}">{{ icon("salary-calculator") }}연봉 실수령액 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('business_status_page') }}">{{ icon("document") }}사업자 상태조회</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF 표 → Excel 추출</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/insurance-calculator.js') }}"></script>
+{% endblock %}
