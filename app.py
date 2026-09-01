@@ -156,6 +156,15 @@ TOOLS = [
         "popular": False,
     },
     {
+        "slug": "insurance-calculator",
+        "icon": "document",
+        "title": "4대보험료 계산기",
+        "desc": "국민연금·건강보험·고용보험·산재보험료를 근로자·사업주 부담분으로 나눠 계산해요.",
+        "available": True,
+        "category": "calculator",
+        "popular": False,
+    },
+    {
         "slug": "severance-calculator",
         "icon": "severance-calculator",
         "title": "퇴직금 계산기",
@@ -856,6 +865,11 @@ def text_diff_page():
 @app.route("/salary-calculator")
 def salary_calculator_page():
     return render_template("salary_calculator.html", page="salary-calculator", site_name=SITE_NAME)
+
+
+@app.route("/insurance-calculator")
+def insurance_calculator_page():
+    return render_template("insurance_calculator.html", page="insurance-calculator", site_name=SITE_NAME)
 
 
 @app.route("/severance-calculator")
