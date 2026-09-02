@@ -21,6 +21,7 @@ Ghostscript가 로컬에 설치되어 있어야 PDF 압축이 동작합니다 (`
 ## 테스트
 ```bash
 python -m unittest discover -v
+node tests/test_analytics_events.js
 node tests/test_quote_statement.js
 python -m gunicorn --check-config main:app
 ```

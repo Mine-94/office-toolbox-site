@@ -122,5 +122,6 @@
       </table>
     `;
     resultEl.classList.remove("hidden");
+    if (window.OTX) window.OTX.trackToolComplete("salary-calculator");
   });
 })();

@@ -158,6 +158,12 @@
 
         downloadLink.href = data.download_url;
         showView(resultView);
+        if (window.OTX) {
+          window.OTX.trackToolComplete("pdf-merge-split", {
+            operation: "merge",
+            item_count_bucket: window.OTX.bucketCount(files.length),
+          });
+        }
       } catch (err) {
         errorTextEl.textContent = "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
         showView(errorView);
@@ -281,6 +287,12 @@
 
         downloadLink.href = data.download_url;
         showView(resultView);
+        if (window.OTX) {
+          window.OTX.trackToolComplete("pdf-merge-split", {
+            operation: "split",
+            variant: mode,
+          });
+        }
       } catch (err) {
         errorTextEl.textContent = "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
         showView(errorView);

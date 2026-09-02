@@ -90,6 +90,9 @@
       await navigator.clipboard.writeText(input.value);
       const original = copyBtn.textContent;
       copyBtn.textContent = "복사됨!";
+      if (window.OTX) {
+        window.OTX.trackToolComplete("char-counter", { operation: "copy" });
+      }
       setTimeout(() => {
         copyBtn.textContent = original;
       }, 1500);

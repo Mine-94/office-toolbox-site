@@ -102,6 +102,13 @@
         <p class="hint business-status-note">이 결과는 사업자등록 상태 확인용입니다. 거래 안전성이나 신용도를 보증하지 않습니다.</p>
       `;
       resultBox.classList.remove("hidden");
+      if (window.OTX) {
+        let resultType = "unknown";
+        if (data.registered && (data.statusCode === "01" || data.statusName.includes("계속"))) resultType = "active";
+        else if (data.registered && (data.statusCode === "02" || data.statusName.includes("휴업"))) resultType = "suspended";
+        else if (data.registered && (data.statusCode === "03" || data.statusName.includes("폐업"))) resultType = "closed";
+        window.OTX.trackToolComplete("business-status", { result_type: resultType });
+      }
     } catch (error) {
       errorBox.innerHTML = `<p class="error-text">${escapeHtml(error.message)}</p>`;
       errorBox.classList.remove("hidden");

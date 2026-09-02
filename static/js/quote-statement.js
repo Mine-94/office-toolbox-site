@@ -407,11 +407,12 @@
     document.getElementById("print-btn").addEventListener("click", function () {
       if (!validateForPrint()) return;
       updatePreview();
-      if (typeof window.gtag === "function") {
-        window.gtag("event", "tool_complete", {
-          tool_name: "quote_statement",
-          document_type: documentType,
-          item_count: getItems().filter(function (item) { return item.name; }).length
+      if (window.OTX) {
+        window.OTX.trackToolComplete("quote-statement", {
+          variant: documentType,
+          item_count_bucket: window.OTX.bucketCount(
+            getItems().filter(function (item) { return item.name; }).length
+          )
         });
       }
       window.print();

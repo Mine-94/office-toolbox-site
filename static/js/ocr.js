@@ -106,6 +106,12 @@
       }
       ocrTextEl.value = data.text || "(인식된 텍스트가 없습니다)";
       showView(resultView);
+      if (window.OTX) {
+        window.OTX.trackToolComplete("ocr", {
+          variant: lang,
+          result_type: data.text && data.text.trim() ? "text_found" : "empty",
+        });
+      }
     } catch (err) {
       errorTextEl.textContent = "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
       showView(errorView);

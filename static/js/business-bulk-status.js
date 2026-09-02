@@ -283,6 +283,12 @@
       setFilter("all");
       resultSection.classList.remove("hidden");
       resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (window.OTX) {
+        window.OTX.trackToolComplete("business-bulk-status", {
+          operation: "lookup",
+          item_count_bucket: window.OTX.bucketCount(resultRows.length),
+        });
+      }
     } catch (error) {
       setError(error.message);
     } finally {

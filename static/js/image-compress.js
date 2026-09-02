@@ -221,6 +221,16 @@
           : `크기: ${data.original_dimensions} → ${data.new_dimensions}`;
       downloadLink.href = data.download_url;
       showView(resultView);
+      if (window.OTX) {
+        window.OTX.trackToolComplete("image-compress", {
+          variant: currentMode,
+          result_type: data.used_original
+            ? "already_optimized"
+            : data.target_reached === false
+              ? "best_effort"
+              : "compressed",
+        });
+      }
     } catch (err) {
       errorTextEl.textContent = "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
       showView(errorView);
