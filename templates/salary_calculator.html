@@ -70,6 +70,23 @@
   </div>
 </section>
 
+<section class="tool-guide container" aria-labelledby="salary-guide-title">
+  <h2 id="salary-guide-title">예상 실수령액 계산 방법</h2>
+  <ol class="tool-guide-steps">
+    <li><strong>근로계약서의 세전 연봉을 만원 단위로 입력합니다.</strong><span>퇴직금·성과급·연장근로수당이 연봉에 포함되는지는 계약 내용을 기준으로 판단하세요.</span></li>
+    <li><strong>본인을 포함한 부양가족과 8~20세 자녀 수를 입력합니다.</strong><span>개인별 공제 조건을 단순화한 입력값이며 실제 원천징수 자료를 대신하지 않습니다.</span></li>
+    <li><strong>월 비과세액을 확인합니다.</strong><span>식대 등 실제 급여명세서에서 비과세로 처리되는 금액만 입력하세요.</span></li>
+    <li><strong>월 공제 내역과 결과를 비교합니다.</strong><span>근로계약 검토용 예상값으로 사용하고 실제 금액은 회사 급여담당자나 공식 자료로 확인하세요.</span></li>
+  </ol>
+  <h2>이 계산에 포함되지 않는 차이</h2>
+  <div class="tool-guide-grid">
+    <div class="tool-guide-card"><h3>원천징수 방식</h3><p>소득세는 연간 공제 구조를 단순화한 근사값입니다. 회사가 적용하는 근로소득 간이세액표의 월 공제액과 다를 수 있습니다.</p></div>
+    <div class="tool-guide-card"><h3>개인별 예외</h3><p>보험 가입 제외, 보수월액 조정, 장애인·경로우대·한부모 공제와 회사별 수당 구조를 모두 반영하지 않습니다.</p></div>
+    <div class="tool-guide-card"><h3>상여·퇴직금</h3><p>월급과 별도로 지급되는 성과급, 상여금, 퇴직금의 과세·보험 처리는 계산 대상에서 제외합니다.</p></div>
+    <div class="tool-guide-card"><h3>개인정보 처리</h3><p>입력과 계산은 브라우저 안에서만 이루어지며 연봉·가족 수·비과세액을 서버에 전송하거나 저장하지 않습니다.</p></div>
+  </div>
+</section>
+
 <div class="ad-slot container" id="ad-slot-mid"></div>
 
 <section class="usecases container">
@@ -105,8 +122,8 @@
 <section class="related-tools container">
   <h2>관련 도구</h2>
   <div class="related-tools-grid">
-    <a class="related-tool-link" href="{{ url_for('insurance_calculator_page') }}">{{ icon("document") }}4대보험료 계산기</a>
-    <a class="related-tool-link" href="{{ url_for('jeonse_rent_calculator_page') }}">{{ icon("document") }}전월세 전환 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('quote_statement_page') }}">{{ icon("document") }}견적서·거래명세서 만들기</a>
+    <a class="related-tool-link" href="{{ url_for('char_counter_page') }}">{{ icon("document") }}글자 수·바이트 계산기</a>
     <a class="related-tool-link" href="{{ url_for('business_status_page') }}">{{ icon("document") }}사업자 상태조회</a>
     <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF 표 → Excel 추출</a>
   </div>

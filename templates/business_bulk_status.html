@@ -180,6 +180,28 @@
   <p class="bulk-result-note">조회 결과는 조회 시점의 국세청 등록정보를 바탕으로 한 참고 정보입니다. 실제 영업 여부, 거래 안전성, 신용 상태 또는 사기 여부를 보증하지 않습니다.</p>
 </section>
 
+<section class="tool-guide container" aria-labelledby="business-bulk-guide-title">
+  <h2 id="business-bulk-guide-title">거래처 Excel 준비 방법</h2>
+  <ol class="tool-guide-steps">
+    <li><strong>첫 행에 열 제목을 둡니다.</strong><span>사업자번호 열 이름을 ‘사업자등록번호’ 또는 ‘사업자번호’로 쓰면 가장 안정적으로 찾습니다.</span></li>
+    <li><strong>10자리 번호를 한 열에 정리합니다.</strong><span>하이픈은 있어도 되며 중복 번호는 한 번만 조회합니다. 최대 100개, 파일은 5MB 이하입니다.</span></li>
+    <li><strong>결과 파일의 오른쪽 열을 확인합니다.</strong><span>사업자상태·과세유형·폐업일·확인필요·조회일이 원본 시트 오른쪽에 추가됩니다.</span></li>
+  </ol>
+  <h2>원본 유지 범위와 개인정보</h2>
+  <div class="tool-guide-grid">
+    <div class="tool-guide-card"><h3>유지되는 항목</h3><p>기존 시트와 셀 값, 주요 서식을 유지하고 결과 열만 추가합니다. 수식은 수식 상태로 읽어 저장합니다.</p></div>
+    <div class="tool-guide-card"><h3>지원 범위</h3><p>원본 유지 방식은 XLSX만 지원합니다. 번호만 불러오는 보조 기능은 CSV와 XLSX를 지원합니다.</p></div>
+    <div class="tool-guide-card"><h3>조회 한계</h3><p>미등록·확인불가는 번호 오류나 API 응답 상태도 포함할 수 있습니다. 중요한 거래처는 단건 조회와 서류 대조를 병행하세요.</p></div>
+    <div class="tool-guide-card"><h3>파일 처리</h3><p>업로드 파일을 디스크나 데이터베이스에 별도 보관하지 않고 요청 처리 메모리에서 읽습니다. 사업자번호는 조회를 위해 국세청 API로 전달됩니다.</p></div>
+  </div>
+  <h2>처리되지 않을 때</h2>
+  <ul class="tool-guide-list">
+    <li>열을 찾지 못하면 첫 행에 정확한 열 제목을 추가하고, 사업자번호가 숫자 10자리인지 확인하세요.</li>
+    <li>사업자번호로 보이는 열이 여러 개라면 실제 조회할 한 열만 ‘사업자등록번호’로 이름을 정리하세요.</li>
+    <li>100개를 넘으면 파일을 나누고, 공공 API 응답이 지연되면 잠시 뒤 다시 시도하세요.</li>
+  </ul>
+</section>
+
 <section class="usecases container">
   <h2>이런 때 사용하세요</h2>
   <div class="usecase-list">
@@ -214,7 +236,7 @@
   <h2>관련 도구</h2>
   <div class="related-tools-grid">
     <a class="related-tool-link" href="{{ url_for('business_status_page') }}">{{ icon("document") }}사업자 단건 조회</a>
-    <a class="related-tool-link" href="{{ url_for('salary_calculator_page') }}">{{ icon("salary-calculator") }}연봉 실수령액 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('quote_statement_page') }}">{{ icon("document") }}견적서·거래명세서 만들기</a>
     <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF → Excel 변환</a>
   </div>
 </section>

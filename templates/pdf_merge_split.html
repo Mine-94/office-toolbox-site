@@ -113,6 +113,23 @@
   <div class="feature"><h3>임시 파일 처리</h3><p>업로드 파일은 처리 목적으로만 사용하고 작업 후 삭제합니다.</p></div>
 </section>
 
+<section class="tool-guide container" aria-labelledby="pdf-merge-split-guide-title">
+  <h2 id="pdf-merge-split-guide-title">PDF 합치기·나누기 방법</h2>
+  <div class="tool-guide-grid">
+    <div class="tool-guide-card"><h3>여러 파일 합치기</h3><p>병합 탭에서 PDF를 2개 이상 선택하고 목록 순서를 확인하세요. 결과 페이지는 선택한 파일 순서대로 이어집니다.</p></div>
+    <div class="tool-guide-card"><h3>모든 페이지 나누기</h3><p>분할 탭에서 ‘전체 페이지 개별 분할’을 고르면 각 페이지가 `page_001.pdf` 형식으로 들어간 ZIP 파일을 받습니다.</p></div>
+    <div class="tool-guide-card"><h3>필요한 범위만 추출</h3><p>`1-3, 5, 7-9`처럼 입력하면 적은 순서가 그대로 유지된 하나의 PDF를 만듭니다.</p></div>
+    <div class="tool-guide-card"><h3>처리 한도</h3><p>병합은 선택한 전체 파일 합계, 분할은 단일 파일 기준 최대 100MB입니다. 암호가 걸린 PDF는 지원하지 않습니다.</p></div>
+  </div>
+  <h2>중요 문서 확인사항</h2>
+  <ul class="tool-guide-list">
+    <li>병합 후 첫 페이지부터 마지막 페이지까지 순서와 누락 여부를 확인하세요.</li>
+    <li>대화형 입력란, 첨부파일, 책갈피, 인증 전자서명은 새 PDF에서 그대로 유지되지 않을 수 있습니다.</li>
+    <li>원본은 작업 직후, 결과는 다운로드 응답 뒤 삭제합니다. 다운로드하지 않은 결과도 1시간이 지나면 다음 처리 요청에서 정리하며 문서 내용을 별도 저장하지 않습니다.</li>
+    <li>결과 파일이 제출 제한보다 크면 <a href="{{ url_for('pdf_compress_page') }}">PDF 압축</a>으로 이어서 줄일 수 있습니다.</li>
+  </ul>
+</section>
+
 <div class="ad-slot container" id="ad-slot-mid"></div>
 
 <section class="usecases container">

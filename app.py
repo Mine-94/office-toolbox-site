@@ -2,6 +2,7 @@ import io
 import os
 import subprocess
 import tempfile
+import time
 import uuid
 import zipfile
 from pathlib import Path
@@ -268,6 +269,29 @@ TOOL_CATEGORIES = [
 # ---------------------------------------------------------------------------
 UPLOAD_DIR = Path(tempfile.gettempdir()) / "office-toolbox-uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
+UPLOAD_RETENTION_SECONDS = 60 * 60
+
+
+def cleanup_stale_uploads(*, now: float | None = None) -> None:
+    """다운로드하지 않은 임시 산출물도 한 시간 뒤 다음 API 요청에서 정리한다."""
+    cutoff = (time.time() if now is None else now) - UPLOAD_RETENTION_SECONDS
+    try:
+        candidates = list(UPLOAD_DIR.iterdir())
+    except OSError:
+        return
+
+    for path in candidates:
+        try:
+            if path.is_file() and path.stat().st_mtime < cutoff:
+                path.unlink(missing_ok=True)
+        except OSError:
+            continue
+
+
+@app.before_request
+def cleanup_expired_uploads():
+    if request.path.startswith("/api/"):
+        cleanup_stale_uploads()
 
 
 class ClientFileError(ValueError):

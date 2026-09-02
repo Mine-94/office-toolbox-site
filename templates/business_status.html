@@ -72,6 +72,22 @@
   </div>
 </section>
 
+<section class="tool-guide container" aria-labelledby="business-status-guide-title">
+  <h2 id="business-status-guide-title">사업자 상태 확인 순서</h2>
+  <ol class="tool-guide-steps">
+    <li><strong>사업자등록증의 10자리 번호를 입력합니다.</strong><span>하이픈은 있어도 되고 없어도 됩니다.</span></li>
+    <li><strong>국세청 공개 상태를 조회합니다.</strong><span>계속사업자·휴업·폐업과 과세유형, 제공되는 경우 폐업일을 확인합니다.</span></li>
+    <li><strong>중요 거래는 다른 자료와 함께 확인합니다.</strong><span>상호·대표자·계좌 명의와 계약 상대방이 일치하는지 별도로 대조하세요.</span></li>
+  </ol>
+  <h2>조회 결과의 의미와 한계</h2>
+  <div class="tool-guide-grid">
+    <div class="tool-guide-card"><h3>확인할 수 있는 것</h3><p>조회 시점에 국세청 API가 제공하는 사업자 상태와 과세유형을 확인합니다.</p></div>
+    <div class="tool-guide-card"><h3>확인할 수 없는 것</h3><p>상호·대표자 신원, 실제 영업 여부, 신용도, 사기 이력과 입금계좌 소유자는 판정하지 않습니다.</p></div>
+    <div class="tool-guide-card"><h3>조회 오류</h3><p>국세청 응답 지연이나 일일 API 한도 때문에 실패할 수 있습니다. 번호를 확인하고 잠시 뒤 다시 시도하세요.</p></div>
+    <div class="tool-guide-card"><h3>사업자번호 처리</h3><p>입력 번호는 조회를 위해 국세청 공공데이터 API로 전달되며 업무 도구함의 별도 데이터베이스에 저장하지 않습니다.</p></div>
+  </div>
+</section>
+
 <div class="ad-slot container" id="ad-slot-mid"></div>
 
 <section class="usecases container">
@@ -109,7 +125,7 @@
   <div class="related-tools-grid">
     <a class="related-tool-link" href="{{ url_for('quote_statement_page') }}">{{ icon("document") }}견적서·거래명세서 만들기</a>
     <a class="related-tool-link" href="{{ url_for('business_bulk_status_page') }}">{{ icon("document") }}사업자번호 일괄조회</a>
-    <a class="related-tool-link" href="{{ url_for('salary_calculator_page') }}">{{ icon("salary-calculator") }}연봉 실수령액 계산기</a>
+    <a class="related-tool-link" href="{{ url_for('char_counter_page') }}">{{ icon("document") }}글자 수·바이트 계산기</a>
     <a class="related-tool-link" href="{{ url_for('pdf_to_excel_page') }}">{{ icon("pdf-to-excel") }}PDF → Excel 변환</a>
   </div>
 </section>

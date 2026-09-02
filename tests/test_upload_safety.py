@@ -1,5 +1,7 @@
 import io
+import os
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -189,6 +191,20 @@ class UploadSafetyTest(unittest.TestCase):
         self.assertTrue(all(channel >= 245 for channel in corner))
         self.assertGreater(center[0], center[1] + 80)
         self.assertGreater(center[0], center[2] + 80)
+
+    def test_stale_uploads_are_removed_without_touching_recent_files(self):
+        old_file = Path(self.tempdir.name) / "old_result.pdf"
+        recent_file = Path(self.tempdir.name) / "recent_result.pdf"
+        old_file.write_bytes(b"old")
+        recent_file.write_bytes(b"recent")
+        now = time.time()
+        os.utime(old_file, (now - app_module.UPLOAD_RETENTION_SECONDS - 1, now - app_module.UPLOAD_RETENTION_SECONDS - 1))
+
+        response = self.client.post("/api/image-convert/convert")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(old_file.exists())
+        self.assertTrue(recent_file.exists())
 
 
 if __name__ == "__main__":

@@ -80,6 +80,28 @@
   <div class="feature"><h3>복잡한 표는 확인 필요</h3><p>병합셀·스캔 이미지·복잡한 레이아웃은 원본과 다르게 추출될 수 있어요.</p></div>
 </section>
 
+<section class="tool-guide container" aria-labelledby="pdf-excel-guide-title">
+  <h2 id="pdf-excel-guide-title">PDF 표를 Excel로 옮기는 방법</h2>
+  <ol class="tool-guide-steps">
+    <li><strong>텍스트를 선택할 수 있는 PDF를 준비합니다.</strong><span>스캔 이미지 PDF는 표 구조가 없어 OCR에서도 바로 셀로 변환되지 않을 수 있습니다.</span></li>
+    <li><strong>100MB 이하 파일을 올립니다.</strong><span>처음 30페이지만 분석하며 암호가 걸린 PDF는 처리하지 않습니다.</span></li>
+    <li><strong>다운로드한 시트를 원본과 대조합니다.</strong><span>표가 발견되면 표별 시트, 표가 없으면 페이지별 한 열 텍스트 시트를 만듭니다.</span></li>
+  </ol>
+  <h2>추출 결과의 범위</h2>
+  <div class="tool-guide-grid">
+    <div class="tool-guide-card"><h3>잘 맞는 문서</h3><p>행과 열 경계가 분명하고 글자가 실제 텍스트로 저장된 보고서·명세서·통계표에 적합합니다.</p></div>
+    <div class="tool-guide-card"><h3>확인이 필요한 문서</h3><p>병합셀, 줄바꿈이 많은 셀, 페이지를 넘는 표, 복잡한 배경은 열 위치가 달라지거나 셀이 나뉠 수 있습니다.</p></div>
+    <div class="tool-guide-card"><h3>스캔 PDF</h3><p>사진처럼 저장된 문서는 먼저 <a href="{{ url_for('ocr_page') }}">OCR 텍스트 추출</a>로 내용을 확인하세요. 현재 도구는 OCR 결과를 자동으로 표 셀에 재구성하지 않습니다.</p></div>
+    <div class="tool-guide-card"><h3>파일 처리</h3><p>원본은 추출 직후, 생성된 Excel은 다운로드 응답 뒤 삭제합니다. 다운로드하지 않은 결과도 1시간이 지나면 다음 처리 요청에서 정리하며 표 데이터와 파일명을 별도 저장하지 않습니다.</p></div>
+  </div>
+  <h2>Excel을 받은 뒤 확인할 항목</h2>
+  <ul class="tool-guide-list">
+    <li>금액의 쉼표·마이너스·소수점과 날짜 형식이 원본과 같은지 확인하세요.</li>
+    <li>표가 여러 개면 `p페이지_t표번호` 시트 이름으로 구분됩니다.</li>
+    <li>‘추출된 내용이 없습니다’가 나오면 원본이 스캔 이미지인지, 글자 선택이 가능한지 확인하세요.</li>
+  </ul>
+</section>
+
 <div class="ad-slot container" id="ad-slot-mid"></div>
 
 <section class="usecases container">
