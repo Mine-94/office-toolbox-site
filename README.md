@@ -5,8 +5,8 @@
 ## 검색 노출 대상 핵심 도구
 - PDF 압축, 병합·분할, PDF 표 → Excel
 - 이미지 압축·크기 변경, 이미지 포맷 변환, OCR
-- 글자 수·바이트, 연봉·4대보험·전월세 계산
-- 사업자등록번호 단건·일괄 상태조회
+- 글자 수·바이트, 연봉 예상 실수령액 계산
+- 사업자등록번호 단건·일괄 상태조회, 견적서·거래명세서 만들기
 
 검색 가치나 기능 완성도가 낮은 기존 도구는 URL 호환성을 위해 유지하되 `main.py`의
 `HIDDEN_TOOL_SLUGS`에서 홈·사이트맵 제외 및 `noindex` 처리합니다.
@@ -21,6 +21,7 @@ Ghostscript가 로컬에 설치되어 있어야 PDF 압축이 동작합니다 (`
 ## 테스트
 ```bash
 python -m unittest discover -v
+node tests/test_quote_statement.js
 python -m gunicorn --check-config main:app
 ```
 

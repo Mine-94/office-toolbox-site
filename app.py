@@ -245,6 +245,15 @@ TOOLS = [
         "category": "pdf",
         "popular": False,
     },
+    {
+        "slug": "quote-statement",
+        "icon": "document",
+        "title": "견적서·거래명세서 만들기",
+        "desc": "품목과 부가세를 계산해 A4 문서를 만들고 PDF로 저장해요.",
+        "available": True,
+        "category": "business",
+        "popular": True,
+    },
 ]
 
 TOOL_CATEGORIES = [
@@ -1036,6 +1045,11 @@ def pdf_to_ppt_page():
 @app.route("/pdf-to-excel")
 def pdf_to_excel_page():
     return render_template("pdf_to_excel.html", page="pdf-to-excel", site_name=SITE_NAME)
+
+
+@app.route("/quote-statement")
+def quote_statement_page():
+    return render_template("quote_statement.html", page="quote-statement", site_name=SITE_NAME)
 
 
 @app.route("/about")

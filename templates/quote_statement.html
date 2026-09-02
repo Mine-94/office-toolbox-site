@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}무료 견적서·거래명세서 만들기 – PDF 저장 | 업무 도구함{% endblock %}
+{% block description %}회원가입 없이 견적서와 거래명세서를 작성하세요. 품목별 공급가액·부가세·합계를 계산하고 A4 PDF로 저장할 수 있습니다.{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/quote-statement.css') }}">{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "견적서·거래명세서 만들기",
+      "url": "https://officetoolbox.online/quote-statement",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "ko",
+      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"},
+      "description": "품목별 공급가액과 부가세를 계산해 견적서 또는 거래명세서를 만들고 인쇄·PDF 저장하는 무료 웹 도구"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "입력한 회사 정보와 거래 내역을 서버에 저장하나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "아니요. 문서 작성과 계산은 현재 브라우저 안에서 처리됩니다. 임시저장을 직접 켠 경우에만 텍스트 입력값이 해당 기기의 브라우저 저장공간에 남습니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "만든 문서를 PDF로 어떻게 저장하나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PDF로 저장 버튼을 누른 뒤 브라우저 인쇄 창에서 대상을 PDF로 저장으로 선택하면 됩니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "이 문서를 세금계산서로 사용할 수 있나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "아니요. 이 도구가 만드는 견적서와 거래명세서는 거래 조건과 내역을 확인하는 일반 문서이며 전자세금계산서를 발급하는 기능이 아닙니다."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+{% endblock %}
+{% block content %}
+<section class="hero container quote-hero">
+  <span class="eyebrow">QUOTE &amp; STATEMENT</span>
+  <h1>견적서·거래명세서 만들기</h1>
+  <p class="subtitle">품목을 입력하면 공급가액·부가세·합계를 계산해 A4 문서로 정리해요. 회원가입 없이 PDF로 저장할 수 있습니다.</p>
+  <div class="privacy-strip" role="note">
+    {{ icon("document") }}
+    <span><strong>서버 저장 없음</strong> — 작성 내용과 로고는 현재 브라우저 안에서만 처리됩니다.</span>
+  </div>
+</section>
+
+<section class="quote-workspace" aria-label="문서 작성기">
+  <form id="quote-form" class="quote-editor" novalidate>
+    <div class="document-type-switch" role="group" aria-label="문서 종류">
+      <button type="button" class="document-type-btn active" data-document-type="quote" aria-pressed="true">견적서</button>
+      <button type="button" class="document-type-btn" data-document-type="statement" aria-pressed="false">거래명세서</button>
+    </div>
+
+    <div id="quote-form-error" class="form-alert hidden" role="alert"></div>
+
+    <fieldset class="editor-section">
+      <legend>문서 정보</legend>
+      <div class="editor-grid editor-grid-3">
+        <label>문서번호<input id="document-number" name="documentNumber" type="text" maxlength="40" autocomplete="off"></label>
+        <label>작성일<input id="document-date" name="documentDate" type="date" required></label>
+        <label id="valid-until-field">유효기간<input id="valid-until" name="validUntil" type="date"></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="editor-section">
+      <legend>공급자 정보</legend>
+      <div class="editor-grid editor-grid-2">
+        <label>상호·회사명 <span aria-hidden="true">*</span><input id="supplier-name" name="supplierName" type="text" maxlength="80" required placeholder="예: 업무도구 디자인"></label>
+        <label>대표자명<input id="supplier-representative" name="supplierRepresentative" type="text" maxlength="40"></label>
+        <label>사업자등록번호<input id="supplier-business-number" name="supplierBusinessNumber" type="text" maxlength="12" inputmode="numeric" autocomplete="off" placeholder="123-45-67890"></label>
+        <label>연락처<input id="supplier-contact" name="supplierContact" type="text" maxlength="80" autocomplete="off"></label>
+        <label class="editor-grid-wide">주소<input id="supplier-address" name="supplierAddress" type="text" maxlength="140"></label>
+        <label class="editor-grid-wide">로고·직인 <span class="label-note">선택 · 이미지 2MB 이하 · 저장 안 함</span><input id="supplier-logo" type="file" accept="image/png,image/jpeg,image/webp"></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="editor-section">
+      <legend>공급받는 자</legend>
+      <div class="editor-grid editor-grid-2">
+        <label>상호·이름 <span aria-hidden="true">*</span><input id="client-name" name="clientName" type="text" maxlength="80" required placeholder="예: 주식회사 고객사"></label>
+        <label>담당자<input id="client-contact-person" name="clientContactPerson" type="text" maxlength="40"></label>
+        <label>사업자등록번호<input id="client-business-number" name="clientBusinessNumber" type="text" maxlength="12" inputmode="numeric" autocomplete="off" placeholder="123-45-67890"></label>
+        <label>연락처·이메일<input id="client-contact" name="clientContact" type="text" maxlength="100" autocomplete="off"></label>
+      </div>
+      <a class="inline-tool-link" href="{{ url_for('business_status_page') }}" target="_blank" rel="noopener">거래 전 사업자 상태 확인하기 →</a>
+    </fieldset>
+
+    <fieldset class="editor-section">
+      <legend>품목과 세액</legend>
+      <div class="editor-grid editor-grid-2 tax-settings">
+        <label>단가 입력 방식
+          <select id="price-mode" name="priceMode">
+            <option value="exclusive">부가세 별도</option>
+            <option value="inclusive">부가세 포함</option>
+          </select>
+        </label>
+        <p class="field-help">일반과세 10% 또는 면세를 품목별로 선택할 수 있습니다.</p>
+      </div>
+      <div class="item-editor-wrap">
+        <table class="item-editor-table">
+          <thead><tr><th>품목</th><th>규격</th><th>수량</th><th>단위</th><th>단가</th><th>과세</th><th><span class="sr-only">삭제</span></th></tr></thead>
+          <tbody id="item-editor-body"></tbody>
+        </table>
+      </div>
+      <button type="button" id="add-item-btn" class="btn btn-secondary btn-small">+ 품목 추가</button>
+    </fieldset>
+
+    <fieldset class="editor-section">
+      <legend>결제·비고</legend>
+      <div class="editor-grid editor-grid-2">
+        <label>결제 조건<input id="payment-terms" name="paymentTerms" type="text" maxlength="100" placeholder="예: 계약금 50%, 납품 후 50%"></label>
+        <label>입금 계좌<input id="bank-account" name="bankAccount" type="text" maxlength="100" placeholder="예: 은행 000-0000-0000"></label>
+        <label class="editor-grid-wide">비고<textarea id="notes" name="notes" rows="3" maxlength="500" placeholder="납기, 작업 범위, 특이사항 등을 적어주세요."></textarea></label>
+      </div>
+    </fieldset>
+
+    <div class="save-preference">
+      <label><input id="auto-save" type="checkbox"> 이 기기 브라우저에 텍스트 입력값 임시저장</label>
+      <span id="save-status" aria-live="polite"></span>
+    </div>
+
+    <div class="editor-actions">
+      <button type="button" id="print-btn" class="btn btn-primary btn-large">PDF로 저장·인쇄</button>
+      <button type="button" id="reset-btn" class="btn btn-secondary">모두 지우기</button>
+    </div>
+  </form>
+
+  <aside class="quote-preview-column" aria-label="A4 미리보기">
+    <p class="preview-label">A4 PREVIEW</p>
+    <article id="document-preview" class="document-sheet">
+      <header class="document-header">
+        <div id="preview-logo-wrap" class="document-logo-wrap hidden"><img id="preview-logo" alt="공급자 로고 또는 직인"></div>
+        <div>
+          <p id="preview-document-kicker" class="document-kicker">QUOTATION</p>
+          <h2 id="preview-document-title">견적서</h2>
+        </div>
+        <dl class="document-meta">
+          <div><dt>문서번호</dt><dd id="preview-document-number">-</dd></div>
+          <div><dt>작성일</dt><dd id="preview-document-date">-</dd></div>
+          <div id="preview-valid-row"><dt>유효기간</dt><dd id="preview-valid-until">-</dd></div>
+        </dl>
+      </header>
+
+      <p class="document-greeting"><strong id="preview-client-greeting">공급받는 자</strong> 귀하, 아래와 같이 <span id="preview-greeting-action">견적합니다.</span></p>
+
+      <div class="document-party-grid">
+        <section><h3>공급자</h3><dl id="preview-supplier"></dl></section>
+        <section><h3>공급받는 자</h3><dl id="preview-client"></dl></section>
+      </div>
+
+      <div class="document-items-wrap">
+        <table class="document-items">
+          <thead><tr><th>품목</th><th>규격</th><th>수량</th><th>단위</th><th>공급가액</th><th>세액</th><th>합계</th></tr></thead>
+          <tbody id="preview-items"></tbody>
+        </table>
+      </div>
+
+      <div class="document-bottom-grid">
+        <div class="document-terms">
+          <div><strong>결제 조건</strong><p id="preview-payment-terms">-</p></div>
+          <div><strong>입금 계좌</strong><p id="preview-bank-account">-</p></div>
+          <div><strong>비고</strong><p id="preview-notes">-</p></div>
+        </div>
+        <dl class="document-totals">
+          <div><dt>공급가액</dt><dd id="preview-supply-total">0원</dd></div>
+          <div><dt>부가세</dt><dd id="preview-vat-total">0원</dd></div>
+          <div class="grand-total"><dt>총 합계</dt><dd id="preview-grand-total">0원</dd></div>
+        </dl>
+      </div>
+
+      <p class="document-footnote">본 문서는 견적·거래내역 확인용이며 전자세금계산서가 아닙니다.</p>
+    </article>
+  </aside>
+</section>
+
+<section class="calc-basis container quote-basis">
+  <p class="calc-basis-title">계산·개인정보 기준</p>
+  <ul>
+    <li>일반과세 품목은 공급가액의 10%를 기준으로 계산합니다. <a href="https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7693&mi=2401" target="_blank" rel="noopener">국세청 부가가치세 안내</a></li>
+    <li>부가세 포함 단가는 합계액을 1.1로 나누고 원 단위 반올림해 공급가액과 세액을 나눕니다.</li>
+    <li>실제 세금계산서의 품목별 반올림, 영세율·면세 적용과 차이가 날 수 있으므로 발급 전 확인하세요.</li>
+    <li>임시저장을 켜지 않으면 새로고침 또는 탭 종료 시 입력값이 사라집니다. 로고·직인은 임시저장하지 않습니다.</li>
+  </ul>
+</section>
+
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item"><h4>프리랜서 견적 전달</h4><p>작업 범위·수량·단가와 결제 조건을 한 장 문서로 정리할 때.</p></div>
+    <div class="usecase-item"><h4>소상공인 거래내역 확인</h4><p>납품한 품목과 공급가액·부가세를 거래처와 확인할 때.</p></div>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details><summary>입력한 회사 정보와 거래 내역을 서버에 저장하나요?</summary><p>아니요. 문서 작성과 계산은 현재 브라우저 안에서 처리됩니다. 임시저장을 직접 켠 경우에만 텍스트 입력값이 해당 기기의 브라우저 저장공간에 남습니다.</p></details>
+  <details><summary>만든 문서를 PDF로 어떻게 저장하나요?</summary><p>PDF로 저장·인쇄 버튼을 누른 뒤 브라우저 인쇄 창에서 대상을 “PDF로 저장”으로 선택하면 됩니다.</p></details>
+  <details><summary>이 문서를 세금계산서로 사용할 수 있나요?</summary><p>아니요. 이 도구가 만드는 견적서와 거래명세서는 거래 조건과 내역을 확인하는 일반 문서이며 전자세금계산서를 발급하는 기능이 아닙니다.</p></details>
+</section>
+
+<section class="related-tools container">
+  <h2>다음 작업으로 이어가기</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('business_status_page') }}">{{ icon("document") }}사업자 상태조회</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+    <a class="related-tool-link" href="{{ url_for('pdf_merge_split_page') }}">{{ icon("pdf-merge-split") }}PDF 병합·분할</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/quote-statement.js') }}"></script>{% endblock %}
