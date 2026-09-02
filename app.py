@@ -16,8 +16,11 @@ from flask import (
     Response,
 )
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import RequestEntityTooLarge
 from PIL import Image, ImageOps
+from PIL import UnidentifiedImageError
 from pypdf import PdfReader, PdfWriter
+from pypdf.errors import PdfReadError
 from pdf2docx import Converter
 import fitz  # PyMuPDF
 import qrcode
@@ -41,9 +44,24 @@ SITE_TAGLINE = "OFFICE TOOLBOX"
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB (PDF 쪽이 더 큼)
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 
+PDF_MAX_FILE_BYTES = 100 * 1024 * 1024
+IMAGE_COMPRESS_MAX_FILE_BYTES = 30 * 1024 * 1024
+IMAGE_CONVERT_MAX_FILE_BYTES = 50 * 1024 * 1024
+OCR_MAX_FILE_BYTES = 50 * 1024 * 1024
+SIGNATURE_MAX_FILE_BYTES = 5 * 1024 * 1024
+
+# Render의 제한된 메모리에서 확인한 안전 범위. 파일 용량이 작아도 지나치게
+# 큰 해상도는 디코딩·OCR 과정에서 워커를 종료시킬 수 있으므로 별도로 제한한다.
+IMAGE_COMPRESS_MAX_PIXELS = 40_000_000
+IMAGE_CONVERT_MAX_PIXELS = 16_000_000
+OCR_IMAGE_MAX_PIXELS = 16_000_000
+OCR_PDF_MAX_PAGE_PIXELS = 16_000_000
+OCR_PAGE_TIMEOUT_SECONDS = 45
+SIGNATURE_MAX_PIXELS = 4_000_000
+
 # 사이트맵에 반영하는 마지막 콘텐츠 갱신일. 페이지 구성/문구를 의미 있게
 # 바꿀 때마다 이 값을 갱신해 검색엔진에 재수집 신호를 준다.
-SITE_LAST_UPDATED = "2026-08-29"
+SITE_LAST_UPDATED = "2026-09-02"
 
 
 @app.context_processor
@@ -241,6 +259,91 @@ TOOL_CATEGORIES = [
 # ---------------------------------------------------------------------------
 UPLOAD_DIR = Path(tempfile.gettempdir()) / "office-toolbox-uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
+
+
+class ClientFileError(ValueError):
+    """사용자가 다른 파일을 선택하면 해결되는 입력 오류."""
+
+
+class UploadTooLargeError(ClientFileError):
+    """도구별 업로드 허용 용량을 초과한 경우."""
+
+
+def save_upload_limited(file_storage, destination: Path, max_bytes: int, label: str) -> int:
+    """업로드를 청크 단위로 저장하며 도구별 실제 파일 크기를 강제한다."""
+    written = 0
+    try:
+        with destination.open("wb") as output:
+            while True:
+                chunk = file_storage.stream.read(1024 * 1024)
+                if not chunk:
+                    break
+                written += len(chunk)
+                if written > max_bytes:
+                    raise UploadTooLargeError(
+                        f"{label} 파일은 최대 {human_size(max_bytes)}까지 처리할 수 있습니다."
+                    )
+                output.write(chunk)
+    except Exception:
+        destination.unlink(missing_ok=True)
+        raise
+
+    if written == 0:
+        destination.unlink(missing_ok=True)
+        raise ClientFileError("빈 파일은 처리할 수 없습니다.")
+    return written
+
+
+def validate_pdf_file(path: Path, *, allow_encrypted: bool = False) -> tuple[int, bool]:
+    """확장자가 아니라 실제 PDF 구조를 확인한다."""
+    try:
+        reader = PdfReader(str(path), strict=False)
+        encrypted = bool(reader.is_encrypted)
+        if encrypted and not allow_encrypted:
+            raise ClientFileError("암호가 걸린 PDF는 이 도구에서 처리할 수 없습니다.")
+        if encrypted:
+            return 0, True
+        page_count = len(reader.pages)
+        if page_count < 1:
+            raise ClientFileError("페이지가 없는 PDF는 처리할 수 없습니다.")
+        return page_count, False
+    except ClientFileError:
+        raise
+    except (PdfReadError, EOFError, ValueError, OSError) as exc:
+        raise ClientFileError("손상되었거나 올바른 PDF 파일이 아닙니다.") from exc
+
+
+def validate_image_file(path: Path, *, max_pixels: int) -> tuple[int, int]:
+    """이미지 구조와 해상도를 실제 디코딩 전에 확인한다."""
+    try:
+        with PILImage.open(path) as image:
+            width, height = image.size
+            if width < 1 or height < 1:
+                raise ClientFileError("크기가 올바르지 않은 이미지입니다.")
+            pixels = width * height
+            if pixels > max_pixels:
+                max_mp = max_pixels // 1_000_000
+                raise ClientFileError(
+                    f"이미지 해상도가 너무 큽니다. {max_mp}메가픽셀 이하 이미지를 사용해주세요."
+                )
+            image.verify()
+        return width, height
+    except ClientFileError:
+        raise
+    except (UnidentifiedImageError, OSError, SyntaxError, ValueError) as exc:
+        raise ClientFileError("손상되었거나 지원하지 않는 이미지 파일입니다.") from exc
+
+
+def client_file_error_response(exc: ClientFileError):
+    status = 413 if isinstance(exc, UploadTooLargeError) else 422
+    return jsonify({"error": str(exc)}), status
+
+
+@app.errorhandler(RequestEntityTooLarge)
+def handle_request_too_large(_exc):
+    if request.path.startswith("/api/"):
+        return jsonify({"error": "파일이 너무 큽니다. 100MB 이하 파일만 지원합니다."}), 413
+    return "파일이 너무 큽니다. 100MB 이하 파일만 지원합니다.", 413
 
 
 def human_size(num_bytes: int) -> str:
@@ -628,13 +731,13 @@ def allowed_convert_file(filename: str) -> bool:
 
 def convert_image_format(input_path: Path, output_path: Path, target_format: str) -> None:
     fmt_name, _ = CONVERT_TARGET_FORMATS[target_format]
-    img = PILImage.open(input_path)
-    img = ImageOps.exif_transpose(img)
-    if fmt_name == "JPEG" and img.mode in ("RGBA", "P"):
-        img = img.convert("RGB")
-    if fmt_name == "BMP" and img.mode in ("RGBA", "P"):
-        img = img.convert("RGB")
-    img.save(output_path, fmt_name)
+    with PILImage.open(input_path) as source:
+        img = ImageOps.exif_transpose(source)
+        if fmt_name == "JPEG" and img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+        if fmt_name == "BMP" and img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+        img.save(output_path, fmt_name)
 
 
 # ---------------------------------------------------------------------------
@@ -713,26 +816,45 @@ OCR_LANG_MAP = {
 }
 
 
+def run_tesseract(img, lang: str) -> str:
+    try:
+        return pytesseract.image_to_string(
+            img,
+            lang=OCR_LANG_MAP.get(lang, "kor+eng"),
+            timeout=OCR_PAGE_TIMEOUT_SECONDS,
+        )
+    except RuntimeError as exc:
+        if "timeout" in str(exc).lower():
+            raise ClientFileError(
+                "텍스트 인식 시간이 너무 오래 걸립니다. 해상도를 낮추거나 페이지를 나눠 다시 시도해주세요."
+            ) from exc
+        raise
+
+
 def ocr_image_file(input_path: Path, lang: str) -> str:
-    img = PILImage.open(input_path)
-    return pytesseract.image_to_string(img, lang=OCR_LANG_MAP.get(lang, "kor+eng"))
+    with PILImage.open(input_path) as img:
+        return run_tesseract(img, lang)
 
 
 def ocr_pdf_file(input_path: Path, lang: str, max_pages: int = 20) -> str:
-    doc = fitz.open(str(input_path))
-    if doc.needs_pass:
-        doc.close()
-        raise RuntimeError("암호가 걸린 PDF는 지원하지 않습니다.")
     texts = []
-    page_count = min(len(doc), max_pages)
-    truncated = len(doc) > max_pages
-    for i in range(page_count):
-        page = doc[i]
-        pix = page.get_pixmap(dpi=200)
-        img = PILImage.frombytes("RGB", (pix.width, pix.height), pix.samples)
-        text = pytesseract.image_to_string(img, lang=OCR_LANG_MAP.get(lang, "kor+eng"))
-        texts.append(f"--- {i + 1}페이지 ---\n{text.strip()}")
-    doc.close()
+    with fitz.open(str(input_path)) as doc:
+        if doc.needs_pass:
+            raise ClientFileError("암호가 걸린 PDF는 지원하지 않습니다.")
+        page_count = min(len(doc), max_pages)
+        truncated = len(doc) > max_pages
+        for i in range(page_count):
+            page = doc[i]
+            pixel_width = round(page.rect.width / 72 * 200)
+            pixel_height = round(page.rect.height / 72 * 200)
+            if pixel_width * pixel_height > OCR_PDF_MAX_PAGE_PIXELS:
+                raise ClientFileError(
+                    "PDF 페이지 크기가 너무 큽니다. 페이지 크기나 해상도를 줄여 다시 시도해주세요."
+                )
+            pix = page.get_pixmap(dpi=200)
+            img = PILImage.frombytes("RGB", (pix.width, pix.height), pix.samples)
+            text = run_tesseract(img, lang)
+            texts.append(f"--- {i + 1}페이지 ---\n{text.strip()}")
     result = "\n\n".join(texts)
     if truncated:
         result += f"\n\n(처음 {max_pages}페이지까지만 처리했습니다.)"
@@ -1011,15 +1133,20 @@ def api_pdf_compress():
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
     output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
 
-    file.save(input_path)
-    original_size = input_path.stat().st_size
-
     try:
+        original_size = save_upload_limited(
+            file, input_path, PDF_MAX_FILE_BYTES, "PDF"
+        )
+        validate_pdf_file(input_path)
         compress_pdf(input_path, output_path, quality)
+    except ClientFileError as exc:
+        input_path.unlink(missing_ok=True)
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
         input_path.unlink(missing_ok=True)
         output_path.unlink(missing_ok=True)
-        return jsonify({"error": str(exc)}), 500
+        return jsonify({"error": "PDF 압축 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
 
     compressed_size = output_path.stat().st_size
 
@@ -1139,10 +1266,11 @@ def api_image_process():
     input_path = UPLOAD_DIR / f"{job_id}_in{ext}"
     output_path = UPLOAD_DIR / f"{job_id}_out{ext}"
 
-    file.save(input_path)
-    original_size = input_path.stat().st_size
-
     try:
+        original_size = save_upload_limited(
+            file, input_path, IMAGE_COMPRESS_MAX_FILE_BYTES, "이미지"
+        )
+        validate_image_file(input_path, max_pixels=IMAGE_COMPRESS_MAX_PIXELS)
         if mode == "target_size":
             img = Image.open(input_path)
             img = ImageOps.exif_transpose(img)
@@ -1159,10 +1287,14 @@ def api_image_process():
             output_path.write_bytes(data)
         else:
             orig_w, orig_h, new_w, new_h = process_image(input_path, output_path, quality, resize)
+    except ClientFileError as exc:
+        input_path.unlink(missing_ok=True)
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
         input_path.unlink(missing_ok=True)
         output_path.unlink(missing_ok=True)
-        return jsonify({"error": f"이미지 처리 실패: {exc}"}), 500
+        return jsonify({"error": "이미지 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
 
     compressed_size = output_path.stat().st_size
 
@@ -1254,14 +1386,16 @@ def api_pdf_to_word():
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
     output_path = UPLOAD_DIR / f"{job_id}_out.docx"
 
-    file.save(input_path)
-
     try:
+        save_upload_limited(file, input_path, PDF_MAX_FILE_BYTES, "PDF")
+        validate_pdf_file(input_path)
         convert_pdf_to_docx(input_path, output_path)
-    except Exception as exc:  # noqa: BLE001
-        input_path.unlink(missing_ok=True)
+    except ClientFileError as exc:
         output_path.unlink(missing_ok=True)
-        return jsonify({"error": f"변환에 실패했습니다. 텍스트 기반 PDF만 지원합니다. ({exc})"}), 500
+        return client_file_error_response(exc)
+    except Exception as exc:  # noqa: BLE001
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": "Word 변환에 실패했습니다. 텍스트 기반 PDF인지 확인해주세요."}), 422
     finally:
         input_path.unlink(missing_ok=True)
 
@@ -1317,17 +1451,23 @@ def api_pdf_merge():
 
     job_id = uuid.uuid4().hex
     input_paths = []
-    for i, f in enumerate(files):
-        p = UPLOAD_DIR / f"{job_id}_in{i}.pdf"
-        f.save(p)
-        input_paths.append(p)
     output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
 
     try:
+        remaining_bytes = PDF_MAX_FILE_BYTES
+        for i, f in enumerate(files):
+            p = UPLOAD_DIR / f"{job_id}_in{i}.pdf"
+            saved_bytes = save_upload_limited(f, p, remaining_bytes, "전체 PDF")
+            remaining_bytes -= saved_bytes
+            input_paths.append(p)
+            validate_pdf_file(p)
         merge_pdfs(input_paths, output_path)
+    except ClientFileError as exc:
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
         output_path.unlink(missing_ok=True)
-        return jsonify({"error": str(exc)}), 500
+        return jsonify({"error": "PDF 병합 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
     finally:
         for p in input_paths:
             p.unlink(missing_ok=True)
@@ -1357,9 +1497,10 @@ def api_pdf_split():
     job_id = uuid.uuid4().hex
     safe_name = secure_filename(file.filename) or "document.pdf"
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
-    file.save(input_path)
 
     try:
+        save_upload_limited(file, input_path, PDF_MAX_FILE_BYTES, "PDF")
+        validate_pdf_file(input_path)
         if mode == "range":
             output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
             split_pdf_range(input_path, output_path, page_range)
@@ -1370,8 +1511,10 @@ def api_pdf_split():
             split_pdf_individual(input_path, output_path)
             download_name = safe_name.rsplit(".", 1)[0] + "_pages.zip"
             file_type = "zip"
+    except ClientFileError as exc:
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": str(exc)}), 500
+        return jsonify({"error": "PDF 분할 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
     finally:
         input_path.unlink(missing_ok=True)
 
@@ -1433,12 +1576,16 @@ def api_watermark_add():
     safe_name = secure_filename(file.filename) or "document.pdf"
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
     output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
-    file.save(input_path)
-
     try:
+        save_upload_limited(file, input_path, PDF_MAX_FILE_BYTES, "PDF")
+        validate_pdf_file(input_path)
         add_watermark(input_path, output_path, text)
+    except ClientFileError as exc:
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": str(exc)}), 500
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": "워터마크 처리 중 오류가 발생했습니다."}), 500
     finally:
         input_path.unlink(missing_ok=True)
 
@@ -1476,12 +1623,16 @@ def api_pdf_rotate():
     safe_name = secure_filename(file.filename) or "document.pdf"
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
     output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
-    file.save(input_path)
-
     try:
+        save_upload_limited(file, input_path, PDF_MAX_FILE_BYTES, "PDF")
+        validate_pdf_file(input_path)
         rotate_pdf(input_path, output_path, angle)
+    except ClientFileError as exc:
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": str(exc)}), 500
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": "PDF 회전 중 오류가 발생했습니다."}), 500
     finally:
         input_path.unlink(missing_ok=True)
 
@@ -1516,12 +1667,16 @@ def api_pdf_encrypt():
     safe_name = secure_filename(file.filename) or "document.pdf"
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
     output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
-    file.save(input_path)
-
     try:
+        save_upload_limited(file, input_path, PDF_MAX_FILE_BYTES, "PDF")
+        validate_pdf_file(input_path)
         encrypt_pdf(input_path, output_path, password)
+    except ClientFileError as exc:
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": str(exc)}), 500
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": "PDF 암호 설정 중 오류가 발생했습니다."}), 500
     finally:
         input_path.unlink(missing_ok=True)
 
@@ -1548,12 +1703,18 @@ def api_pdf_decrypt():
     safe_name = secure_filename(file.filename) or "document.pdf"
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
     output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
-    file.save(input_path)
-
     try:
+        save_upload_limited(file, input_path, PDF_MAX_FILE_BYTES, "PDF")
+        _page_count, encrypted = validate_pdf_file(input_path, allow_encrypted=True)
+        if not encrypted:
+            raise ClientFileError("암호가 설정된 PDF 파일을 선택해주세요.")
         decrypt_pdf(input_path, output_path, password)
+    except ClientFileError as exc:
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": str(exc)}), 500
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": "비밀번호가 맞지 않거나 PDF를 해제할 수 없습니다."}), 422
     finally:
         input_path.unlink(missing_ok=True)
 
@@ -1633,12 +1794,19 @@ def api_image_convert():
     _, out_ext = CONVERT_TARGET_FORMATS[target]
     input_path = UPLOAD_DIR / f"{job_id}_in{in_ext}"
     output_path = UPLOAD_DIR / f"{job_id}_out{out_ext}"
-    file.save(input_path)
 
     try:
+        save_upload_limited(
+            file, input_path, IMAGE_CONVERT_MAX_FILE_BYTES, "이미지"
+        )
+        validate_image_file(input_path, max_pixels=IMAGE_CONVERT_MAX_PIXELS)
         convert_image_format(input_path, output_path, target)
+    except ClientFileError as exc:
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": f"변환 실패: {exc}"}), 500
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": "이미지 변환 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
     finally:
         input_path.unlink(missing_ok=True)
 
@@ -1701,13 +1869,21 @@ def api_pdf_sign():
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
     sig_path = UPLOAD_DIR / f"{job_id}_sig.png"
     output_path = UPLOAD_DIR / f"{job_id}_out.pdf"
-    file.save(input_path)
-    sig_file.save(sig_path)
 
     try:
+        save_upload_limited(file, input_path, PDF_MAX_FILE_BYTES, "PDF")
+        validate_pdf_file(input_path)
+        save_upload_limited(
+            sig_file, sig_path, SIGNATURE_MAX_FILE_BYTES, "서명 이미지"
+        )
+        validate_image_file(sig_path, max_pixels=SIGNATURE_MAX_PIXELS)
         apply_signature(input_path, sig_path, output_path, target_page, position)
+    except ClientFileError as exc:
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": str(exc)}), 500
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": "서명 삽입 중 오류가 발생했습니다."}), 500
     finally:
         input_path.unlink(missing_ok=True)
         sig_path.unlink(missing_ok=True)
@@ -1744,15 +1920,19 @@ def api_ocr_extract():
     job_id = uuid.uuid4().hex
     ext = ".pdf" if is_pdf else Path(secure_filename(file.filename)).suffix.lower()
     input_path = UPLOAD_DIR / f"{job_id}_in{ext}"
-    file.save(input_path)
 
     try:
+        save_upload_limited(file, input_path, OCR_MAX_FILE_BYTES, "OCR")
         if is_pdf:
+            validate_pdf_file(input_path)
             text = ocr_pdf_file(input_path, lang)
         else:
+            validate_image_file(input_path, max_pixels=OCR_IMAGE_MAX_PIXELS)
             text = ocr_image_file(input_path, lang)
+    except ClientFileError as exc:
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": f"텍스트 인식 실패: {exc}"}), 500
+        return jsonify({"error": "텍스트 인식 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
     finally:
         input_path.unlink(missing_ok=True)
 
@@ -1776,12 +1956,17 @@ def api_pdf_to_ppt():
     safe_name = secure_filename(file.filename) or "document.pdf"
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
     output_path = UPLOAD_DIR / f"{job_id}_out.pptx"
-    file.save(input_path)
 
     try:
+        save_upload_limited(file, input_path, PDF_MAX_FILE_BYTES, "PDF")
+        validate_pdf_file(input_path)
         convert_pdf_to_pptx(input_path, output_path)
+    except ClientFileError as exc:
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": str(exc)}), 500
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": "PPT 변환 중 오류가 발생했습니다."}), 500
     finally:
         input_path.unlink(missing_ok=True)
 
@@ -1832,12 +2017,17 @@ def api_pdf_to_excel():
     safe_name = secure_filename(file.filename) or "document.pdf"
     input_path = UPLOAD_DIR / f"{job_id}_in.pdf"
     output_path = UPLOAD_DIR / f"{job_id}_out.xlsx"
-    file.save(input_path)
 
     try:
+        save_upload_limited(file, input_path, PDF_MAX_FILE_BYTES, "PDF")
+        validate_pdf_file(input_path)
         found_table = convert_pdf_to_xlsx(input_path, output_path)
+    except ClientFileError as exc:
+        output_path.unlink(missing_ok=True)
+        return client_file_error_response(exc)
     except Exception as exc:  # noqa: BLE001
-        return jsonify({"error": str(exc)}), 500
+        output_path.unlink(missing_ok=True)
+        return jsonify({"error": "Excel 변환 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
     finally:
         input_path.unlink(missing_ok=True)
 

@@ -894,6 +894,11 @@ h1, h2, h3 {
   line-height: 0;
 }
 .favorite-star .icon { width: 18px; height: 18px; }
+
+/* 글자수 통계 기본 규칙보다 뒤에서 선언해 모바일 2열 배치가 실제 적용되게 한다. */
+@media (max-width: 640px) {
+  .char-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .favorite-star:hover { color: var(--ink); }
 .favorite-star.active { color: var(--gold); }
 .favorite-star.active .icon { fill: var(--gold); }

@@ -25,6 +25,8 @@ HIDDEN_TOOL_SLUGS = {
     "pdf-sign",             # 인증서 기반 전자서명이 아닌 이미지 삽입 기능
     "pdf-to-ppt",           # 편집 가능한 변환이 아니라 페이지 이미지 삽입 방식
     "severance-calculator", # 통상임금 비교가 없어 법정 퇴직금 계산으로는 불완전
+    "insurance-calculator", # 가입 예외·보험료 상하한·산재 업종별 요율 반영 전까지 비노출
+    "jeonse-rent-calculator", # 공식기관 계산기 대비 차별성과 자동 기준 갱신 체계가 부족함
 }
 TOOLS[:] = [tool for tool in TOOLS if tool.get("slug") not in HIDDEN_TOOL_SLUGS]
 HIDDEN_TOOL_PATHS = {f"/{slug}" for slug in HIDDEN_TOOL_SLUGS}
