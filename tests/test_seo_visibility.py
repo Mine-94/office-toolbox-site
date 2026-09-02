@@ -43,6 +43,20 @@ class SeoVisibilityTest(unittest.TestCase):
                     response.headers.get("X-Robots-Tag"), "noindex, follow"
                 )
 
+    def test_contact_page_is_reachable_and_linked(self):
+        response = self.client.get("/contact")
+        html = response.get_data(as_text=True)
+        home = self.client.get("/").get_data(as_text=True)
+        sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
+        privacy = self.client.get("/privacy").get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("<h1>문의하기</h1>", html)
+        self.assertIn("github.com/Mine-94/office-toolbox-site/issues/new", html)
+        self.assertIn('href="/contact"', home)
+        self.assertIn("/contact</loc>", sitemap)
+        self.assertIn('href="/contact"', privacy)
+
 
 if __name__ == "__main__":
     unittest.main()

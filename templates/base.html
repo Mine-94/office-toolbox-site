@@ -60,7 +60,7 @@
 <script src="{{ url_for('static', filename='js/otx-storage.js') }}"></script>
 <script>
   (function () {
-    var NON_TOOL_PAGES = ["home", "about", "privacy", "terms"];
+    var NON_TOOL_PAGES = ["home", "about", "contact", "privacy", "terms"];
     var page = document.body.dataset.page;
     if (page && NON_TOOL_PAGES.indexOf(page) === -1 && window.OTX) {
       window.OTX.recordRecent(page);
@@ -79,6 +79,7 @@
       <a href="{{ url_for('home') }}#calculator">계산기</a>
       <a href="{{ url_for('home') }}#business">사업자·경리</a>
       <a href="{{ url_for('about') }}">소개</a>
+      <a href="{{ url_for('contact') }}">문의</a>
     </nav>
   </div>
 </header>
@@ -92,6 +93,7 @@
     <p>&copy; 2026 업무 도구함</p>
     <div class="footer-links">
       <a href="{{ url_for('about') }}">소개</a>
+      <a href="{{ url_for('contact') }}">문의하기</a>
       <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
       <a href="{{ url_for('terms') }}">이용약관</a>
     </div>

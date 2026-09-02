@@ -1057,6 +1057,11 @@ def about():
     return render_template("about.html", page="about", site_name=SITE_NAME)
 
 
+@app.route("/contact")
+def contact():
+    return render_template("contact.html", page="contact", site_name=SITE_NAME)
+
+
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html", page="privacy", site_name=SITE_NAME)
@@ -1077,7 +1082,7 @@ def robots():
 @app.route("/sitemap.xml")
 def sitemap():
     base = request.host_url.rstrip("/")
-    pages = ["", "about", "privacy", "terms"] + [
+    pages = ["", "about", "contact", "privacy", "terms"] + [
         t["slug"] for t in TOOLS if t["available"]
     ]
     entries = []
@@ -1085,7 +1090,7 @@ def sitemap():
         loc = f"{base}/{page}" if page else f"{base}/"
         if page == "":
             priority = "1.0"
-        elif page in ("about", "privacy", "terms"):
+        elif page in ("about", "contact", "privacy", "terms"):
             priority = "0.3"
         else:
             priority = "0.8"
