@@ -485,6 +485,46 @@ h1, h2, h3 {
 }
 .feature p { margin: 0; color: var(--ink-muted); font-size: 13px; }
 
+/* Tool-specific practical guides */
+.tool-guide { padding: 56px 20px 20px; max-width: 780px; margin: 0 auto; }
+.tool-guide h2 {
+  text-align: left;
+  margin: 38px 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink-muted);
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.tool-guide h2:first-child { margin-top: 0; }
+.tool-guide-steps {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 22px;
+}
+.tool-guide-steps li { padding-left: 6px; color: var(--ink); }
+.tool-guide-steps strong,
+.tool-guide-steps span { display: block; }
+.tool-guide-steps strong { margin-bottom: 3px; font-size: 14px; }
+.tool-guide-steps span { color: var(--ink-muted); font-size: 13px; line-height: 1.65; }
+.tool-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.tool-guide-card {
+  border: 1px solid var(--border);
+  background: #fffdf9;
+  padding: 18px 20px;
+}
+.tool-guide-card h3 { margin: 0 0 7px; font-size: 14px; }
+.tool-guide-card p,
+.tool-guide > p { margin: 0; color: var(--ink-muted); font-size: 13px; line-height: 1.75; }
+.tool-guide-list { margin: 0; padding-left: 20px; color: var(--ink-muted); font-size: 13px; line-height: 1.8; }
+
 /* Use cases */
 .usecases { padding: 8px 20px 8px; max-width: 780px; margin: 0 auto; }
 .usecases h2 {
@@ -806,6 +846,7 @@ h1, h2, h3 {
 
 @media (max-width: 640px) {
   .features { grid-template-columns: 1fr; }
+  .tool-guide-grid { grid-template-columns: 1fr; }
   .tool-grid { grid-template-columns: 1fr; }
   .hero h1 { font-size: 28px; }
   .nav { flex-wrap: wrap; gap: 16px; }

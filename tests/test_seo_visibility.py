@@ -57,6 +57,22 @@ class SeoVisibilityTest(unittest.TestCase):
         self.assertIn("/contact</loc>", sitemap)
         self.assertIn('href="/contact"', privacy)
 
+    def test_ocr_page_has_complete_user_guidance(self):
+        html = self.client.get("/ocr").get_data(as_text=True)
+
+        for text in (
+            "OCR 사용 방법",
+            "지원 범위와 처리 제한",
+            "파일은 최대 50MB",
+            "이미지는 최대 1,600만 화소",
+            "PDF는 처음 20페이지",
+            "성공·실패와 관계없이 처리 직후 삭제",
+            "인식이 잘 안 될 때",
+            "사용 예시",
+        ):
+            with self.subTest(text=text):
+                self.assertIn(text, html)
+
 
 if __name__ == "__main__":
     unittest.main()

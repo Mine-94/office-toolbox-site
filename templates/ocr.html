@@ -92,6 +92,34 @@
   <div class="feature"><h3>정확도 확인 필요</h3><p>작은 글씨·기울어진 사진·손글씨는 오인식될 수 있으니 결과를 확인해주세요.</p></div>
 </section>
 
+<section class="tool-guide container" aria-labelledby="ocr-guide-title">
+  <h2 id="ocr-guide-title">OCR 사용 방법</h2>
+  <ol class="tool-guide-steps">
+    <li><strong>파일을 선택합니다.</strong><span>PDF 또는 JPG·JPEG·PNG·BMP·TIFF·WEBP 이미지를 올릴 수 있습니다.</span></li>
+    <li><strong>문서에 맞는 언어를 고릅니다.</strong><span>한글과 영문이 섞여 있으면 한국어+영어, 한 언어만 있으면 해당 언어를 선택하세요.</span></li>
+    <li><strong>추출 결과를 원본과 대조합니다.</strong><span>잘못 인식된 글자를 고친 뒤 복사하거나 TXT 파일로 저장하세요.</span></li>
+  </ol>
+
+  <h2>지원 범위와 처리 제한</h2>
+  <div class="tool-guide-grid">
+    <div class="tool-guide-card"><h3>파일과 페이지</h3><p>파일은 최대 50MB, 이미지는 최대 1,600만 화소까지 처리합니다. PDF는 처음 20페이지까지만 인식하며 페이지 구분 표시를 결과에 넣습니다.</p></div>
+    <div class="tool-guide-card"><h3>지원하지 않는 경우</h3><p>암호가 걸린 PDF는 처리하지 않습니다. 제한을 넘는 고해상도 이미지나 지나치게 큰 PDF 페이지는 서버 작업을 시작하기 전에 오류로 안내합니다.</p></div>
+    <div class="tool-guide-card"><h3>파일과 텍스트 보관</h3><p>업로드 파일은 OCR 처리를 위해 서버에 임시 저장되며 성공·실패와 관계없이 처리 직후 삭제합니다. 추출된 텍스트를 별도 데이터베이스에 저장하지 않습니다.</p></div>
+    <div class="tool-guide-card"><h3>정확도 한계</h3><p>손글씨, 작은 글씨, 흐린 사진, 기울어진 문서, 여러 단으로 나뉜 문서와 복잡한 표는 인식 오류가 늘 수 있습니다. 금액·계좌번호·계약 조건은 반드시 원본과 대조하세요.</p></div>
+  </div>
+
+  <h2>인식이 잘 안 될 때</h2>
+  <ul class="tool-guide-list">
+    <li>문서가 비스듬하면 먼저 회전하고, 글자 주변의 불필요한 배경을 잘라내세요.</li>
+    <li>글자와 배경의 대비가 낮으면 밝기와 대비를 조정한 뒤 다시 시도하세요.</li>
+    <li>처리 시간이 초과되면 이미지 해상도를 낮추거나 PDF를 작은 페이지 묶음으로 나누세요.</li>
+    <li>한글이 빠지거나 영문이 깨지면 인식 언어가 문서와 맞는지 확인하세요.</li>
+  </ul>
+
+  <h2>사용 예시</h2>
+  <p>한글 안내문 사진은 ‘한국어만’을 선택해 추출한 뒤 <a href="{{ url_for('char_counter_page') }}">글자 수·바이트 계산기</a>에서 분량을 확인할 수 있습니다. 한글과 제품명이 섞인 스캔 PDF는 ‘한국어+영어’를 선택하고, 결과의 페이지 표시를 기준으로 원문과 대조하세요.</p>
+</section>
+
 <div class="ad-slot container" id="ad-slot-mid"></div>
 
 <section class="usecases container">
