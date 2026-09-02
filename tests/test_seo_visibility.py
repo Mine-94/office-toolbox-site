@@ -73,6 +73,22 @@ class SeoVisibilityTest(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertIn(text, html)
 
+    def test_image_convert_page_has_complete_user_guidance(self):
+        html = self.client.get("/image-convert").get_data(as_text=True)
+
+        for text in (
+            "이미지 변환 방법",
+            "JPG·PNG·WEBP 선택 기준",
+            "투명 영역을 흰색으로 채워 저장",
+            "EXIF 방향 정보를 반영",
+            "파일은 최대 50MB",
+            "최대 1,600만 화소",
+            "결과 파일은 다운로드 응답을 보낸 직후 삭제",
+            "변환 후 용량이 커졌다면",
+        ):
+            with self.subTest(text=text):
+                self.assertIn(text, html)
+
 
 if __name__ == "__main__":
     unittest.main()

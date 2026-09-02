@@ -742,8 +742,17 @@ def convert_image_format(input_path: Path, output_path: Path, target_format: str
     fmt_name, _ = CONVERT_TARGET_FORMATS[target_format]
     with PILImage.open(input_path) as source:
         img = ImageOps.exif_transpose(source)
-        if fmt_name == "JPEG" and img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
+        if fmt_name == "JPEG":
+            has_alpha = img.mode in ("RGBA", "LA") or (
+                img.mode == "P" and "transparency" in img.info
+            )
+            if has_alpha:
+                rgba = img.convert("RGBA")
+                background = PILImage.new("RGB", rgba.size, "white")
+                background.paste(rgba, mask=rgba.getchannel("A"))
+                img = background
+            elif img.mode not in ("RGB", "CMYK"):
+                img = img.convert("RGB")
         if fmt_name == "BMP" and img.mode in ("RGBA", "P"):
             img = img.convert("RGB")
         img.save(output_path, fmt_name)

@@ -172,6 +172,24 @@ class UploadSafetyTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()["text"], "테스트 문구")
 
+    def test_transparent_image_becomes_white_when_converted_to_jpeg(self):
+        input_path = Path(self.tempdir.name) / "transparent.png"
+        output_path = Path(self.tempdir.name) / "converted.jpg"
+        image = Image.new("RGBA", (40, 40), (255, 0, 0, 0))
+        for x in range(12, 28):
+            for y in range(12, 28):
+                image.putpixel((x, y), (255, 0, 0, 255))
+        image.save(input_path, "PNG")
+
+        app_module.convert_image_format(input_path, output_path, "jpg")
+
+        with Image.open(output_path) as converted:
+            corner = converted.convert("RGB").getpixel((0, 0))
+            center = converted.convert("RGB").getpixel((20, 20))
+        self.assertTrue(all(channel >= 245 for channel in corner))
+        self.assertGreater(center[0], center[1] + 80)
+        self.assertGreater(center[0], center[2] + 80)
+
 
 if __name__ == "__main__":
     unittest.main()
