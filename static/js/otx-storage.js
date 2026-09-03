@@ -101,6 +101,79 @@
     return true;
   }
 
+  function trackShare(slug, method) {
+    if (!slug || typeof window.gtag !== "function") return false;
+    window.gtag("event", "share", {
+      method: safeEventToken(method),
+      content_type: "tool",
+      item_id: safeEventToken(slug),
+    });
+    return true;
+  }
+
+  function canonicalUrl() {
+    const canonical = document.querySelector('link[rel="canonical"]');
+    return canonical && canonical.href
+      ? canonical.href
+      : window.location.origin + window.location.pathname;
+  }
+
+  async function copyText(value) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+
+    const input = document.createElement("textarea");
+    input.value = value;
+    input.setAttribute("readonly", "");
+    input.style.position = "fixed";
+    input.style.opacity = "0";
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand("copy");
+    input.remove();
+  }
+
+  function bindShareButton() {
+    const button = document.querySelector("[data-share-tool]");
+    if (!button) return;
+
+    const status = document.querySelector("[data-share-status]");
+    const slug = button.dataset.shareTool;
+    button.addEventListener("click", async function () {
+      const url = canonicalUrl();
+      const title = document.title;
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title,
+            text: "설치와 회원가입 없이 바로 쓰는 업무 도구",
+            url,
+          });
+          if (status) status.textContent = "공유 창을 열었어요.";
+          trackShare(slug, "native");
+          return;
+        }
+
+        await copyText(url);
+        if (status) status.textContent = "도구 주소를 복사했어요.";
+        trackShare(slug, "clipboard");
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+        if (status) status.textContent = "공유하지 못했습니다. 주소창의 링크를 복사해주세요.";
+      }
+    });
+  }
+
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bindShareButton);
+    } else {
+      bindShareButton();
+    }
+  }
+
   window.OTX = {
     getRecent,
     recordRecent,
@@ -111,5 +184,6 @@
     bucketCount,
     buildCompletionPayload,
     trackToolComplete,
+    trackShare,
   };
 })();
