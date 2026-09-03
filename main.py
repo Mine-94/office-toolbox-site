@@ -31,6 +31,12 @@ HIDDEN_TOOL_SLUGS = {
 TOOLS[:] = [tool for tool in TOOLS if tool.get("slug") not in HIDDEN_TOOL_SLUGS]
 HIDDEN_TOOL_PATHS = {f"/{slug}" for slug in HIDDEN_TOOL_SLUGS}
 
+
+@app.context_processor
+def inject_visibility_context():
+    """공개 도구에만 공유 UI를 노출할 수 있도록 색인 정책을 템플릿에 전달한다."""
+    return {"hidden_tool_slugs": HIDDEN_TOOL_SLUGS}
+
 # 남겨둔 도구의 표현을 실제 기능에 맞게 통일한다.
 TOOL_META = {
     "pdf-compress": {
