@@ -47,6 +47,21 @@ class SeoVisibilityTest(unittest.TestCase):
         response = self.client.get("/business-status")
         self.assertNotIn("noindex", response.headers.get("X-Robots-Tag", ""))
 
+    def test_static_assets_use_short_browser_cache(self):
+        """정적 자산만 캐시하고 HTML·서비스 워커는 즉시 갱신 가능하게 둔다."""
+        static_asset = self.client.get("/static/css/style.css")
+        self.assertEqual(static_asset.status_code, 200)
+        self.assertIn("public", static_asset.headers.get("Cache-Control", ""))
+        self.assertIn("max-age=3600", static_asset.headers.get("Cache-Control", ""))
+        self.assertNotIn("no-cache", static_asset.headers.get("Cache-Control", ""))
+        static_asset.close()
+
+        for path in ("/", "/service-worker.js"):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertNotIn("max-age=3600", response.headers.get("Cache-Control", ""))
+                response.close()
+
     def test_high_maintenance_calculators_are_not_indexable(self):
         """법·요율 자동 갱신 체계가 없는 계산기는 공개 색인하지 않는다."""
         for slug in ("insurance-calculator", "jeonse-rent-calculator"):
