@@ -39,6 +39,7 @@ class AnalyticsInstrumentationTest(unittest.TestCase):
             "image-compress": "image-compress.js",
             "pdf-merge-split": "pdf-merge-split.js",
             "char-counter": "char-counter.js",
+            "file-hash": "file-hash.js",
             "salary-calculator": "salary-calculator.js",
             "image-convert": "image-convert.js",
             "ocr": "ocr.js",
