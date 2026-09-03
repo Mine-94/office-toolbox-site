@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}파일 SHA 해시·무결성 확인 – SHA-256·512 계산 | 업무 도구함{% endblock %}
+{% block description %}파일을 서버에 업로드하지 않고 브라우저에서 SHA-256·SHA-384·SHA-512 해시를 계산하고 공식 체크섬과 일치하는지 확인하세요.{% endblock %}
+{% block styles %}
+<style>
+  .hash-controls { max-width: 620px; margin: 0 auto; text-align: left; }
+  .hash-controls .range-input { max-width: none; margin: 0 0 18px; text-align: left; }
+  .hash-controls select.range-input { cursor: pointer; }
+  .hash-output {
+    min-height: 92px;
+    resize: vertical;
+    overflow-wrap: anywhere;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    line-height: 1.65;
+  }
+  .hash-progress { width: 100%; height: 8px; margin: 4px 0 18px; accent-color: var(--gold); }
+  .hash-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+  .hash-status { min-height: 24px; margin: 12px 0 0; text-align: center; font-size: 13px; line-height: 1.6; }
+  .hash-status.success { color: #32633b; font-weight: 700; }
+  .hash-status.error { color: #8a3324; font-weight: 700; }
+  .hash-privacy { max-width: 620px; margin: 22px auto 0; padding: 14px 16px; border: 1px solid var(--border); background: var(--beige); text-align: left; font-size: 12px; line-height: 1.7; color: var(--ink-muted); }
+  @media (max-width: 640px) {
+    .hash-actions .btn { width: 100%; text-align: center; }
+  }
+</style>
+{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "파일 SHA 해시·무결성 확인",
+      "url": "https://officetoolbox.online/file-hash",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "isAccessibleForFree": true,
+      "inLanguage": "ko",
+      "description": "파일을 업로드하지 않고 SHA-256·SHA-384·SHA-512 해시를 계산하고 공식 체크섬과 비교하는 도구"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "선택한 파일이 서버로 전송되나요?",
+          "acceptedAnswer": {"@type": "Answer", "text": "아니요. 파일 읽기와 해시 계산은 현재 브라우저 안에서만 이루어집니다."}
+        },
+        {
+          "@type": "Question",
+          "name": "해시가 같으면 파일이 안전한가요?",
+          "acceptedAnswer": {"@type": "Answer", "text": "해시 일치는 비교한 두 파일의 바이트가 같다는 강한 근거지만 악성코드가 없다는 뜻은 아닙니다. 신뢰할 수 있는 공식 배포처가 제공한 해시와 비교해야 합니다."}
+        },
+        {
+          "@type": "Question",
+          "name": "어떤 알고리즘을 선택해야 하나요?",
+          "acceptedAnswer": {"@type": "Answer", "text": "배포처가 제공한 체크섬과 같은 알고리즘을 선택하세요. 별도 지시가 없다면 일반적인 파일 확인에는 SHA-256을 권장합니다."}
+        }
+      ]
+    }
+  ]
+}
+</script>
+{% endblock %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">FILE INTEGRITY</span>
+  <h1>파일 SHA 해시·무결성 확인</h1>
+  <p class="subtitle">다운로드한 파일의 SHA 체크섬을 계산하고 공식 배포처가 제공한 값과 같은지 확인하세요.</p>
+
+  <div id="hash-drop-zone" class="drop-zone">
+    <input type="file" id="hash-file-input" hidden>
+    <div id="hash-empty-state">
+      <div class="drop-icon">{{ icon("document") }}</div>
+      <p><strong>확인할 파일을 여기로 끌어다 놓으세요</strong></p>
+      <button type="button" id="hash-browse-btn" class="btn btn-primary">파일 선택</button>
+      <p class="hint">모든 파일 형식 · 최대 100MB · 빈 파일도 계산 가능</p>
+    </div>
+
+    <div id="hash-workspace" class="hidden">
+      <div class="file-info">
+        <span class="file-icon">{{ icon("document") }}</span>
+        <div><p id="hash-file-name" class="file-name"></p><p id="hash-file-size" class="file-size"></p></div>
+      </div>
+
+      <div class="hash-controls">
+        <label class="option-label" for="hash-algorithm">해시 알고리즘</label>
+        <select id="hash-algorithm" class="range-input">
+          <option value="SHA-256" selected>SHA-256 (권장)</option>
+          <option value="SHA-384">SHA-384</option>
+          <option value="SHA-512">SHA-512</option>
+        </select>
+
+        <progress id="hash-progress" class="hash-progress hidden" value="0" max="100">0%</progress>
+
+        <label class="option-label" for="hash-output">계산된 해시</label>
+        <textarea id="hash-output" class="range-input hash-output" readonly spellcheck="false" placeholder="계산하기를 누르면 여기에 결과가 표시됩니다."></textarea>
+
+        <label class="option-label" for="hash-expected">비교할 공식 해시 (선택)</label>
+        <textarea id="hash-expected" class="range-input hash-output" rows="3" spellcheck="false" autocomplete="off" placeholder="공식 배포 페이지에 적힌 SHA 값을 붙여넣으세요."></textarea>
+      </div>
+
+      <div class="hash-actions">
+        <button type="button" id="hash-calculate-btn" class="btn btn-primary btn-large">계산하고 비교하기</button>
+        <button type="button" id="hash-copy-btn" class="btn btn-text" disabled>결과 복사</button>
+        <button type="button" id="hash-reset-btn" class="btn btn-text">다른 파일 선택</button>
+      </div>
+      <p id="hash-status" class="hash-status" role="status" aria-live="polite"></p>
+    </div>
+
+    <p class="hash-privacy"><strong>개인정보 보호:</strong> 파일 읽기와 SHA 계산은 브라우저에서만 처리되며 파일을 서버로 전송하지 않습니다. 파일명·내용·계산된 해시는 분석 이벤트에도 포함하지 않습니다.</p>
+  </div>
+</section>
+
+<section class="features container">
+  <div class="feature"><h3>브라우저 안에서 계산</h3><p>선택한 파일을 외부 서버에 업로드하지 않습니다.</p></div>
+  <div class="feature"><h3>표준 SHA 지원</h3><p>SHA-256·SHA-384·SHA-512 결과를 소문자 16진수로 표시합니다.</p></div>
+  <div class="feature"><h3>공식 값과 비교</h3><p>공백과 줄바꿈을 제거한 뒤 알고리즘별 길이와 일치 여부를 확인합니다.</p></div>
+</section>
+
+<section class="tool-guide container" aria-labelledby="file-hash-guide-title">
+  <h2 id="file-hash-guide-title">파일 무결성 확인 방법</h2>
+  <ol class="tool-guide-steps">
+    <li><strong>확인할 파일을 선택합니다.</strong><span>설치 파일·문서·압축파일 등 형식과 관계없이 최대 100MB까지 계산할 수 있습니다.</span></li>
+    <li><strong>공식 안내와 같은 SHA 알고리즘을 고릅니다.</strong><span>배포처가 SHA-256 값을 제공했다면 SHA-256을 선택해야 합니다.</span></li>
+    <li><strong>공식 해시를 붙여넣고 계산합니다.</strong><span>대소문자, 공백, 줄바꿈은 무시하지만 `sha256:` 같은 설명 문구는 제거한 순수한 16진수 값이어야 합니다.</span></li>
+    <li><strong>불일치하면 파일을 사용하지 않습니다.</strong><span>공식 출처에서 다시 내려받고, 계속 다르면 배포처 안내를 확인하세요.</span></li>
+  </ol>
+
+  <h2>결과를 정확히 해석하는 법</h2>
+  <div class="tool-guide-grid">
+    <div class="tool-guide-card"><h3>일치</h3><p>선택한 파일의 바이트와 공식 체크섬의 대상 파일이 같다는 강한 근거입니다. 파일명이 같아도 내용이 한 바이트만 달라지면 결과가 달라집니다.</p></div>
+    <div class="tool-guide-card"><h3>불일치</h3><p>파일 버전이나 운영체제용 배포본이 다른지 먼저 확인하세요. 대상이 맞는데도 다르면 손상·변조 가능성이 있으므로 실행하거나 열지 마세요.</p></div>
+    <div class="tool-guide-card"><h3>알고리즘 선택</h3><p>SHA-256은 64자, SHA-384는 96자, SHA-512는 128자의 16진수로 표시됩니다. 비교 대상과 알고리즘이 다르면 일치할 수 없습니다.</p></div>
+    <div class="tool-guide-card"><h3>보안 한계</h3><p><strong>이 도구는 악성코드 검사가 아닙니다.</strong> 해시가 같아도 공식 원본 자체가 안전한지는 별도의 보안 판단이 필요합니다.</p></div>
+  </div>
+
+  <h2>지원 범위와 오류 해결</h2>
+  <ul class="tool-guide-list">
+    <li>Chrome·Edge·Firefox·Safari의 최신 버전처럼 Web Crypto API를 지원하는 보안 연결(HTTPS) 환경에서 동작합니다.</li>
+    <li>최대 100MB로 제한해 모바일 브라우저의 메모리 부족과 탭 종료 위험을 줄였습니다.</li>
+    <li>공식 값은 신뢰할 수 있는 공식 배포처의 HTTPS 페이지에서 복사하세요. 블로그·댓글·출처 불명 게시물의 값은 검증 기준으로 쓰지 마세요.</li>
+    <li>길이 오류가 나오면 알고리즘 선택과 해시 앞뒤의 설명 문구를 확인하세요.</li>
+  </ul>
+</section>
+
+<div class="ad-slot container" id="ad-slot-mid"></div>
+
+<section class="usecases container">
+  <h2>이런 때 사용하세요</h2>
+  <div class="usecase-list">
+    <div class="usecase-item"><h4>설치 파일 확인</h4><p>프로그램 공식 사이트가 제공한 SHA-256과 내려받은 설치 파일의 값을 비교할 때.</p></div>
+    <div class="usecase-item"><h4>문서 전달 확인</h4><p>메일이나 메신저로 주고받은 대용량 문서가 전송 중 바뀌지 않았는지 확인할 때.</p></div>
+    <div class="usecase-item"><h4>백업 파일 대조</h4><p>이름이 같은 원본과 백업본이 실제로 같은 파일인지 각 해시를 계산해 비교할 때.</p></div>
+    <div class="usecase-item"><h4>배포본 기록</h4><p>납품 파일의 특정 버전을 식별할 수 있도록 SHA 값을 작업 기록에 남길 때.</p></div>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details><summary>선택한 파일이 서버로 전송되나요?</summary><p>아니요. 파일을 서버로 전송하지 않습니다. 현재 브라우저가 파일을 읽고 Web Crypto API로 해시를 계산합니다.</p></details>
+  <details><summary>해시가 같으면 파일이 안전한가요?</summary><p>해시 일치는 비교한 파일이 같은 바이트로 이루어졌다는 강한 근거입니다. 하지만 이 도구는 악성코드 검사가 아니며, 비교 값은 반드시 신뢰할 수 있는 공식 배포처에서 가져와야 합니다.</p></details>
+  <details><summary>MD5나 SHA-1은 왜 없나요?</summary><p>새로운 무결성 확인에는 더 강한 SHA-256 이상을 사용하도록 SHA-256·SHA-384·SHA-512만 제공합니다. 기존 시스템의 MD5·SHA-1 값과는 비교할 수 없습니다.</p></details>
+</section>
+
+<section class="related-tools container">
+  <h2>관련 도구</h2>
+  <div class="related-tools-grid">
+    <a class="related-tool-link" href="{{ url_for('pdf_compress_page') }}">{{ icon("pdf-compress") }}PDF 압축</a>
+    <a class="related-tool-link" href="{{ url_for('image_compress_page') }}">{{ icon("image-compress") }}이미지 압축·크기 변경</a>
+    <a class="related-tool-link" href="{{ url_for('char_counter_page') }}">{{ icon("char-counter") }}글자 수·바이트 계산</a>
+  </div>
+</section>
+
+<div class="ad-slot container" id="ad-slot-bottom"></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/file-hash.js') }}"></script>{% endblock %}
