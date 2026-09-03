@@ -115,6 +115,14 @@ def normalize_brand_name(response):
 
     if request.path in HIDDEN_TOOL_PATHS:
         response.headers["X-Robots-Tag"] = "noindex, follow"
+
+    # CSS·JavaScript·아이콘은 짧게 캐시해 페이지 사이를 이동할 때마다
+    # Render 원본 서버에 재검증 요청을 보내지 않도록 한다. HTML과
+    # service-worker.js는 변경 사항을 바로 받을 수 있도록 제외한다.
+    if request.path.startswith("/static/") and response.status_code == 200:
+        response.cache_control.no_cache = None
+        response.cache_control.public = True
+        response.cache_control.max_age = 3600
     return response
 
 app.add_url_rule(
