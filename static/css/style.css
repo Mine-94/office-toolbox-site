@@ -944,6 +944,44 @@ h1, h2, h3 {
 .favorite-star.active { color: var(--gold); }
 .favorite-star.active .icon { fill: var(--gold); }
 
+/* 공개 도구 링크 공유 */
+.tool-share {
+  width: min(720px, calc(100% - 40px));
+  margin: 12px auto 56px;
+  padding: 18px 20px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 24px;
+}
+.tool-share strong {
+  display: block;
+  font-family: "Noto Serif KR", serif;
+  font-size: 15px;
+  color: var(--ink);
+}
+.tool-share p {
+  margin: 5px 0 0;
+  color: var(--ink-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.tool-share-button { white-space: nowrap; }
+.tool-share-status {
+  grid-column: 1 / -1;
+  min-height: 18px;
+}
+
+@media (max-width: 640px) {
+  .tool-share {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .tool-share-button { justify-self: start; }
+}
+
 /* 계산기 신뢰도 표시 (기준연도·출처·업데이트 날짜) */
 .calc-basis {
   max-width: 520px;
