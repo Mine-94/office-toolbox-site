@@ -12,9 +12,20 @@
     <title>{% block title %}업무 도구함 - PDF·사업자조회·계산기 무료 도구{% endblock %}</title>
 <meta name="description" content="{% block description %}PDF·이미지·텍스트 작업부터 사업자조회·업무 계산까지. 한국 업무에서 자주 필요한 온라인 도구를 설치와 회원가입 없이 바로 사용하세요.{% endblock %}">
 <link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ request.path }}">
-<meta property="og:title" content="{% block og_title %}업무 도구함 — OFFICE TOOLBOX{% endblock %}">
-<meta property="og:description" content="{% block og_description %}업무에 필요한 작은 도구를 한곳에.{% endblock %}">
+<meta property="og:title" content="{% block og_title %}{{ self.title()|striptags|e }}{% endblock %}">
+<meta property="og:description" content="{% block og_description %}{{ self.description()|striptags|e }}{% endblock %}">
 <meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.url_root.rstrip('/') }}{{ request.path }}">
+<meta property="og:site_name" content="업무 도구함">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:image" content="{{ request.url_root.rstrip('/') }}/static/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="업무 도구함 로고">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ self.title()|striptags|e }}">
+<meta name="twitter:description" content="{{ self.description()|striptags|e }}">
+<meta name="twitter:image" content="{{ request.url_root.rstrip('/') }}/static/icons/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
@@ -87,6 +98,18 @@
 <main>
 {% block content %}{% endblock %}
 </main>
+
+{% set non_tool_pages = ["home", "about", "contact", "privacy", "terms"] %}
+{% if page and page not in non_tool_pages and page not in hidden_tool_slugs %}
+<aside class="tool-share" aria-label="도구 링크 공유">
+  <div>
+    <strong>필요한 동료에게 이 도구를 알려주세요.</strong>
+    <p>입력한 파일이나 내용은 공유되지 않고 현재 도구 주소만 전달됩니다.</p>
+  </div>
+  <button type="button" class="btn btn-text tool-share-button" data-share-tool="{{ page }}">도구 링크 공유</button>
+  <p class="tool-share-status" data-share-status aria-live="polite"></p>
+</aside>
+{% endif %}
 
 <footer class="site-footer">
   <div class="footer-inner">
