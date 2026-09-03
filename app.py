@@ -62,7 +62,7 @@ SIGNATURE_MAX_PIXELS = 4_000_000
 
 # 사이트맵에 반영하는 마지막 콘텐츠 갱신일. 페이지 구성/문구를 의미 있게
 # 바꿀 때마다 이 값을 갱신해 검색엔진에 재수집 신호를 준다.
-SITE_LAST_UPDATED = "2026-09-02"
+SITE_LAST_UPDATED = "2026-09-03"
 
 
 @app.context_processor
@@ -161,6 +161,15 @@ TOOLS = [
         "icon": "text-diff",
         "title": "텍스트 비교",
         "desc": "두 텍스트를 비교해서 달라진 부분을 한눈에 보여줘요.",
+        "available": True,
+        "category": "text",
+        "popular": False,
+    },
+    {
+        "slug": "file-hash",
+        "icon": "document",
+        "title": "파일 SHA 해시·무결성 확인",
+        "desc": "파일을 업로드하지 않고 SHA-256·384·512 해시를 계산하고 공식 값과 비교해요.",
         "available": True,
         "category": "text",
         "popular": False,
@@ -1033,6 +1042,11 @@ def qr_code_page():
 @app.route("/text-diff")
 def text_diff_page():
     return render_template("text_diff.html", page="text-diff", site_name=SITE_NAME)
+
+
+@app.route("/file-hash")
+def file_hash_page():
+    return render_template("file_hash.html", page="file-hash", site_name=SITE_NAME)
 
 
 @app.route("/salary-calculator")
