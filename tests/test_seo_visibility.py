@@ -21,6 +21,7 @@ class SeoVisibilityTest(unittest.TestCase):
 
         self.assertIn("/business-status</loc>", sitemap)
         self.assertIn("/ocr</loc>", sitemap)
+        self.assertIn("/file-hash</loc>", sitemap)
 
     def test_public_pages_do_not_link_to_hidden_tools(self):
         sitemap = self.client.get("/sitemap.xml")
@@ -155,6 +156,27 @@ class SeoVisibilityTest(unittest.TestCase):
         ):
             with self.subTest(text=text):
                 self.assertIn(text, html)
+
+    def test_file_hash_page_is_public_and_explains_security_limits(self):
+        response = self.client.get("/file-hash", base_url="https://officetoolbox.online")
+        rendered = response.get_data(as_text=True)
+        sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("https://officetoolbox.online/file-hash", rendered)
+        self.assertIn("/file-hash</loc>", sitemap)
+        for text in (
+            "파일 SHA 해시·무결성 확인",
+            "파일을 서버로 전송하지 않습니다",
+            "SHA-256",
+            "SHA-384",
+            "SHA-512",
+            "최대 100MB",
+            "악성코드 검사가 아닙니다",
+            "신뢰할 수 있는 공식 배포처",
+        ):
+            with self.subTest(text=text):
+                self.assertIn(text, rendered)
 
     def test_remaining_public_tools_have_complete_user_guidance(self):
         expected = {
