@@ -48,7 +48,20 @@ assert.deepStrictEqual(JSON.parse(JSON.stringify(calls[0][2])), {
   variant: "kor_eng",
 });
 
+assert.strictEqual(OTX.trackShare("pdf-compress", "native"), true);
+assert.strictEqual(calls.length, 2);
+assert.deepStrictEqual(JSON.parse(JSON.stringify(calls[1])), [
+  "event",
+  "share",
+  {
+    method: "native",
+    content_type: "tool",
+    item_id: "pdf-compress",
+  },
+]);
+
 delete context.window.gtag;
 assert.strictEqual(OTX.trackToolComplete("ocr"), false);
+assert.strictEqual(OTX.trackShare("pdf-compress", "clipboard"), false);
 
 console.log("privacy-safe analytics tests: passed");
