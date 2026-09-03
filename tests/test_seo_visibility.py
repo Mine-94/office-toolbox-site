@@ -62,6 +62,41 @@ class SeoVisibilityTest(unittest.TestCase):
                 self.assertNotIn("max-age=3600", response.headers.get("Cache-Control", ""))
                 response.close()
 
+    def test_social_previews_use_page_specific_metadata(self):
+        response = self.client.get("/pdf-compress", base_url="https://officetoolbox.online")
+        document = html_parser.fromstring(response.data)
+
+        title = document.xpath("string(//title)").strip()
+        description = document.xpath('string(//meta[@name="description"]/@content)')
+        self.assertEqual(
+            document.xpath('string(//meta[@property="og:title"]/@content)'), title
+        )
+        self.assertEqual(
+            document.xpath('string(//meta[@property="og:description"]/@content)'),
+            description,
+        )
+        self.assertEqual(
+            document.xpath('string(//meta[@property="og:url"]/@content)'),
+            "https://officetoolbox.online/pdf-compress",
+        )
+        self.assertEqual(
+            document.xpath('string(//meta[@name="twitter:title"]/@content)'), title
+        )
+        self.assertEqual(
+            document.xpath('string(//meta[@property="og:image"]/@content)'),
+            "https://officetoolbox.online/static/icons/icon-512.png",
+        )
+
+    def test_share_action_is_limited_to_public_tools(self):
+        public_tool = self.client.get("/pdf-compress").get_data(as_text=True)
+        self.assertIn('data-share-tool="pdf-compress"', public_tool)
+        self.assertIn("입력한 파일이나 내용은 공유되지 않고", public_tool)
+
+        for path in ("/", "/about", "/privacy", "/qr-code"):
+            with self.subTest(path=path):
+                page = self.client.get(path).get_data(as_text=True)
+                self.assertNotIn("data-share-tool=", page)
+
     def test_high_maintenance_calculators_are_not_indexable(self):
         """법·요율 자동 갱신 체계가 없는 계산기는 공개 색인하지 않는다."""
         for slug in ("insurance-calculator", "jeonse-rent-calculator"):
