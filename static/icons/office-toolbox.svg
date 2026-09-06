@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">사무실 도구함</title>
+  <desc id="desc">손잡이가 달린 도구함을 단순화한 로고</desc>
+  <rect width="512" height="512" rx="116" fill="#173f37"/>
+  <path d="M176 184v-34c0-36 29-65 65-65h30c36 0 65 29 65 65v34" fill="none" stroke="#d9ebe4" stroke-width="28" stroke-linecap="round"/>
+  <rect x="86" y="166" width="340" height="264" rx="54" fill="#f7f8f4"/>
+  <path d="M86 264h340" fill="none" stroke="#173f37" stroke-width="24"/>
+  <rect x="211" y="246" width="90" height="54" rx="14" fill="#d97845"/>
+</svg>

@@ -1,3 +1,4 @@
+import re
 import unittest
 
 from lxml import etree, html as html_parser
@@ -88,6 +89,35 @@ class SeoVisibilityTest(unittest.TestCase):
             "https://officetoolbox.online/static/icons/icon-512.png",
         )
 
+    def test_trust_pages_have_unique_accurate_descriptions(self):
+        """신뢰 페이지가 홈의 포괄 설명을 그대로 재사용하지 않는다."""
+        expected_markers = {
+            "/about": ("운영 목적", "오류 정정"),
+            "/privacy": ("업로드 파일", "보관 기간"),
+            "/terms": ("이용 조건", "정확성의 한계"),
+        }
+        descriptions = {}
+
+        for path, markers in expected_markers.items():
+            response = self.client.get(path)
+            document = html_parser.fromstring(response.data)
+            description = document.xpath(
+                'string(//meta[@name="description"]/@content)'
+            ).strip()
+            descriptions[path] = description
+
+            for marker in markers:
+                with self.subTest(path=path, marker=marker):
+                    self.assertIn(marker, description)
+
+        self.assertEqual(len(descriptions), len(set(descriptions.values())))
+
+        home = html_parser.fromstring(self.client.get("/").data)
+        home_description = home.xpath(
+            'string(//meta[@name="description"]/@content)'
+        ).strip()
+        self.assertNotIn(home_description, descriptions.values())
+
     def test_share_action_is_limited_to_public_tools(self):
         public_tool = self.client.get("/pdf-compress").get_data(as_text=True)
         self.assertIn('data-share-tool="pdf-compress"', public_tool)
@@ -97,6 +127,74 @@ class SeoVisibilityTest(unittest.TestCase):
             with self.subTest(path=path):
                 page = self.client.get(path).get_data(as_text=True)
                 self.assertNotIn("data-share-tool=", page)
+
+    def test_home_cards_separate_navigation_and_favorite_controls(self):
+        """카드 링크 안에 버튼을 중첩하지 않고 모바일 터치 영역을 확보한다."""
+        document = html_parser.fromstring(self.client.get("/").data)
+        cards = document.xpath(
+            '//article[contains(concat(" ", normalize-space(@class), " "), " tool-card ")]'
+        )
+
+        self.assertGreater(len(cards), 0)
+        self.assertFalse(document.xpath("//a//button"))
+        for card in cards:
+            with self.subTest(slug=card.get("data-slug")):
+                self.assertEqual(len(card.xpath('./a[contains(@class, "tool-card-link")]')), 1)
+                self.assertEqual(len(card.xpath('./button[contains(@class, "favorite-star")]')), 1)
+
+        css_response = self.client.get("/static/css/style.css")
+        css = css_response.get_data(as_text=True)
+        css_response.close()
+        favorite_rule = re.search(r"\.favorite-star\s*\{([^}]*)\}", css, re.S)
+        self.assertIsNotNone(favorite_rule)
+        self.assertIn("width: 44px", favorite_rule.group(1))
+        self.assertIn("height: 44px", favorite_rule.group(1))
+        self.assertIn("place-items: center", favorite_rule.group(1))
+
+    def test_home_exposes_a_clear_branded_tool_directory(self):
+        """홈은 새 브랜드·빠른 실행·업무별 분류를 중복 없이 제공한다."""
+        response = self.client.get("/")
+        document = html_parser.fromstring(response.data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            document.xpath('string(//a[contains(@class, "site-brand")]//strong)'),
+            "사무실 도구함",
+        )
+        self.assertEqual(
+            len(document.xpath('//aside[@id="quick-tools"]//a[contains(@class, "launch-app")]')),
+            6,
+        )
+        self.assertEqual(
+            len(document.xpath('//nav[contains(@class, "category-dock")]/a')),
+            5,
+        )
+        self.assertEqual(
+            len(document.xpath('//article[contains(@class, "tool-card")]')),
+            12,
+        )
+        self.assertFalse(document.xpath('//*[@id="main-content"]//*[@id = preceding::*/@id]'))
+
+    def test_brand_and_install_assets_are_consistent(self):
+        """공개 화면과 설치 자산에서 이전 브랜드명이 다시 나타나지 않는다."""
+        sitemap = etree.fromstring(self.client.get("/sitemap.xml").data)
+        namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        for location in sitemap.xpath("//s:loc/text()", namespaces=namespace):
+            path = location.split("localhost", 1)[-1] or "/"
+            rendered = self.client.get(path).get_data(as_text=True)
+            with self.subTest(path=path):
+                self.assertIn("사무실 도구함", rendered)
+                self.assertNotIn("업무 도구함", rendered)
+                self.assertNotIn("사무실 공구함", rendered)
+
+        manifest_response = self.client.get("/manifest.json")
+        manifest = manifest_response.get_json()
+        manifest_response.close()
+        self.assertEqual(manifest["short_name"], "사무실 도구함")
+        self.assertEqual(manifest["theme_color"], "#173f37")
+        icon_response = self.client.get("/static/icons/office-toolbox.svg")
+        self.assertEqual(icon_response.status_code, 200)
+        icon_response.close()
 
     def test_high_maintenance_calculators_are_not_indexable(self):
         """법·요율 자동 갱신 체계가 없는 계산기는 공개 색인하지 않는다."""
@@ -123,6 +221,25 @@ class SeoVisibilityTest(unittest.TestCase):
         self.assertIn("/contact</loc>", sitemap)
         self.assertIn('href="/contact"', privacy)
         self.assertIn("생성 후 1시간이 지난 파일", privacy)
+
+    def test_trust_pages_identify_operator_and_real_contact_limits(self):
+        """운영 주체·문의 공개 범위·서비스 고유 이용 조건을 숨기지 않는다."""
+        about = self.client.get("/about").get_data(as_text=True)
+        contact = self.client.get("/contact").get_data(as_text=True)
+        privacy = self.client.get("/privacy").get_data(as_text=True)
+        terms = self.client.get("/terms").get_data(as_text=True)
+
+        self.assertIn("운영 주체", about)
+        self.assertIn("Lichtbringer", about)
+        self.assertIn("GitHub 계정 로그인이 필요", contact)
+        self.assertIn("공개할 수 없는 문의", contact)
+        self.assertIn('href="mailto:lichtbringer.studio@gmail.com"', contact)
+        self.assertIn("운영자와 적용 범위", privacy)
+        self.assertIn("officetoolbox.online", privacy)
+        self.assertIn("lichtbringer.studio@gmail.com", privacy)
+        self.assertIn("파일 처리와 개인정보", terms)
+        self.assertIn("광고와 이용자 보호", terms)
+        self.assertIn("검색 노출을 중단한 상태", terms)
 
     def test_ocr_page_has_complete_user_guidance(self):
         html = self.client.get("/ocr").get_data(as_text=True)
@@ -191,6 +308,7 @@ class SeoVisibilityTest(unittest.TestCase):
                 "세 가지 처리 방식",
                 "메타데이터 제거 전용 도구가 아닙니다",
                 "최대 4,000만 화소",
+                "결과가 4,000만 화소를 넘는 설정은 처리 전에 차단",
             ),
             "/pdf-merge-split": (
                 "PDF 합치기·나누기 방법",
@@ -203,6 +321,7 @@ class SeoVisibilityTest(unittest.TestCase):
                 "UTF-8 파일 크기",
                 "공백·줄바꿈 정리",
                 "텍스트를 서버로 보내지 않습니다",
+                "이모지·결합문자",
             ),
             "/salary-calculator": (
                 "예상 실수령액 계산 방법",

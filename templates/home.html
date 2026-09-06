@@ -1,70 +1,169 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
+
+{% macro tool_card(tool, category_label) -%}
+  {% if tool.available %}
+  <article class="tool-card" data-slug="{{ tool.slug }}" data-tool-category="{{ tool.category }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
+    <a class="tool-card-link" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}" aria-label="{{ tool.title }} 열기">
+      <span class="tool-card-topline">
+        <span class="tool-icon">{{ icon(tool.icon) }}</span>
+        <span class="tool-card-category">{{ category_label }}</span>
+      </span>
+      <h3>{{ tool.title }}</h3>
+      <p>{{ tool.desc }}</p>
+      <span class="tool-open-label">도구 열기 <span aria-hidden="true">↗</span></span>
+    </a>
+    <button type="button" class="favorite-star" data-slug="{{ tool.slug }}" aria-label="즐겨찾기 추가">{{ icon("star") }}</button>
+  </article>
+  {% else %}
+  <div class="tool-card tool-card-disabled" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
+    <span class="tool-icon">{{ icon(tool.icon) }}</span>
+    <h3>{{ tool.title }}</h3>
+    <p>{{ tool.desc }}</p>
+    <span class="tool-badge">준비 중</span>
+  </div>
+  {% endif %}
+{%- endmacro %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "사무실 도구함 공개 도구",
+  "numberOfItems": {{ tools|length }},
+  "itemListElement": [
+    {% for tool in tools %}{
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "name": {{ tool.title|tojson }},
+      "url": {{ (request.url_root.rstrip('/') ~ '/' ~ tool.slug)|tojson }}
+    }{% if not loop.last %},{% endif %}{% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
-<section class="hero container">
-  <span class="eyebrow">OFFICE TOOLBOX</span>
-  <h1>업무 도구함</h1>
-  <p class="subtitle">한국 업무에서 자주 필요한 문서·계산·사업자 도구를 한 곳에 모았어요. 설치·회원가입 없이 바로 사용하세요.</p>
+<section class="home-hero home-container">
+  <div class="home-hero-copy">
+    <span class="section-kicker">사무실 업무, 바로 끝내기</span>
+    <h1>자주 쓰는 업무 도구를<br><strong>한곳에서 바로.</strong></h1>
+    <p class="home-lead">PDF 정리, 이미지 용량 조절, 글자 수 확인, 사업자 상태 조회처럼 반복되는 작업을 설치 없이 처리하세요.</p>
 
-  <div class="tool-search">
-    {{ icon("search") }}
-    <input type="text" id="tool-search-input" placeholder="어떤 작업이 필요한가요? 사업자조회, PDF, 이미지, 계산기 검색…">
-  </div>
-</section>
+    <label class="tool-search" for="tool-search-input">
+      {{ icon("search") }}
+      <input type="search" id="tool-search-input" placeholder="도구 이름이나 작업을 검색하세요" autocomplete="off">
+      <span class="search-shortcut" aria-hidden="true">⌘ K</span>
+    </label>
 
-<section id="tools" class="container tool-categories">
-  <div class="tool-category hidden" id="favorites-section" data-category="favorites">
-    <h2 class="category-heading"><span class="eyebrow">FAVORITES</span>즐겨찾기</h2>
-    <div class="tool-grid" id="favorites-grid"></div>
-  </div>
-
-  <div class="tool-category hidden" id="recent-section" data-category="recent">
-    <h2 class="category-heading"><span class="eyebrow">RECENT</span>최근 사용한 도구</h2>
-    <div class="tool-grid" id="recent-grid"></div>
+    <ul class="home-proof-list" aria-label="서비스 특징">
+      <li>{{ icon("check-circle") }}<span>회원가입 없이 사용</span></li>
+      <li>{{ icon("check-circle") }}<span>공개 도구 {{ tools|length }}개 직접 검증</span></li>
+      <li>{{ icon("check-circle") }}<span>파일 처리 방식 공개</span></li>
+    </ul>
   </div>
 
-  <div class="tool-category" data-category="popular">
-    <h2 class="category-heading"><span class="eyebrow">MOST USED</span>자주 쓰는 도구</h2>
-    <div class="tool-grid">
-      {% for tool in tools if tool.popular and tool.available %}
-      <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}" data-slug="{{ tool.slug }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
-        <button type="button" class="favorite-star" data-slug="{{ tool.slug }}" aria-label="즐겨찾기 추가">{{ icon("star") }}</button>
-        <span class="tool-icon">{{ icon(tool.icon) }}</span>
-        <h3>{{ tool.title }}</h3>
-        <p>{{ tool.desc }}</p>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-
-  {% for cat in categories %}
-  <div class="tool-category" id="{{ cat.key }}" data-category="{{ cat.key }}">
-    <h2 class="category-heading"><span class="eyebrow">{{ cat.eyebrow }}</span>{{ cat.label }}</h2>
-    <div class="tool-grid">
-      {% for tool in tools if tool.category == cat.key %}
-      {% if tool.available %}
-      <a class="tool-card" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}" data-slug="{{ tool.slug }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
-        <button type="button" class="favorite-star" data-slug="{{ tool.slug }}" aria-label="즐겨찾기 추가">{{ icon("star") }}</button>
-        <span class="tool-icon">{{ icon(tool.icon) }}</span>
-        <h3>{{ tool.title }}</h3>
-        <p>{{ tool.desc }}</p>
-      </a>
-      {% else %}
-      <div class="tool-card tool-card-disabled" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}">
-        <span class="tool-icon">{{ icon(tool.icon) }}</span>
-        <h3>{{ tool.title }}</h3>
-        <p>{{ tool.desc }}</p>
-        <span class="tool-badge">준비 중</span>
+  <aside class="quick-launch" id="quick-tools" aria-labelledby="quick-tools-title">
+    <div class="quick-launch-heading">
+      <div>
+        <span class="section-kicker">바로 쓰는 도구</span>
+        <h2 id="quick-tools-title">빠른 실행</h2>
       </div>
+      <span class="quick-launch-count">6개 도구</span>
+    </div>
+    <div class="launch-grid">
+      {% for tool in tools if tool.popular and tool.available %}
+      {% if loop.index <= 6 %}
+      <a class="launch-app" data-tool-category="{{ tool.category }}" data-search="{{ (tool.title ~ ' ' ~ tool.desc) | lower }}" href="{{ url_for(tool.slug.replace('-', '_') + '_page') }}">
+        <span class="launch-icon">{{ icon(tool.icon) }}</span>
+        <strong>{{ tool.title }}</strong>
+      </a>
       {% endif %}
       {% endfor %}
     </div>
+  </aside>
+</section>
+
+<section class="home-status-band" aria-label="서비스 운영 원칙">
+  <div class="home-container status-band-inner">
+    <strong>작동하는 도구만 공개합니다.</strong>
+    <span>기능 오류를 먼저 고치고, 처리 한도와 개인정보 기준을 각 페이지에 적습니다.</span>
+    <a href="{{ url_for('about') }}">운영 원칙 보기 <span aria-hidden="true">→</span></a>
   </div>
+</section>
+
+<section id="tools" class="home-container tools-directory">
+  <div class="directory-intro">
+    <div>
+      <span class="section-kicker">전체 도구</span>
+      <h2>업무별로 찾기</h2>
+      <p>작업 종류를 고르면 필요한 도구와 지원 범위를 바로 확인할 수 있습니다.</p>
+    </div>
+    <span class="directory-total">현재 공개 {{ tools|length }}개</span>
+  </div>
+
+  <nav class="category-dock" aria-label="도구 종류 바로가기">
+    {% for cat in categories %}
+    {% set category_tools = tools | selectattr("category", "equalto", cat.key) | list %}
+    <a href="#{{ cat.key }}" data-tool-category="{{ cat.key }}">
+      <span class="category-dock-icon">{{ icon(cat.icon) }}</span>
+      <span><strong>{{ cat.label }}</strong><small>{{ category_tools|length }}개 도구</small></span>
+    </a>
+    {% endfor %}
+  </nav>
+
+  <div class="tool-category hidden personal-tools" id="favorites-section" data-category="favorites">
+    <div class="category-heading">
+      <div><span class="section-kicker">내 도구</span><h2>즐겨찾기</h2></div>
+    </div>
+    <div class="tool-grid" id="favorites-grid"></div>
+  </div>
+
+  <div class="tool-category hidden personal-tools" id="recent-section" data-category="recent">
+    <div class="category-heading">
+      <div><span class="section-kicker">최근 사용</span><h2>최근 사용한 도구</h2></div>
+    </div>
+    <div class="tool-grid" id="recent-grid"></div>
+  </div>
+
+  {% for cat in categories %}
+  {% set category_tools = tools | selectattr("category", "equalto", cat.key) | list %}
+  <section class="tool-category" id="{{ cat.key }}" data-category="{{ cat.key }}">
+    <div class="category-heading">
+      <div>
+        <span class="section-kicker">{{ cat.eyebrow }}</span>
+        <h2>{{ cat.label }}</h2>
+      </div>
+      <p>{{ cat.description }}</p>
+    </div>
+    <div class="tool-grid">
+      {% for tool in category_tools %}
+        {{ tool_card(tool, cat.label) }}
+      {% endfor %}
+    </div>
+  </section>
   {% endfor %}
 
-  <p id="tool-search-empty" class="hint hidden" style="text-align:center; margin-top: 12px;">검색 결과가 없어요. 다른 키워드로 찾아보세요.</p>
+  <div id="tool-search-empty" class="search-empty hidden" role="status">
+    <strong>검색 결과가 없습니다.</strong>
+    <span>도구 이름 대신 ‘PDF’, ‘이미지’, ‘사업자’처럼 작업 종류를 입력해보세요.</span>
+  </div>
+</section>
+
+<section class="home-trust home-container" aria-labelledby="trust-title">
+  <div class="trust-heading">
+    <span class="section-kicker">운영 기준</span>
+    <h2 id="trust-title">도구가 많아도, 기준은 하나입니다.</h2>
+  </div>
+  <div class="trust-grid">
+    <article><span>01</span><h3>기능부터 확인</h3><p>정상 입력뿐 아니라 빈 입력, 손상 파일, 용량 초과와 오류 흐름도 함께 시험합니다.</p></article>
+    <article><span>02</span><h3>처리 범위를 공개</h3><p>지원 형식, 정확성의 한계, 파일 삭제 방식과 외부 데이터 출처를 숨기지 않습니다.</p></article>
+    <article><span>03</span><h3>필요한 기능만 유지</h3><p>제대로 작동하지 않거나 설명 책임을 지기 어려운 도구는 검색 노출에서 제외합니다.</p></article>
+  </div>
 </section>
 {% endblock %}
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 {% endblock %}

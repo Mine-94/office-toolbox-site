@@ -23,8 +23,9 @@
   align-items: end;
   padding: 22px 24px;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  background: #fffdf9;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 14px;
 }
 
@@ -37,9 +38,8 @@
 }
 
 .business-status-summary strong {
-  font-family: "Noto Serif KR", serif;
   font-size: 25px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .business-status-summary span {

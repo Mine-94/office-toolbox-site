@@ -1,8 +1,8 @@
-# 업무 도구함 (OFFICE TOOLBOX)
+# 사무실 도구함 (OFFICE TOOLBOX)
 
 한국 업무에서 자주 쓰는 문서·이미지·사업자조회·계산 도구를 한곳에 제공하는 무료 Flask 서비스입니다. 설치나 회원가입 없이 웹에서 바로 사용할 수 있습니다.
 
-**[업무 도구함 바로가기](https://officetoolbox.online/)**
+**[사무실 도구함 바로가기](https://officetoolbox.online/)**
 
 ## 검색 노출 대상 핵심 도구
 - PDF: [압축](https://officetoolbox.online/pdf-compress), [병합·분할](https://officetoolbox.online/pdf-merge-split), [표 → Excel](https://officetoolbox.online/pdf-to-excel)

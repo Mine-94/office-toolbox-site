@@ -3,6 +3,7 @@
 
   // --- 검색 필터 (항상 최신 DOM을 다시 조회해서 즐겨찾기/최근 섹션도 함께 필터링) ---
   const searchInput = document.getElementById("tool-search-input");
+  const quickTools = document.getElementById("quick-tools");
   if (searchInput) {
     searchInput.addEventListener("input", () => {
       const q = searchInput.value.trim().toLowerCase();
@@ -25,6 +26,14 @@
       });
 
       if (emptyMsg) emptyMsg.classList.toggle("hidden", anyVisible || !q);
+      if (quickTools) quickTools.classList.toggle("hidden", Boolean(q));
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchInput.focus();
+      }
     });
   }
 

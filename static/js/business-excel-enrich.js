@@ -80,7 +80,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = filenameFromDisposition(response.headers.get("Content-Disposition")) || "업무도구함_거래처점검.xlsx";
+      link.download = filenameFromDisposition(response.headers.get("Content-Disposition")) || "사무실도구함_거래처점검.xlsx";
       document.body.appendChild(link);
       link.click();
       link.remove();

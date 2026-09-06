@@ -11,7 +11,7 @@ from business_tools import (
     business_status_page,
 )
 
-app_module.SITE_NAME = "업무 도구함"
+app_module.SITE_NAME = "사무실 도구함"
 
 # 전수 점검 결과 홈·사이트맵에서 제외하는 도구.
 # 기존 URL은 과거 링크 보존을 위해 유지하지만 검색엔진에는 noindex로 안내한다.
@@ -82,6 +82,36 @@ if not any(category.get("key") == "business" for category in TOOL_CATEGORIES):
         {"key": "business", "label": "사업자·경리", "eyebrow": "BUSINESS"}
     )
 
+CATEGORY_META = {
+    "pdf": {
+        "description": "용량 줄이기, 합치기·나누기, 표 추출",
+        "icon": "pdf-compress",
+        "eyebrow": "문서 정리",
+    },
+    "image": {
+        "description": "용량·크기 조절과 파일 형식 변환",
+        "icon": "image-compress",
+        "eyebrow": "이미지 편집",
+    },
+    "text": {
+        "description": "글자 수, OCR, 파일 무결성 확인",
+        "icon": "char-counter",
+        "eyebrow": "문서 작성",
+    },
+    "calculator": {
+        "description": "기준일과 한계를 표시한 업무 계산",
+        "icon": "salary-calculator",
+        "eyebrow": "업무 계산",
+    },
+    "business": {
+        "description": "사업자 상태 확인과 견적 문서 작성",
+        "icon": "document",
+        "eyebrow": "거래 확인",
+    },
+}
+for category in TOOL_CATEGORIES:
+    category.update(CATEGORY_META.get(category.get("key"), {}))
+
 if not any(tool.get("slug") == "business-status" for tool in TOOLS):
     TOOLS.append(
         {
@@ -109,16 +139,7 @@ if not any(tool.get("slug") == "business-bulk-status" for tool in TOOLS):
     )
 
 @app.after_request
-def normalize_brand_name(response):
-    content_type = response.headers.get("Content-Type", "")
-    if "text/html" in content_type and not response.direct_passthrough:
-        try:
-            html = response.get_data(as_text=True)
-            if "사무실 공구함" in html:
-                response.set_data(html.replace("사무실 공구함", "업무 도구함"))
-        except (RuntimeError, UnicodeDecodeError):
-            pass
-
+def apply_visibility_and_cache_headers(response):
     if request.path in HIDDEN_TOOL_PATHS:
         response.headers["X-Robots-Tag"] = "noindex, follow"
 

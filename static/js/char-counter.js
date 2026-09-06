@@ -1,4 +1,35 @@
 (function () {
+  const graphemeSegmenter =
+    typeof Intl !== "undefined" && typeof Intl.Segmenter === "function"
+      ? new Intl.Segmenter("ko", { granularity: "grapheme" })
+      : null;
+
+  // 사용자가 화면에서 하나로 인식하는 글자 단위로 센다. 최신 브라우저에서는
+  // 결합문자와 여러 코드 포인트로 구성된 이모지도 한 글자로 처리한다.
+  function countCharacters(str) {
+    if (!str) return 0;
+    if (!graphemeSegmenter) return Array.from(str).length;
+
+    let count = 0;
+    for (const _segment of graphemeSegmenter.segment(str)) count += 1;
+    return count;
+  }
+
+  // 국내 일부 지원서/게시판에서 사용하는 영문 1바이트, 한글·비ASCII 2바이트 기준
+  function byteLength(str) {
+    let bytes = 0;
+    for (const ch of str) {
+      bytes += ch.codePointAt(0) > 127 ? 2 : 1;
+    }
+    return bytes;
+  }
+
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = { countCharacters, byteLength };
+  }
+
+  if (typeof document === "undefined") return;
+
   const input = document.getElementById("char-input");
   if (!input) return;
 
@@ -15,15 +46,6 @@
   const cleanBtn = document.getElementById("clean-btn");
   const copyBtn = document.getElementById("copy-btn");
   const clearBtn = document.getElementById("clear-btn");
-
-  // 국내 일부 지원서/게시판에서 사용하는 영문 1바이트, 한글·비ASCII 2바이트 기준
-  function byteLength(str) {
-    let bytes = 0;
-    for (const ch of str) {
-      bytes += ch.codePointAt(0) > 127 ? 2 : 1;
-    }
-    return bytes;
-  }
 
   function updateLimit(count) {
     const limit = parseInt(limitInput.value, 10);
@@ -43,8 +65,8 @@
 
   function update() {
     const text = input.value;
-    const withSpace = text.length;
-    const withoutSpace = text.replace(/\s/g, "").length;
+    const withSpace = countCharacters(text);
+    const withoutSpace = countCharacters(text.replace(/\s/gu, ""));
     const bytes = byteLength(text);
     const trimmed = text.trim();
     const words = trimmed === "" ? 0 : trimmed.split(/\s+/).length;
@@ -72,7 +94,7 @@
   }
 
   input.addEventListener("input", update);
-  limitInput.addEventListener("input", () => updateLimit(input.value.length));
+  limitInput.addEventListener("input", () => updateLimit(countCharacters(input.value)));
 
   cleanBtn.addEventListener("click", () => {
     input.value = input.value

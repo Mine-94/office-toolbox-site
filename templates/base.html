@@ -4,31 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="naver-site-verification" content="48f614238558eee07838c6d6fb832487e3384eda" />
-<meta name="theme-color" content="#11110f">
+<meta name="theme-color" content="#173f37">
+<link rel="icon" type="image/svg+xml" href="/static/icons/office-toolbox.svg" />
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png" />
 <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png" />
 <link rel="manifest" href="/manifest.json" />
-    <title>{% block title %}업무 도구함 - PDF·사업자조회·계산기 무료 도구{% endblock %}</title>
+    <title>{% block title %}사무실 도구함 - PDF·사업자조회·계산기 무료 도구{% endblock %}</title>
 <meta name="description" content="{% block description %}PDF·이미지·텍스트 작업부터 사업자조회·업무 계산까지. 한국 업무에서 자주 필요한 온라인 도구를 설치와 회원가입 없이 바로 사용하세요.{% endblock %}">
 <link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ request.path }}">
 <meta property="og:title" content="{% block og_title %}{{ self.title()|striptags|e }}{% endblock %}">
 <meta property="og:description" content="{% block og_description %}{{ self.description()|striptags|e }}{% endblock %}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{ request.url_root.rstrip('/') }}{{ request.path }}">
-<meta property="og:site_name" content="업무 도구함">
+<meta property="og:site_name" content="사무실 도구함">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:image" content="{{ request.url_root.rstrip('/') }}/static/icons/icon-512.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
-<meta property="og:image:alt" content="업무 도구함 로고">
+<meta property="og:image:alt" content="사무실 도구함 로고">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{ self.title()|striptags|e }}">
 <meta name="twitter:description" content="{{ self.description()|striptags|e }}">
 <meta name="twitter:image" content="{{ request.url_root.rstrip('/') }}/static/icons/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 {% block styles %}{% endblock %}
 <script>
@@ -55,19 +56,20 @@
         {
           "@context": "https://schema.org",
           "@type": "WebSite",
-          "name": "업무 도구함 (OFFICE TOOLBOX)",
+          "name": "사무실 도구함 (OFFICE TOOLBOX)",
           "url": "https://officetoolbox.online/",
           "description": "PDF·이미지·텍스트 작업부터 사업자조회·업무 계산까지, 설치와 회원가입 없이 바로 쓰는 무료 온라인 업무 도구 모음.",
           "inLanguage": "ko",
           "publisher": {
             "@type": "Organization",
-            "name": "업무 도구함"
+            "name": "사무실 도구함"
           }
         }
     </script>
 {% block structured_data %}{% endblock %}
 </head>
 <body data-page="{{ page }}">
+<a class="skip-link" href="#main-content">본문 바로가기</a>
 <script src="{{ url_for('static', filename='js/otx-storage.js') }}"></script>
 <script>
   (function () {
@@ -80,22 +82,22 @@
 </script>
 <header class="site-header">
   <div class="header-inner">
-    <a class="logo" href="{{ url_for('home') }}">업무<span> 도구함</span></a>
-    <p class="tagline">OFFICE TOOLBOX — 업무에 필요한 작은 도구를 한곳에.</p>
-    <nav class="nav">
-      <a href="{{ url_for('home') }}#tools">전체 도구</a>
-      <a href="{{ url_for('home') }}#pdf">PDF</a>
-      <a href="{{ url_for('home') }}#image">이미지</a>
-      <a href="{{ url_for('home') }}#text">텍스트·데이터</a>
-      <a href="{{ url_for('home') }}#calculator">계산기</a>
-      <a href="{{ url_for('home') }}#business">사업자·경리</a>
-      <a href="{{ url_for('about') }}">소개</a>
-      <a href="{{ url_for('contact') }}">문의</a>
+    <a class="site-brand" href="{{ url_for('home') }}" aria-label="사무실 도구함 홈">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" role="img"><path d="M16 17v-3.5A5.5 5.5 0 0 1 21.5 8h5A5.5 5.5 0 0 1 32 13.5V17"/><rect x="8" y="16" width="32" height="25" rx="6"/><path d="M8 25h32M20 25v4h8v-4"/></svg>
+      </span>
+      <span class="brand-copy"><strong>사무실 도구함</strong><small>OFFICE TOOLBOX</small></span>
+    </a>
+    <nav class="nav" aria-label="주요 메뉴">
+      <a href="{{ url_for('home') }}#tools">모든 도구</a>
+      <a href="{{ url_for('about') }}">사이트 소개</a>
+      <a href="{{ url_for('contact') }}">문의하기</a>
+      <a class="nav-primary" href="{{ url_for('home') }}#quick-tools">빠른 실행</a>
     </nav>
   </div>
 </header>
 
-<main>
+<main id="main-content">
 {% block content %}{% endblock %}
 </main>
 
@@ -113,7 +115,7 @@
 
 <footer class="site-footer">
   <div class="footer-inner">
-    <p>&copy; 2026 업무 도구함</p>
+    <p>&copy; 2026 사무실 도구함</p>
     <div class="footer-links">
       <a href="{{ url_for('about') }}">소개</a>
       <a href="{{ url_for('contact') }}">문의하기</a>

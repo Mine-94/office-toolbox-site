@@ -39,7 +39,7 @@ pillow_heif.register_heif_opener()
 
 app = Flask(__name__)
 
-SITE_NAME = "사무실 공구함"
+SITE_NAME = "사무실 도구함"
 SITE_TAGLINE = "OFFICE TOOLBOX"
 
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB (PDF 쪽이 더 큼)
@@ -62,7 +62,7 @@ SIGNATURE_MAX_PIXELS = 4_000_000
 
 # 사이트맵에 반영하는 마지막 콘텐츠 갱신일. 페이지 구성/문구를 의미 있게
 # 바꿀 때마다 이 값을 갱신해 검색엔진에 재수집 신호를 준다.
-SITE_LAST_UPDATED = "2026-09-03"
+SITE_LAST_UPDATED = "2026-09-05"
 
 
 @app.context_processor
@@ -492,23 +492,14 @@ def process_image(input_path: Path, output_path: Path, quality: str, resize: str
     return orig_w, orig_h, new_w, new_h
 
 
-def resize_to_dimensions(img, target_w, target_h, fit="contain"):
-    """target_w/target_h 중 하나 또는 둘 다 지정해 이미지 크기를 맞춘다.
-    fit="cover"면 지정한 크기를 정확히 채우도록 가운데를 기준으로 잘라낸다(예: SNS 규격, 증명사진).
-    fit="contain"이면 비율을 유지한 채 지정한 크기 안에 들어가도록 축소만 한다(잘림 없음)."""
-    orig_w, orig_h = img.size
+def calculate_resize_dimensions(orig_w, orig_h, target_w, target_h, fit="contain"):
+    """실제 픽셀 버퍼를 만들기 전에 결과 크기를 계산한다."""
     target_w = target_w or 0
     target_h = target_h or 0
 
     if fit == "cover" and target_w and target_h:
         scale = max(target_w / orig_w, target_h / orig_h)
-        scaled_w = max(1, round(orig_w * scale))
-        scaled_h = max(1, round(orig_h * scale))
-        img = img.resize((scaled_w, scaled_h), Image.LANCZOS)
-        left = max(0, (scaled_w - target_w) // 2)
-        top = max(0, (scaled_h - target_h) // 2)
-        img = img.crop((left, top, left + target_w, top + target_h))
-        return img, target_w, target_h
+        return target_w, target_h, scale
 
     if target_w and target_h:
         scale = min(target_w / orig_w, target_h / orig_h)
@@ -519,8 +510,31 @@ def resize_to_dimensions(img, target_w, target_h, fit="contain"):
     else:
         scale = 1.0
 
-    new_w = max(1, round(orig_w * scale))
-    new_h = max(1, round(orig_h * scale))
+    return (
+        max(1, round(orig_w * scale)),
+        max(1, round(orig_h * scale)),
+        scale,
+    )
+
+
+def resize_to_dimensions(img, target_w, target_h, fit="contain"):
+    """target_w/target_h 중 하나 또는 둘 다 지정해 이미지 크기를 맞춘다.
+    fit="cover"면 지정한 크기를 정확히 채우도록 가운데를 기준으로 잘라낸다(예: SNS 규격, 증명사진).
+    fit="contain"이면 비율을 유지한 채 지정한 크기 안에 들어가도록 축소만 한다(잘림 없음)."""
+    orig_w, orig_h = img.size
+    new_w, new_h, scale = calculate_resize_dimensions(
+        orig_w, orig_h, target_w, target_h, fit
+    )
+
+    if fit == "cover" and target_w and target_h:
+        scaled_w = max(1, round(orig_w * scale))
+        scaled_h = max(1, round(orig_h * scale))
+        img = img.resize((scaled_w, scaled_h), Image.LANCZOS)
+        left = max(0, (scaled_w - target_w) // 2)
+        top = max(0, (scaled_h - target_h) // 2)
+        img = img.crop((left, top, left + target_w, top + target_h))
+        return img, target_w, target_h
+
     img = img.resize((new_w, new_h), Image.LANCZOS)
     return img, new_w, new_h
 
@@ -1347,6 +1361,14 @@ def api_image_process():
             img = Image.open(input_path)
             img = ImageOps.exif_transpose(img)
             orig_w, orig_h = img.size
+            planned_w, planned_h, _ = calculate_resize_dimensions(
+                orig_w, orig_h, target_w, target_h, fit
+            )
+            if planned_w * planned_h > IMAGE_COMPRESS_MAX_PIXELS:
+                max_mp = IMAGE_COMPRESS_MAX_PIXELS // 1_000_000
+                raise ClientFileError(
+                    f"결과 이미지가 너무 큽니다. {max_mp}메가픽셀 이하 크기를 입력해주세요."
+                )
             resized, new_w, new_h = resize_to_dimensions(img, target_w, target_h, fit)
             q = IMG_QUALITY_PRESETS.get(quality, 85)
             data = _encode_image(resized, ext, quality=q)

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}거래처 사업자 일괄점검 – Excel 원본 유지·휴폐업 확인 | 업무 도구함{% endblock %}
+{% block title %}거래처 사업자 일괄점검 – Excel 원본 유지·휴폐업 확인 | 사무실 도구함{% endblock %}
 {% block description %}거래처 Excel을 업로드하면 기존 열과 서식을 유지한 채 사업자 상태·과세유형·폐업일·확인필요·조회일 열을 자동으로 추가합니다. 최대 100개 사업자등록번호를 한 번에 점검하세요.{% endblock %}
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/business-bulk-status.css') }}">
@@ -17,7 +17,7 @@
       "name": "기존 Excel의 거래처명이나 금액 열이 사라지나요?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "아니요. 원본 워크북의 기존 열과 시트를 유지하고, 사용 중인 시트 오른쪽에 업무 도구함 조회 결과 열을 추가합니다."
+        "text": "아니요. 원본 워크북의 기존 열과 시트를 유지하고, 사용 중인 시트 오른쪽에 사무실 도구함 조회 결과 열을 추가합니다."
       }
     },
     {
@@ -220,7 +220,7 @@
   <h2>자주 묻는 질문</h2>
   <details>
     <summary>기존 Excel의 거래처명이나 금액 열이 사라지나요?</summary>
-    <p>아니요. 원본 워크북의 기존 열과 시트를 유지하고, 사용 중인 시트 오른쪽에 업무 도구함 조회 결과 열을 추가합니다.</p>
+    <p>아니요. 원본 워크북의 기존 열과 시트를 유지하고, 사용 중인 시트 오른쪽에 사무실 도구함 조회 결과 열을 추가합니다.</p>
   </details>
   <details>
     <summary>어떤 Excel 형식이 가장 잘 인식되나요?</summary>

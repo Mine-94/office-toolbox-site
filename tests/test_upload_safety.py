@@ -141,6 +141,50 @@ class UploadSafetyTest(unittest.TestCase):
             )
         self.assertEqual(response.status_code, 422)
 
+    def test_image_resize_rejects_oversized_output_before_allocating_pixels(self):
+        with patch.object(app_module, "IMAGE_COMPRESS_MAX_PIXELS", 10_000):
+            response = self.post_file(
+                "/api/image-compress/process",
+                self.valid_png,
+                "small.png",
+                {
+                    "mode": "dimensions",
+                    "target_w": "200",
+                    "target_h": "200",
+                    "fit": "cover",
+                    "quality": "medium",
+                },
+            )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("결과 이미지", response.get_json()["error"])
+        self.assertEqual(list(Path(self.tempdir.name).iterdir()), [])
+
+    def test_image_resize_safe_dimensions_still_download_correctly(self):
+        response = self.post_file(
+            "/api/image-compress/process",
+            self.valid_png,
+            "small.png",
+            {
+                "mode": "dimensions",
+                "target_w": "60",
+                "target_h": "60",
+                "fit": "contain",
+                "quality": "medium",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertEqual(payload["new_dimensions"], "60×40")
+
+        download = self.client.get(payload["download_url"])
+        self.assertEqual(download.status_code, 200)
+        with Image.open(io.BytesIO(download.data)) as image:
+            self.assertEqual(image.size, (60, 40))
+        download.close()
+        self.assertEqual(list(Path(self.tempdir.name).iterdir()), [])
+
     def test_valid_core_uploads_still_work(self):
         def copy_pdf(source, destination, _quality):
             destination.write_bytes(source.read_bytes())

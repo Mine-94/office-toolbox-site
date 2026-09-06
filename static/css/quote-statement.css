@@ -5,7 +5,7 @@
 
 .quote-hero .subtitle {
   max-width: 680px;
-  margin: 0 auto 22px;
+  margin: 0 0 22px;
 }
 
 .privacy-strip {
@@ -14,7 +14,8 @@
   gap: 10px;
   padding: 11px 15px;
   border: 1px solid var(--border);
-  background: #fffdf9;
+  border-radius: 999px;
+  background: var(--surface);
   color: var(--ink-muted);
   font-size: 12px;
   text-align: left;
@@ -41,7 +42,9 @@
   min-width: 0;
   padding: 24px;
   border: 1px solid var(--border);
-  background: #fffdf9;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .document-type-switch {
@@ -49,6 +52,8 @@
   grid-template-columns: repeat(2, 1fr);
   margin-bottom: 22px;
   border: 1px solid var(--ink);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .document-type-btn {
@@ -69,6 +74,7 @@
   margin: 0 0 20px;
   padding: 12px 14px;
   border: 1px solid #9f483d;
+  border-radius: 10px;
   background: #fff6f3;
   color: #792c24;
   font-size: 13px;
@@ -120,7 +126,7 @@
   width: 100%;
   min-width: 0;
   border: 1px solid var(--border);
-  border-radius: 2px;
+  border-radius: 10px;
   padding: 10px 11px;
   background: #fff;
   color: var(--ink);
@@ -163,6 +169,7 @@
   margin-bottom: 12px;
   overflow-x: auto;
   border: 1px solid var(--border);
+  border-radius: 12px;
   background: #fff;
 }
 

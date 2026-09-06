@@ -4,7 +4,9 @@
   margin: 0 auto 22px;
   padding: 24px;
   border: 1px solid var(--border);
-  background: #fffdf9;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   text-align: left;
 }
 .bulk-step-label {
@@ -27,15 +29,15 @@
   min-height: 190px;
   padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 2px;
+  border-radius: 10px;
   resize: vertical;
   font: inherit;
   font-size: 14px;
   line-height: 1.75;
-  background: var(--cream);
+  background: var(--surface-soft);
   color: var(--ink);
 }
-.bulk-textarea:focus { outline: 1px solid var(--ink); outline-offset: 0; }
+.bulk-textarea:focus { outline: 3px solid rgba(57, 116, 102, .18); outline-offset: 1px; border-color: var(--brand); }
 .bulk-input-meta,
 .bulk-results-header,
 .bulk-file-row,
@@ -61,7 +63,7 @@
   font-size: 10px;
 }
 .bulk-or::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--border); }
-.bulk-or span { position: relative; padding: 0 10px; background: #fffdf9; }
+.bulk-or span { position: relative; padding: 0 10px; background: var(--surface); }
 .bulk-file-row { margin-top: 16px; }
 .bulk-file-row strong { font-size: 13px; }
 .bulk-file-row .hint { margin: 3px 0 0; }
@@ -80,23 +82,26 @@
   margin-bottom: 16px;
   border: 1px solid #c6a196;
   border-left: 3px solid #8a3324;
+  border-radius: 14px;
   background: #f8ece8;
 }
 .bulk-attention-label { display: block; margin-bottom: 4px; color: #8a3324; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.bulk-attention strong { display: block; font-family: "Noto Serif KR", serif; font-size: 22px; }
+.bulk-attention strong { display: block; font-size: 22px; font-weight: 700; }
 .bulk-attention p { margin: 3px 0 0; color: var(--ink-muted); font-size: 12px; }
 .bulk-summary-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 1px;
-  border: 1px solid var(--border);
-  background: var(--border);
+  gap: 8px;
+  border: 0;
+  background: transparent;
   margin-bottom: 14px;
 }
 .bulk-summary-item {
   appearance: none;
   border: 0;
-  background: #fffdf9;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
   padding: 16px 10px;
   text-align: center;
   cursor: pointer;
@@ -107,16 +112,16 @@
 .bulk-summary-item.active { background: var(--beige); }
 .bulk-summary-item.active { box-shadow: inset 0 -2px 0 var(--ink); }
 .bulk-summary-item small { display: block; color: var(--ink-muted); font-size: 10px; margin-bottom: 5px; }
-.bulk-summary-item strong { font-family: "Noto Serif KR", serif; font-size: 22px; }
+.bulk-summary-item strong { font-size: 22px; font-weight: 700; }
 .bulk-filter-row { margin: 10px 0; font-size: 12px; color: var(--ink-muted); }
-.bulk-table-wrap { overflow-x: auto; border: 1px solid var(--border); }
-.bulk-table { width: 100%; border-collapse: collapse; min-width: 670px; background: #fffdf9; font-size: 12px; }
+.bulk-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; }
+.bulk-table { width: 100%; border-collapse: collapse; min-width: 670px; background: var(--surface); font-size: 12px; }
 .bulk-table th,
 .bulk-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
 .bulk-table th { background: var(--beige); color: var(--ink-muted); font-size: 10px; letter-spacing: .05em; }
 .bulk-table tr:last-child td { border-bottom: none; }
 .bulk-number-cell { white-space: nowrap; font-weight: 700; }
-.bulk-status-badge { display: inline-block; padding: 3px 8px; border: 1px solid var(--border); border-radius: 2px; white-space: nowrap; }
+.bulk-status-badge { display: inline-block; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; white-space: nowrap; }
 .bulk-status-active { color: #2f5c2a; border-color: #9fbd9a; background: #edf5eb; }
 .bulk-status-suspended { color: #7d6420; border-color: #cbbd8c; background: #f8f2dd; }
 .bulk-status-closed { color: #8a3324; border-color: #c6a196; background: #f8ece8; }

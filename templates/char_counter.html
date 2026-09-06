@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}글자 수 계산기 – 공백 포함/제외·2바이트 계산 | 업무 도구함{% endblock %}
+{% block title %}글자 수 계산기 – 공백 포함/제외·2바이트 계산 | 사무실 도구함{% endblock %}
 {% block description %}글자 수 계산기로 공백 포함/제외 글자수, 국내 일부 지원서·게시판의 한글 2바이트 기준, 단어·문장·문단 수와 원고지 매수를 바로 계산하세요.{% endblock %}
 {% block structured_data %}
 <script type="application/ld+json">
@@ -30,6 +30,14 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "아니요. 계산은 브라우저에서 처리되고 입력 내용은 서버로 전송하지 않습니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "이모지도 한 글자로 계산되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "대부분의 최신 브라우저에서는 화면에서 하나로 보이는 이모지와 결합문자를 한 글자로 계산합니다. 제출 시스템마다 계산 규칙이 다를 수 있으므로 최종 입력창에서도 확인해야 합니다."
       }
     }
   ]
@@ -118,6 +126,7 @@
     <div class="tool-guide-card"><h3>2바이트 기준</h3><p>영문·숫자·기호·공백은 1, 한글 등 비ASCII 문자는 2로 계산합니다. UTF-8 파일 크기나 모든 채용사이트의 기준과 같지는 않습니다.</p></div>
     <div class="tool-guide-card"><h3>단어·문장·문단</h3><p>단어는 공백 묶음, 문장은 마침표·물음표·느낌표, 문단은 빈 줄을 기준으로 나눕니다. 문서 프로그램과 결과가 다를 수 있습니다.</p></div>
     <div class="tool-guide-card"><h3>읽기 시간·원고지</h3><p>읽기 시간은 공백 제외 500자당 약 1분, 원고지는 공백 포함 200자당 1매를 올림해 보여주는 참고값입니다.</p></div>
+    <div class="tool-guide-card"><h3>이모지·결합문자</h3><p>최신 브라우저에서는 화면에서 하나로 보이는 이모지와 결합문자를 한 글자로 셉니다. 채용·게시 시스템마다 규칙이 다를 수 있으므로 제출 화면의 결과도 확인하세요.</p></div>
   </div>
   <h2>지원서 분량 확인 순서</h2>
   <ol class="tool-guide-steps">
@@ -161,6 +170,10 @@
   <details>
     <summary>입력한 텍스트가 서버에 저장되나요?</summary>
     <p>아니요. 계산은 브라우저에서 처리되고 입력 내용은 서버로 전송하지 않습니다.</p>
+  </details>
+  <details>
+    <summary>이모지도 한 글자로 계산되나요?</summary>
+    <p>대부분의 최신 브라우저에서는 화면에서 하나로 보이는 이모지와 결합문자를 한 글자로 계산합니다. 제출 시스템마다 계산 규칙이 다를 수 있으므로 최종 입력창에서도 다시 확인하세요.</p>
   </details>
 </section>
 

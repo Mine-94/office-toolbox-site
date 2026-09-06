@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
-{% block title %}이미지 용량 줄이기 – JPG·PNG·WEBP 압축·크기 변경 | 업무 도구함{% endblock %}
+{% block title %}이미지 용량 줄이기 – JPG·PNG·WEBP 압축·크기 변경 | 사무실 도구함{% endblock %}
 {% block description %}JPG, PNG, WEBP 이미지를 원하는 용량이나 픽셀 크기에 맞춰 압축하세요. 온라인 서류·메일 첨부용 이미지 용량을 빠르게 줄일 수 있습니다.{% endblock %}
 {% block structured_data %}
 <script type="application/ld+json">
@@ -147,7 +147,7 @@
 <section class="tool-guide container" aria-labelledby="image-compress-guide-title">
   <h2 id="image-compress-guide-title">이미지 줄이기 방법</h2>
   <ol class="tool-guide-steps">
-    <li><strong>JPG·PNG·WEBP 이미지를 선택합니다.</strong><span>파일은 최대 30MB, 해상도는 최대 4,000만 화소까지 처리합니다.</span></li>
+    <li><strong>JPG·PNG·WEBP 이미지를 선택합니다.</strong><span>파일은 최대 30MB이며 입력과 결과 이미지 모두 최대 4,000만 화소까지 처리합니다.</span></li>
     <li><strong>화질·목표 용량·픽셀 크기 중 하나를 고릅니다.</strong><span>제출처가 KB를 요구하면 목표 용량, 가로·세로 규격을 요구하면 픽셀 크기를 사용하세요.</span></li>
     <li><strong>처리 후 용량과 해상도를 확인합니다.</strong><span>결과가 요구 조건에 맞는지 확인한 뒤 내려받으세요.</span></li>
   </ol>
@@ -155,7 +155,7 @@
   <div class="tool-guide-grid">
     <div class="tool-guide-card"><h3>화질 기준</h3><p>원본 비율을 유지하면서 화질과 100%·75%·50%·25% 크기를 조합합니다. 같은 크기에서 결과가 더 커지면 원본을 제공합니다.</p></div>
     <div class="tool-guide-card"><h3>목표 용량</h3><p>설정한 KB 이하를 목표로 화질을 낮추고 필요하면 해상도도 줄입니다. 이미지 특성에 따라 정확한 값에 도달하지 못할 수 있습니다.</p></div>
-    <div class="tool-guide-card"><h3>픽셀 크기</h3><p>비율 유지는 잘림 없이 지정 범위에 맞추고, 정확한 크기는 가운데를 기준으로 잘라냅니다. 얼굴이나 글자가 가장자리에 있으면 미리 확인하세요.</p></div>
+    <div class="tool-guide-card"><h3>픽셀 크기</h3><p>비율 유지는 잘림 없이 지정 범위에 맞추고, 정확한 크기는 가운데를 기준으로 잘라냅니다. 결과가 4,000만 화소를 넘는 설정은 처리 전에 차단합니다.</p></div>
     <div class="tool-guide-card"><h3>형식 유지</h3><p>JPG는 JPG, PNG는 PNG처럼 원래 형식을 유지합니다. 다른 형식이 필요하면 이미지 포맷 변환을 사용하세요.</p></div>
   </div>
   <h2>개인정보와 결과 확인</h2>
@@ -181,6 +181,7 @@
   <h2>자주 묻는 질문</h2>
   <details><summary>어떤 이미지 형식을 지원하나요?</summary><p>JPG, PNG, WEBP 형식을 지원합니다.</p></details>
   <details><summary>목표 용량을 항상 정확히 맞출 수 있나요?</summary><p>이미지 특성에 따라 정확한 값보다 작게 만들어질 수 있으며, 품질을 과도하게 낮춰도 목표에 도달하기 어려운 경우에는 가능한 범위까지 줄입니다.</p></details>
+  <details><summary>픽셀 크기를 크게 입력하면 확대되나요?</summary><p>입력값에 따라 이미지가 확대될 수 있지만, 과도한 메모리 사용과 결과 품질 저하를 막기 위해 결과가 4,000만 화소를 넘는 설정은 처리하지 않습니다.</p></details>
   <details><summary>파일은 어떻게 처리되나요?</summary><p>서버에서 일시적으로 처리하며 작업 후 원본과 결과 파일을 삭제합니다.</p></details>
 </section>
 

@@ -2,8 +2,10 @@
   max-width: 680px;
   margin: 0 auto 34px;
   padding: 26px;
-  border: 1px solid var(--ink);
-  background: #fffdf9;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   text-align: left;
 }
 
@@ -38,6 +40,7 @@
 .excel-badge {
   flex-shrink: 0;
   border: 1px solid var(--border);
+  border-radius: 999px;
   padding: 5px 9px;
   color: var(--ink-muted);
   font-size: 10px;
@@ -56,14 +59,15 @@
   min-height: 76px;
   padding: 13px 12px;
   border: 1px solid var(--border);
-  background: var(--cream);
+  border-radius: 12px;
+  background: var(--surface-soft);
 }
 
 .excel-flow strong {
   display: block;
   margin-bottom: 6px;
-  font-family: "Noto Serif KR", serif;
   font-size: 17px;
+  font-weight: 700;
 }
 
 .excel-flow span:not(.excel-flow-arrow) {
@@ -96,6 +100,7 @@
 .excel-added-columns strong {
   padding: 4px 8px;
   background: var(--beige);
+  border-radius: 999px;
   font-size: 10px;
   font-weight: 600;
 }
@@ -144,6 +149,7 @@
   margin-top: 14px;
   padding: 13px 15px;
   border: 1px solid var(--border);
+  border-radius: 12px;
   font-size: 12px;
   line-height: 1.65;
 }
